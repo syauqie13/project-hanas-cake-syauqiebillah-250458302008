@@ -43,9 +43,13 @@
                         <a href="{{ route('karyawan.list-category') }}" wire:navigate class="nav-link"><i
                                 class="fas fa-tags"></i><span>Data Category</span></a>
                     </li>
+                    <li class="dropdown {{ request()->routeIs('karyawan.list-inventory*') ? 'active' : '' }}">
+                        <a href="{{ route('karyawan.list-inventory') }}" wire:navigate class="nav-link"><i
+                                class="fas fa-boxes"></i><span>Data Inventory</span></a>
+                    </li>
                     <li class="menu-header">Kasir</li>
                     <li class="dropdown {{ request()->routeIs('karyawan.pos*') ? 'active' : '' }}">
-                        <a href="{{ route('karyawan.pos') }}" wire:navigate class="nav-link">
+                        <a href="{{ route('karyawan.pos') }}" class="nav-link">
                             <i class="fas fa-cash-register"></i>
                             <span>Transaksi POS</span>
                         </a>

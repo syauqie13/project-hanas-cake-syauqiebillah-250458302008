@@ -7,6 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 
 class Inventory extends Model
 {
-    /** @use HasFactory<\Database\Factories\InventoryFactory> */
     use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'type',
+        'unit',
+        'stock',
+        'unit_price',
+        'description',
+    ];
+
+    /**
+     * Mendapatkan resep (product recipes) yang menggunakan bahan baku ini.
+     * Ini akan kita perlukan nanti untuk CRUD ProductRecipe.
+     */
+    public function recipes()
+    {
+        return $this->hasMany(ProductRecipe::class);
+    }
 }

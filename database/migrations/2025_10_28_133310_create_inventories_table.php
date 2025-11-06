@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->enum('type', ['bahan_baku', 'produk_jadi']);
-            $table->enum('unit', ['kg', 'box', 'pack', 'liter']);
+            $table->enum('unit', ['gram', 'ml', 'pcs', 'pack', 'box']);
             $table->decimal('stock', 10, 2)->default(0);
             $table->decimal('unit_price', 10, 2)->default(0);
             $table->text('description')->nullable();

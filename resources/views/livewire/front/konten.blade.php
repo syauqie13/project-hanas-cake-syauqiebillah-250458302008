@@ -324,13 +324,16 @@
     </section>
 
     <!-- Pricing Section -->
+    <!-- Pricing Section (last part of your code) -->
     <section id="pricing" class="py-20 bg-gray-50">
         <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="mb-16 text-center">
                 <h2 class="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">
                     Pilihan <span class="gradient-text">Harga</span> yang Fleksibel
                 </h2>
-                <p class="text-xl text-gray-600">Mulai gratis, upgrade kapan saja sesuai kebutuhan bisnis Anda</p>
+                <p class="text-xl text-gray-600">
+                    Mulai gratis, upgrade kapan saja sesuai kebutuhan bisnis Anda
+                </p>
             </div>
 
             <div class="grid gap-8 md:grid-cols-3">
@@ -365,7 +368,7 @@
                     </button>
                 </div>
 
-                <!-- Professional (Recommended) -->
+                <!-- Professional -->
                 <div
                     class="p-8 transform scale-105 shadow-2xl bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl">
                     <div class="inline-block px-4 py-1 mb-4 text-sm font-bold text-gray-900 bg-yellow-400 rounded-full">
@@ -378,29 +381,15 @@
                         <span class="text-purple-200">/bulan</span>
                     </div>
                     <ul class="mb-8 space-y-4 text-white">
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check"></i>
-                            <span>5 User</span>
+                        <li class="flex items-center"><i class="mr-3 fas fa-check"></i><span>5 User</span></li>
+                        <li class="flex items-center"><i class="mr-3 fas fa-check"></i><span>Unlimited Produk</span>
                         </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check"></i>
-                            <span>Unlimited Produk</span>
+                        <li class="flex items-center"><i class="mr-3 fas fa-check"></i><span>POS + E-Commerce</span>
                         </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check"></i>
-                            <span>POS + E-Commerce</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check"></i>
-                            <span>Manajemen Stok</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check"></i>
-                            <span>Laporan Lengkap + Grafik</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 fas fa-check"></i>
-                            <span>Export PDF & Excel</span>
+                        <li class="flex items-center"><i class="mr-3 fas fa-check"></i><span>Manajemen Stok</span></li>
+                        <li class="flex items-center"><i class="mr-3 fas fa-check"></i><span>Laporan Lengkap +
+                                Grafik</span></li>
+                        <li class="flex items-center"><i class="mr-3 fas fa-check"></i><span>Export PDF & Excel</span>
                         </li>
                     </ul>
                     <button
@@ -408,4 +397,130 @@
                         Pilih Professional
                     </button>
                 </div>
+
+                <!-- Enterprise -->
+                <div class="p-8 bg-white shadow-lg rounded-2xl">
+                    <h3 class="mb-2 text-2xl font-bold text-gray-900">Enterprise</h3>
+                    <p class="mb-6 text-gray-600">Untuk bisnis besar dengan kebutuhan lanjutan</p>
+                    <div class="mb-6">
+                        <span class="text-5xl font-bold text-gray-900">Rp 599K</span>
+                        <span class="text-gray-500">/bulan</span>
+                    </div>
+                    <ul class="mb-8 space-y-4">
+                        <li class="flex items-center">
+                            <i class="mr-3 text-green-500 fas fa-check"></i>
+                            <span class="text-gray-700">20 User</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="mr-3 text-green-500 fas fa-check"></i>
+                            <span class="text-gray-700">Unlimited Produk & Cabang</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="mr-3 text-green-500 fas fa-check"></i>
+                            <span class="text-gray-700">Integrasi Midtrans Premium</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="mr-3 text-green-500 fas fa-check"></i>
+                            <span class="text-gray-700">Laporan Custom + Export Otomatis</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="mr-3 text-green-500 fas fa-check"></i>
+                            <span class="text-gray-700">Support Prioritas</span>
+                        </li>
+                    </ul>
+                    <button
+                        class="w-full py-3 font-bold text-white transition bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl hover:opacity-90">
+                        Pilih Enterprise
+                    </button>
+                </div>
+
             </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="mb-16 text-center">
+                <h2 class="mb-4 text-4xl font-bold text-gray-900 md:text-5xl">
+                    Hubungi <span class="gradient-text">Kami</span>
+                </h2>
+                <p class="max-w-2xl mx-auto text-lg text-gray-600">
+                    Punya pertanyaan atau ingin mencoba <span class="font-semibold text-purple-600">QieFlow</span>?
+                    Kami siap membantu Anda!
+                </p>
+            </div>
+
+            <div class="grid items-start gap-12 md:grid-cols-2">
+                <!-- Contact Info -->
+                <div class="p-8 bg-purple-50 rounded-2xl">
+                    <h3 class="mb-6 text-2xl font-bold text-gray-900">Informasi Kontak</h3>
+                    <ul class="space-y-4 text-gray-700">
+                        <li class="flex items-center">
+                            <i class="mr-3 text-purple-600 fas fa-envelope"></i>
+                            <span>support@qieflow.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="mr-3 text-purple-600 fas fa-phone"></i>
+                            <span>+62 812-3456-7890</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="mr-3 text-purple-600 fas fa-map-marker-alt"></i>
+                            <span>Bandung, Indonesia</span>
+                        </li>
+                    </ul>
+
+                    <div class="flex items-center gap-5 mt-8">
+                        <a href="#" class="text-gray-600 transition transform hover:text-purple-600 hover:scale-110"><i
+                                class="text-2xl fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-600 transition transform hover:text-purple-600 hover:scale-110"><i
+                                class="text-2xl fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-600 transition transform hover:text-purple-600 hover:scale-110"><i
+                                class="text-2xl fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-600 transition transform hover:text-purple-600 hover:scale-110"><i
+                                class="text-2xl fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="p-8 shadow-lg bg-gray-50 rounded-2xl">
+                    <form action="#" method="POST" class="space-y-6">
+                        <div>
+                            <label for="name" class="block mb-2 text-sm font-semibold text-gray-700">Nama</label>
+                            <input type="text" id="name" name="name" placeholder="Nama Anda"
+                                class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                        </div>
+
+                        <div>
+                            <label for="email" class="block mb-2 text-sm font-semibold text-gray-700">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Email Anda"
+                                class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                        </div>
+
+                        <div>
+                            <label for="message" class="block mb-2 text-sm font-semibold text-gray-700">Pesan</label>
+                            <textarea id="message" name="message" rows="5" placeholder="Tulis pesan Anda di sini..."
+                                class="w-full p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                        </div>
+
+                        <button type="submit"
+                            class="flex items-center justify-center w-full py-3 font-semibold text-white transition bg-purple-600 rounded-xl hover:bg-purple-700">
+                            <i class="mr-2 fas fa-paper-plane"></i> Kirim Pesan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-10 bg-gray-900">
+        <div class="px-4 mx-auto text-center text-gray-400 max-w-7xl sm:px-6 lg:px-8">
+            <p>© 2025 <span class="font-bold text-purple-400">QieFlow</span>. All Rights Reserved.</p>
+            <p class="mt-2 text-sm">
+                Dibangun dengan ❤️ oleh <a href="https://github.com/syauqie13" target="_blank"
+                    class="text-purple-400 hover:underline">Syauqie Billah</a>
+            </p>
+        </div>
+    </footer>
+
+</div>

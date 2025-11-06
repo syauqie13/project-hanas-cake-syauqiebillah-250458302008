@@ -9,9 +9,9 @@
                         <h5 class="modal-title fw-bold text-dark" id="createModalLabel">
                             <i class="mr-2 fas fa-user-plus text-primary"></i> Tambah Customer
                         </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true" class="fs-4">&times;</span>
-                        </button>
+                        <button type="button" class="shadow-sm btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+
                     </div>
 
                     <!-- Body -->
@@ -40,7 +40,7 @@
 
                     <!-- Footer -->
                     <div class="pt-0 border-0 modal-footer">
-                        <button type="button" class="border btn btn-light" data-dismiss="modal">
+                        <button type="button" class="border btn btn-light" data-bs-dismiss="modal">
                             <i class="mr-1 fas fa-times"></i> Batal
                         </button>
                         <button type="submit" class="shadow-sm btn btn-primary">
