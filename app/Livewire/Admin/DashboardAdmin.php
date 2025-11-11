@@ -11,3 +11,4 @@ class DashboardAdmin extends Component
         return view('livewire.admin.dashboard-admin');
     }
 }
+

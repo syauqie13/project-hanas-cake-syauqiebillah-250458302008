@@ -39,14 +39,9 @@
 <body>
 
     <div id="app">
-        <div class="main-wrapper main-wrapper-1">
-            <livewire:atom.navbar />
-            <livewire:atom.sidebar />
 
             {{ $slot }}
 
-            <livewire:atom.footer />
-        </div>
     </div>
 
 
@@ -79,24 +74,6 @@
             $('[data-toggle="dropdown"]').dropdown();
         });
     </script>
-
-    <script>
-        window.addEventListener('confirm-logout', () => {
-            Swal.fire({
-                title: 'Yakin ingin logout?',
-                text: 'Anda akan keluar dari sesi ini.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Logout',
-                cancelButtonText: 'Batal',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Livewire.emit('execute-logout');
-                }
-            });
-        });
-    </script>
-
 
 
     @stack('js')

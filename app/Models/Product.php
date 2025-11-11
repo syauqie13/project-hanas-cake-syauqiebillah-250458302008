@@ -21,7 +21,18 @@ class Product extends Model
         'discount',
         'image',
         'slug',
+        'is_po',
+        'po_deadline',
+        'po_fulfillment_date',
+        'po_quota'
     ];
+
+    protected $casts = [
+        'is_po' => 'boolean', // Ubah 0/1 menjadi true/false
+        'po_deadline' => 'datetime', // Ubah string "..." menjadi Objek Carbon
+        'po_fulfillment_date' => 'datetime', // Ubah string "..." menjadi Objek Carbon
+    ];
+
 
     /**
      * Relasi: Product → Category (Many to One)

@@ -1,21 +1,24 @@
 <?php
 
-namespace App\Livewire\Auth;
+namespace App\Livewire\Frontend\Auth;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
-class Logout extends Component
+class CustomerLogin extends Component
 {
+
     public function logout()
     {
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
-        return $this->redirect(route('front'));
+
+        // Arahkan kembali ke halaman toko
+        return $this->redirect(route('ecommerce'), navigate: true);
     }
     public function render()
     {
-        return view('livewire.auth.logout');
+        return view('livewire.frontend.auth.customer-login');
     }
 }

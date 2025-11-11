@@ -1,5 +1,20 @@
 @push('css')
     <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
+    <style>
+        .product-card.disabled {
+            background-color: #f1f5f9;
+            /* bg-gray-100 */
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+            /* Mencegah klik */
+        }
+
+        .product-card.disabled .product-name {
+            color: #64748b;
+            /* text-gray-500 */
+        }
+    </style>
 @endpush
 
 <div>
@@ -39,7 +54,7 @@
             <div class="page-header fade-in">
                 <h1>
                     <i class="fas fa-cash-register"></i>
-                    Point of Sale (Kasir)
+                    Kasir
                 </h1>
                 @if (session()->has('error'))
                     <div class="alert alert-danger">
@@ -87,39 +102,57 @@
                             <!-- Products Grid -->
                             <div class="products-grid">
                                 @forelse ($products as $product)
-                                    <div wire:key="product-{{ $product->id }}">
-                                        <div wire:click="addToCart({{ $product->id }})" class="product-card">
-                                            <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/150' }}"
-                                                class="product-image" alt="{{ $product->name }}">
-                                            <div class="product-info">
-                                                <div class="product-name" title="{{ $product->name }}">
-                                                    {{ $product->name }}
-                                                </div>
-                                                <div class="product-stock">
-                                                    <span
-                                                        class="badge-stock {{ $product->stock < 5 ? 'low' : ($product->stock == 0 ? 'empty' : '') }}">
-                                                        <i class="fas fa-box me-1"></i>{{ $product->stock }}
-                                                    </span>
-                                                </div>
-                                                <div class="product-price">
-                                                    Rp
-                                                    {{ number_format($product->price - ($product->price * $product->discount / 100), 0, ',', '.') }}
-                                                </div>
-                                                @if ($product->discount > 0)
-                                                    <div class="product-old-price">
-                                                        Rp {{ number_format($product->price, 0, ',', '.') }}
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
+                                                            <div wire:key="product-{{ $product->id }}">
+
+                                                                <div class="product-card {{ $product->stock <= 0 ? 'disabled' : '' }}"
+                                                                    title="{{ $product->stock <= 0 ? 'Stok Habis' : 'Klik untuk menambah' }}"
+                                                                    @if($product->stock > 0) wire:click="addToCart({{ $product->id }})" @endif>
+
+                                                                    <img src="{{ $product->image
+                                    ? asset('storage/' . $product->image)
+                                    : 'https://placehold.co/150x150/e2e8f0/cbd5e0?text=Produk'
+                                                }}" class="product-image" alt="{{ $product->name }}">
+
+                                                                    <div class="product-info">
+
+                                                                        <div class="product-name" title="{{ $product->name }}">
+                                                                            {{ $product->name }}
+                                                                        </div>
+
+                                                                        <div class="product-stock">
+                                                                            <span class="
+                                                        badge-stock
+                                                        {{ $product->stock <= 0 ? 'empty' : ($product->stock < 5 ? 'low' : '') }}
+                                                    ">
+                                                                                <i class="fas fa-box me-1"></i>
+                                                                                {{ $product->stock }}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        <div class="product-price">
+                                                                            Rp
+                                                                            {{ number_format($product->price - ($product->price * $product->discount / 100), 0, ',', '.') }}
+                                                                        </div>
+
+                                                                        @if ($product->discount > 0)
+                                                                            <div class="product-old-price">
+                                                                                Rp {{ number_format($product->price, 0, ',', '.') }}
+                                                                            </div>
+                                                                        @endif
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                            </div>
                                 @empty
-                                    <div class="empty-state" style="grid-column: 1/-1;">
+                                    <div class="empty-state" style="grid-column: 1 / -1;">
                                         <i class="fas fa-box-open"></i>
                                         <div>Produk tidak ditemukan</div>
                                     </div>
                                 @endforelse
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -274,76 +307,127 @@
             </div>
         </div>
 
+        <iframe id="receipt-printer"
+            style="position: absolute; left: -9999px; top: -9999px; width: 302px; height: 100px; border: 0;"></iframe>
         <!-- Modal Component -->
         <livewire:karyawan.pos.create-customer-modal />
 
         <!-- Script tambahan (optional, jika ingin alert dll) -->
         @push('js')
+            <!-- 1. Muat skrip Snap (Sama seperti contoh Anda) -->
             <script src="https://app.sandbox.midtrans.com/snap/snap.js"
                 data-client-key="{{ config('services.midtrans.client_key') }}">
                 </script>
 
             <script>
-                // Listener untuk notifikasi (Swal)
-                window.addEventListener('notify', event => {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil!',
-                        text: event.detail.message || 'Aksi berhasil dijalankan!',
-                        timer: 2000,
-                        showConfirmButton: false,
+                document.addEventListener('livewire:init', () => {
+
+                    Livewire.on('snap-show', (data) => {
+
+                        if (data.snapToken) {
+                            console.log('Snap token diterima, membuka popup...');
+
+                            // 3. INI ADALAH ADAPTASI DARI 'snap.pay(<?$snapToken?>, ...)'
+                            // Kita menggunakan token dari 'data' event
+                            window.snap.pay(data.snapToken, {
+
+                                // 4. INI ADALAH ADAPTASI DARI 'onSuccess' ANDA
+                                // Alih-alih 'result-json', kita melakukan redirect
+                                onSuccess: function (result) {
+                                    console.log('Pembayaran Sukses:', result);
+                                    // Ini adalah alur "Gaya B" (Redirect)
+                                    // Kita redirect ke halaman validasi menggunakan URL Relatif
+                                    window.location.href = `/karyawan/validasi/${result.order_id}`;
+                                },
+
+                                // 5. INI ADALAH ADAPTASI DARI 'onPending' ANDA
+                                onPending: function (result) {
+                                    console.log('Pembayaran Pending:', result);
+                                    // Redirect ke halaman validasi dengan status pending
+                                    window.location.href = `/karyawan/validasi/${result.order_id}?status=pending`;
+                                },
+
+                                // 6. INI ADALAH ADAPTASI DARI 'onError' ANDA
+                                onError: function (result) {
+                                    console.log('Pembayaran Error:', result);
+                                    // Redirect kembali ke POS dengan pesan gagal
+                                    window.location.href = `/karyawan/pos?payment_failed=1`;
+                                },
+
+                                // 7. INI ADALAH ADAPTASI DARI 'onClose' (Tambahan)
+                                onClose: function () {
+                                    console.log('Popup ditutup.');
+                                    // Redirect kembali ke POS
+                                    window.location.href = `/karyawan/pos`;
+                                }
+                            });
+                        }
                     });
-                });
 
-                // Listener untuk Livewire (termasuk Snap)
-                document.addEventListener('livewire:initialized', () => {
-
-                    // Gunakan sintaks JavaScript murni. Fungsinya 100% SAMA.
-                    Livewire.on('snap-show', (event) => {
-
-                        window.snap.pay(event.snapToken, {
-                            // Callback saat pembayaran sukses (di sisi KLIEN)
-                            onSuccess: function (result) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Pembayaran Berhasil!',
-                                    text: 'Silakan tunggu konfirmasi.',
-                                    timer: 2000,
-                                    showConfirmButton: false,
-                                });
-                            },
-                            // Callback saat pembayaran pending
-                            onPending: function (result) {
-                                Swal.fire({
-                                    icon: 'info',
-                                    title: 'Menunggu Pembayaran',
-                                    text: 'Selesaikan pembayaran Anda.',
-                                    timer: 3000,
-                                    showConfirmButton: false,
-                                });
-                            },
-                            // Callback saat terjadi error
-                            onError: function (result) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Pembayaran Gagal',
-                                    text: 'Silakan coba lagi.',
-                                    timer: 3000,
-                                    showConfirmButton: false,
-                                });
-                            },
-                            // Callback saat popup ditutup
-                            onClose: function () {
-                                /* Pengguna menutup popup tanpa menyelesaikan */
-                            }
+                    // --- Listener 'notify' (Untuk Pembayaran Tunai & Error) ---
+                    if (typeof Swal !== 'undefined') {
+                        Livewire.on('notify', (data) => {
+                            Swal.fire({
+                                icon: data.icon || 'success',
+                                title: data.title || 'Berhasil!',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false,
+                            });
                         });
+                    }
 
+                    // =======================================================
+                    // INI ADALAH PENANGKAP CETAK STRUK UNTUK TUNAI
+                    // (Ini sudah berisi perbaikan untuk 'infinite loop')
+                    // =======================================================
+                    Livewire.on('print-receipt', (data) => {
+                        const orderId = data.orderId;
+                        if (!orderId) {
+                            console.error('Print receipt dipanggil tanpa orderId.');
+                            return;
+                        }
+
+                        const iframe = document.getElementById('receipt-printer');
+                        if (!iframe) {
+                            console.error('Iframe #receipt-printer tidak ditemukan.');
+                            return;
+                        }
+
+                        const printUrl = `/karyawan/struk/${orderId}`;
+                        console.log('Mencetak struk dari:', printUrl);
+
+                        let hasPrinted = false; // Flag untuk mencegah loop
+
+                        // Atur 'onload' HANYA SEKALI
+                        iframe.onload = function () {
+                            // Cek flag dan pastikan src-nya adalah URL struk (bukan 'about:blank')
+                            if (!hasPrinted && iframe.src.includes(printUrl)) {
+                                try {
+                                    console.log('Iframe dimuat, memanggil print...');
+                                    hasPrinted = true; // Set flag
+
+                                    iframe.contentWindow.focus(); // Fokus ke iframe
+                                    iframe.contentWindow.print(); // Panggil print
+                                } catch (e) {
+                                    console.error('Gagal memanggil print:', e);
+                                }
+
+                                // Bersihkan iframe setelah print (untuk mencegah print ulang saat refresh)
+                                setTimeout(() => {
+                                    console.log('Membersihkan iframe...');
+                                    iframe.src = 'about:blank';
+                                    iframe.onload = null; // Hapus handler onload
+                                }, 1000);
+                            }
+                        };
+
+                        // Atur src untuk memuat struk (ini akan memicu onload)
+                        iframe.src = printUrl;
                     });
-
-                    // Anda bisa menambahkan listener @this.on() lainnya di sini
-                    // jika ada
 
                 });
             </script>
         @endpush
+
     </div>

@@ -3,26 +3,26 @@
         .avatar img {
             object-fit: cover;
         }
-
         .dropdown-menu {
             min-width: 130px;
             font-size: 0.9rem;
         }
     </style>
-
     <style>
         thead tr th {
             border: none !important;
             letter-spacing: 0.3px;
         }
-
         tbody tr:hover {
             background-color: #f7f9fc !important;
             transition: 0.2s ease;
         }
-
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #fcfcfd;
+        }
+        /* Style untuk pagination agar rapi */
+        .card-footer .pagination {
+            margin-bottom: 0;
         }
     </style>
 @endpush
@@ -39,9 +39,8 @@
                 <!-- Tombol Tambah Kategori -->
                 @auth
                     @if (Auth::user()->role === 'karyawan')
-                        <!-- Tombol Tambah Produk -->
                         <button wire:click="create" class="shadow-sm btn btn-primary d-flex align-items-center">
-                            <i class="mr-2 fas fa-box"></i> Tambah Kategori
+                            <i class="mr-2 fas fa-tag"></i> Tambah Kategori
                         </button>
                     @endif
                 @endauth
@@ -51,6 +50,22 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="card">
+
+                            <!-- ====================================== -->
+                            <!-- === 1. TAMBAHKAN SEARCH BAR DI SINI === -->
+                            <!-- ====================================== -->
+                            <div class="card-header">
+                                <h4 class="card-title">Daftar Kategori</h4>
+                                <div class="card-header-form">
+                                    <div class="input-group">
+                                        <input wire:model.live.debounce.300ms="search" type="text" class="form-control" placeholder="Cari nama kategori...">
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="p-0 card-body">
                                 <div class="table-responsive">
                                     <table class="table mb-0 table-striped table-md">
@@ -66,10 +81,13 @@
                                         </thead>
 
                                         <tbody>
-                                            @forelse ($categories as $category)
+                                            @forelse ($categories as $index => $category) {{-- Tambahkan $index --}}
                                                 <tr class="hover-highlight">
                                                     <td class="text-center align-middle text-muted font-weight-bold">
-                                                        {{ $loop->iteration }}
+                                                        <!-- ====================================== -->
+                                                        <!-- === 2. PERBAIKI PENOMORAN UNTUK PAGINASI === -->
+                                                        <!-- ====================================== -->
+                                                        {{ $categories->firstItem() + $index }}
                                                     </td>
 
                                                     <td class="align-middle font-weight-600 text-dark">
@@ -78,7 +96,10 @@
 
                                                     <td class="text-center align-middle">
                                                         <span class="px-3 py-2 shadow-sm badge badge-info">
-                                                            {{ $category->products->count() ?? 0 }}
+                                                            <!-- ====================================== -->
+                                                            <!-- === 3. PERBAIKI JUMLAH PRODUK (EFISIEN) === -->
+                                                            <!-- ====================================== -->
+                                                            {{ $category->products_count }}
                                                         </span>
                                                     </td>
 
@@ -122,25 +143,10 @@
                             </div>
 
                             <div class="text-right card-footer">
-                                <nav class="d-inline-block">
-                                    <ul class="mb-0 pagination">
-                                        <li class="page-item disabled">
-                                            <a class="page-link" href="#" tabindex="-1">
-                                                <i class="fas fa-chevron-left"></i>
-                                            </a>
-                                        </li>
-                                        <li class="page-item active">
-                                            <a class="page-link" href="#">1 <span class="sr-only">(current)</span></a>
-                                        </li>
-                                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                        <li class="page-item">
-                                            <a class="page-link" href="#">
-                                                <i class="fas fa-chevron-right"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </nav>
+                                <!-- ====================================== -->
+                                <!-- === 4. GANTI PAGINASI STATIS DENGAN INI === -->
+                                <!-- ====================================== -->
+                                {{ $categories->links() }}
                             </div>
                         </div>
                     </div>
@@ -165,8 +171,9 @@
         <script>
             window.addEventListener('notify', event => {
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
+                    // 5. Perbarui notifikasi agar dinamis (opsional tapi bagus)
+                    icon: event.detail.icon || 'success',
+                    title: event.detail.icon === 'error' ? 'Gagal!' : 'Berhasil!',
                     text: event.detail.message || 'Aksi berhasil dijalankan!',
                     timer: 2000,
                     showConfirmButton: false,
@@ -180,7 +187,8 @@
                 Livewire.on('confirmDelete', (data) => {
                     Swal.fire({
                         title: 'Yakin hapus?',
-                        text: "Data produk akan dihapus permanen.",
+                        // 6. Perbarui teks konfirmasi
+                        text: "Data kategori akan dihapus. Ini mungkin mempengaruhi produk terkait.",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',

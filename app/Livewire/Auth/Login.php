@@ -43,7 +43,7 @@ class Login extends Component
             return match ($user->role) {
                 'admin' => $this->redirect(route('admin.dashboard'), navigate: true),
                 'karyawan' => $this->redirect(route('karyawan.dashboard'), navigate: true),
-                'pelanggan' => $this->redirect(route('pelanggan.dashboard'), navigate: true),
+                'pelanggan' => $this->redirect(route('ecommerce'), navigate: true),
                 default => $this->redirect('/', navigate: true),
             };
         }

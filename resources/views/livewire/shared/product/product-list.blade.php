@@ -39,7 +39,8 @@
                 @auth
                     @if (Auth::user()->role === 'karyawan')
                         <!-- Tombol Tambah Produk (Sekarang memanggil event) -->
-                        <button wire:click="$dispatch('openCreateModal')" class="shadow-sm btn btn-primary d-flex align-items-center">
+                        <button wire:click="$dispatch('openCreateModal')"
+                            class="shadow-sm btn btn-primary d-flex align-items-center">
                             <i class="mr-2 fas fa-box"></i> Tambah Produk
                         </button>
                     @endif
@@ -55,7 +56,8 @@
                                 <h4 class="card-title">Daftar Produk</h4>
                                 <div class="card-header-form">
                                     <div class="input-group">
-                                        <input wire:model.live.debounce.300ms="search" type="text" class="form-control" placeholder="Cari produk...">
+                                        <input wire:model.live.debounce.300ms="search" type="text" class="form-control"
+                                            placeholder="Cari produk...">
                                         <div class="input-group-btn">
                                             <button class="btn btn-primary"><i class="fas fa-search"></i></button>
                                         </div>
@@ -67,13 +69,16 @@
                                     <table class="table mb-0 table-striped table-md">
                                         <thead class="text-white">
                                             <tr>
-                                                <th scope="col" class="text-center align-middle" style="width: 60px;">No</th>
+                                                <th scope="col" class="text-center align-middle" style="width: 60px;">No
+                                                </th>
                                                 <th scope="col" class="align-middle">Nama Produk</th>
+                                                <th scope="col" class="text-center align-middle">Status</th>
                                                 <th scope="col" class="text-center align-middle">Kategori</th>
                                                 <th scope="col" class="text-center align-middle">Harga</th>
                                                 <th scope="col" class="text-center align-middle">Stok</th>
                                                 <th scope="col" class="text-center align-middle">Diskon</th>
-                                                <th scope="col" class="text-center align-middle" style="width: 100px;">Aksi</th>
+                                                <th scope="col" class="text-center align-middle" style="width: 100px;">
+                                                    Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -85,6 +90,28 @@
                                                     <td class="align-middle font-weight-600 text-dark">
                                                         {{ $product->name }}
                                                     </td>
+                                                    <td class="text-center align-middle">
+                                                        {{--
+                                                        Cek 1: Apakah ini produk PO?
+                                                        Cek 2: Apakah deadline-nya ada?
+                                                        Cek 3: Apakah deadline-nya MASIH di masa depan?
+                                                        --}}
+                                                        @if($product->is_po && $product->po_deadline && $product->po_deadline->isFuture())
+                                                            <!-- Ini adalah PO yang sedang aktif -->
+                                                            <span class="px-3 py-2 shadow-sm badge badge-primary"
+                                                                data-toggle="tooltip" data-placement="top"
+                                                                title="PO Aktif (Deadline: {{ $product->po_deadline->format('d M Y') }})">
+                                                                <i class="mr-1 fas fa-clock"></i> PO Aktif
+                                                            </span>
+
+                                                        @else
+                                                            <!-- Ini adalah produk ready, atau PO yang sudah selesai -->
+                                                            <span class="px-3 py-2 shadow-sm badge badge-success">
+                                                                <i class="mr-1 fas fa-check"></i> Ready
+                                                            </span>
+                                                        @endif
+                                                    </td>
+
                                                     <td class="text-center align-middle">
                                                         <span class="px-3 py-2 shadow-sm badge badge-info">
                                                             {{ $product->category->name ?? '-' }}
@@ -117,7 +144,6 @@
                                                                     <i class="mr-2 fas fa-book text-primary"></i> Atur Resep
                                                                 </button>
 
-                                                                <div class="dropdown-divider"></div>
 
                                                                 <button type="button"
                                                                     class="cursor-pointer dropdown-item d-flex align-items-center"
@@ -140,7 +166,7 @@
                                                         <div class="mb-0 h6">Belum ada data produk</div>
                                                     </td>
                                                 </tr>
-                                            @endforelse {{-- <-- INI ADALAH PERBAIKANNYA (sebelumnya @empty) --}}
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>

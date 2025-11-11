@@ -14,15 +14,9 @@ return new class extends Migration {
             $table->id();
 
             // Relasi ke orders
-            $table->foreignId('order_id')
-                ->constrained('orders')
-                ->onDelete('cascade');
-
+            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
             // Relasi ke products
-            $table->foreignId('product_id')
-                ->constrained('products')
-                ->onDelete('restrict');
-
+            $table->foreignId('product_id')->constrained('products')->onDelete('restrict');
             $table->integer('jumlah');
             $table->decimal('harga_satuan', 10, 2);
             $table->decimal('subtotal', 10, 2);

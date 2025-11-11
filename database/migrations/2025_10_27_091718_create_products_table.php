@@ -19,6 +19,12 @@ return new class extends Migration {
             $table->decimal('discount', 5, 2)->nullable();
             $table->string('image');
             $table->string('slug');
+            $table->boolean('is_po')->default(false);
+
+            //KHUSUS E-COMMERCE
+            $table->timestamp('po_deadline')->nullable();
+            $table->timestamp('po_fulfillment_date')->nullable();
+            $table->integer('po_quota')->nullable();
             $table->timestamps();
         });
     }
