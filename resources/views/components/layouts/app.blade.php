@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
@@ -9,8 +6,7 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Bootstrap 5 -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 
@@ -30,6 +26,12 @@
 
     <!-- Start GA -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    </style>
+
+
+    <link rel="stylesheet" href="{{ asset('css-app.css') }}">
     @livewireStyles
     <!-- /END GA -->
     @stack('styles')
@@ -37,6 +39,8 @@
 </head>
 
 <body>
+
+
 
     <div id="app">
         <div class="main-wrapper main-wrapper-1">
@@ -70,38 +74,115 @@
     <!-- Page Specific JS File -->
 
     <!-- Template JS File -->
-    <script src="{{ asset('assets/js/scripts.js') }}"></script>
-    <script src="{{ asset('assets/js/custom.js') }}"></script>
+    <script src="{{ asset('assets/js/scripts.js') }}"></script> {{-- <- Pemicu fadeOut() ada di sini --}} <script
+        src="{{ asset('assets/js/custom.js') }}"></script>
 
-    <script>
-        document.addEventListener('livewire:navigated', () => {
-            $('[data-toggle="dropdown"]').dropdown('dispose');
-            $('[data-toggle="dropdown"]').dropdown();
-        });
-    </script>
+        <script>
+            document.addEventListener('livewire:navigated', () => {
+                // Re-init Dropdowns
+                if ($('[data-toggle="dropdown"]').length) {
+                    $('[data-toggle="dropdown"]').dropdown('dispose');
+                    $('[data-toggle="dropdown"]').dropdown();
+                }
 
-    <script>
-        window.addEventListener('confirm-logout', () => {
-            Swal.fire({
-                title: 'Yakin ingin logout?',
-                text: 'Anda akan keluar dari sesi ini.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Logout',
-                cancelButtonText: 'Batal',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    Livewire.emit('execute-logout');
+                // Re-init Tooltips
+                if ($('[data-toggle="tooltip"]').length) {
+                    $('[data-toggle="tooltip"]').tooltip('dispose');
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
+
+                // Re-init Popovers
+                if ($('[data-toggle="popover"]').length) {
+                    $('[data-toggle="popover"]').popover('dispose');
+                    $('[data-toggle="popover"]').popover();
+                }
+
+                // Re-init Custom Scrollbar (Nicescroll)
+                if (jQuery().nicescroll) {
+                    $(".main-sidebar").getNiceScroll().resize();
                 }
             });
-        });
-    </script>
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                window.addEventListener('confirm-logout', () => {
+                    Swal.fire({
+                        title: 'Yakin ingin logout?',
+                        text: 'Anda akan keluar dari sesi ini.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Logout',
+                        cancelButtonText: 'Batal',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Livewire.dispatch('execute-logout');
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+
+                // --- 1. Fade out preloader saat halaman pertama selesai load ---
+                const preloader = document.querySelector('.preloader');
+                if (preloader) {
+                    $(preloader).fadeOut(500); // Stisla style fadeOut
+                }
+
+                // --- 2. Livewire hook untuk preloader saat navigasi / ajax ---
+                if (window.Livewire) {
+                    Livewire.hook('message.sent', () => {
+                        document.body.classList.add('wire-loading');
+                        if (preloader) {
+                            $(preloader).fadeIn(200);
+                        }
+                    });
+
+                    Livewire.hook('message.processed', () => {
+                        document.body.classList.remove('wire-loading');
+                        if (preloader) {
+                            $(preloader).fadeOut(300);
+                        }
+                    });
+                }
+
+                // --- 3. Re-init Bootstrap / Stisla components setelah navigasi Livewire ---
+                document.addEventListener('livewire:navigated', () => {
+                    // Dropdowns
+                    if ($('[data-toggle="dropdown"]').length) {
+                        $('[data-toggle="dropdown"]').dropdown('dispose');
+                        $('[data-toggle="dropdown"]').dropdown();
+                    }
+
+                    // Tooltips
+                    if ($('[data-toggle="tooltip"]').length) {
+                        $('[data-toggle="tooltip"]').tooltip('dispose');
+                        $('[data-toggle="tooltip"]').tooltip();
+                    }
+
+                    // Popovers
+                    if ($('[data-toggle="popover"]').length) {
+                        $('[data-toggle="popover"]').popover('dispose');
+                        $('[data-toggle="popover"]').popover();
+                    }
+
+                    // Custom scrollbar
+                    if (jQuery().nicescroll) {
+                        $(".main-sidebar").getNiceScroll().resize();
+                    }
+                });
+
+            });
+        </script>
 
 
 
-    @stack('js')
-    @livewireScripts
-    @livewireScriptConfig
+        @stack('js')
+        @livewireScripts
+        @livewireScriptConfig
 
 </body>
 

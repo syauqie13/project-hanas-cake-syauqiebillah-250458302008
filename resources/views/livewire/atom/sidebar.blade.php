@@ -47,11 +47,34 @@
                         <a href="{{ route('karyawan.list-inventory') }}" wire:navigate class="nav-link"><i
                                 class="fas fa-boxes"></i><span>Data Inventory</span></a>
                     </li>
-                    <li class="menu-header">Kasir</li>
-                    <li class="dropdown {{ request()->routeIs('karyawan.pos*') ? 'active' : '' }}">
+                    <li class="menu-header">POS</li>
+                    <li class="dropdown {{ request()->routeIs('karyawan.pos') ? 'active' : '' }}">
                         <a href="{{ route('karyawan.pos') }}" class="nav-link">
                             <i class="fas fa-cash-register"></i>
                             <span>Transaksi POS</span>
+                        </a>
+                    </li>
+                    <li class="dropdown {{ request()->routeIs('karyawan.pos.list*') ? 'active' : '' }}">
+                        <a href="{{ route('karyawan.pos.list') }}" wire:navigate class="nav-link">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span>Data Transaksi Offline</span>
+                        </a>
+                    </li>
+                    <li class="menu-header">Order</li>
+                    <li class="dropdown {{ request()->routeIs('karyawan.orders.list*') ? 'active' : '' }}">
+                        <a href="{{ route('karyawan.orders.list') }}" wire:navigate class="nav-link">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Data transaksi online</span>
+                        </a>
+                    </li>
+                    <li class="{{ Request::routeIs('karyawan.production-list') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('karyawan.production-list') }}" wire:navigate>
+                            <i class="fas fa-fire-alt"></i> <span>Daftar Produksi</span>
+                        </a>
+                    </li>
+                    <li class="{{ Request::routeIs('karyawan.shipping-zones') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('karyawan.shipping-zones') }}" wire:navigate>
+                            <i class="fas fa-truck"></i> <span>Ongkos Kirim</span>
                         </a>
                     </li>
 

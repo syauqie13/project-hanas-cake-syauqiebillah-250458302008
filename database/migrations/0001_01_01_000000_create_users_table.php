@@ -15,6 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone', 20)->nullable();
+            $table->text('address')->nullable();
+            $table->string('city', 100)->nullable();
+            $table->string('postal_code', 20)->nullable();
+            $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'karyawan', 'pelanggan']);

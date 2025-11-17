@@ -36,8 +36,12 @@
     {{ $slot }}
 
     @stack('js')
+    @livewireScripts
+
+    <iframe id="receipt-printer" style="position: absolute; left: -9999px; top: -9999px; width: 302px; height: 100px; border: 0;"></iframe>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.3/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

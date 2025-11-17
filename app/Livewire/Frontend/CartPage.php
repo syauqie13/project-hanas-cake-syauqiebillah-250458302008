@@ -13,9 +13,6 @@ class CartPage extends Component
     public $cartItems = [];
     public $total = 0;
 
-    /**
-     * Muat data keranjang dari Session saat halaman dibuka
-     */
     public function mount()
     {
         $this->loadCart();
@@ -35,35 +32,38 @@ class CartPage extends Component
         }
     }
 
-    /**
-     * Update jumlah item di keranjang
-     */
     public function updateQuantity($productId, $quantity)
     {
-        // Pastikan jumlah minimal 1
-        $quantity = max(1, (int)$quantity);
-
+        $quantity = max(1, (int) $quantity);
         $cart = session()->get('cart', []);
         if (isset($cart[$productId])) {
             $cart[$productId]['quantity'] = $quantity;
             session()->put('cart', $cart);
-
-            $this->loadCart(); // Muat ulang data
-            $this->dispatch('cartUpdated'); // Kirim sinyal ke Ikon Keranjang
+            $this->loadCart();
+            $this->dispatch('cartUpdated');
         }
     }
 
-    /**
-     * Hapus item dari keranjang
-     */
     public function removeFromCart($productId)
     {
         $cart = session()->get('cart', []);
-        unset($cart[$productId]); // Hapus item
+        unset($cart[$productId]);
         session()->put('cart', $cart);
+        $this->loadCart();
+        $this->dispatch('cartUpdated');
+    }
 
-        $this->loadCart(); // Muat ulang data
-        $this->dispatch('cartUpdated'); // Kirim sinyal ke Ikon Keranjang
+    // ===========================================
+    // === 2. ALERT "HARUS LOGIN" (BACKEND) ===
+    // ===========================================
+    /**
+     * Method ini dipanggil oleh tombol "Checkout"
+     * jika pelanggan belum login.
+     */
+    public function showLoginWarning()
+    {
+        // Kirim event ke JavaScript untuk memunculkan SweetAlert
+        $this->dispatch('showLoginWarning');
     }
 
     public function render()

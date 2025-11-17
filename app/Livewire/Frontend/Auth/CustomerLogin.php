@@ -15,7 +15,7 @@ class CustomerLogin extends Component
         session()->regenerateToken();
 
         // Arahkan kembali ke halaman toko
-        return $this->redirect(route('ecommerce'), navigate: true);
+        return $this->redirect(route('login'), navigate: true);
     }
     public function render()
     {

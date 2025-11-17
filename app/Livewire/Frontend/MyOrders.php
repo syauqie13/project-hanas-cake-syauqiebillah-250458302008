@@ -17,12 +17,12 @@ class MyOrders extends Component
 
     public function render()
     {
-        // 1. Ambil semua order
-        $orders = Order::where('user_id', Auth::id()) // <-- HANYA untuk user yang login
-            ->where('order_type', 'online') // <-- HANYA order e-commerce (PO)
-            ->with('items.product') // Load relasi items & produknya
-            ->latest() // Tampilkan yang terbaru di atas
-            ->paginate(10); // Paginasi 10 order per halaman
+        $orders = Order::where('user_id', Auth::id())
+            ->where('order_type', 'online')
+            ->with('items.product')
+            ->latest() // Urutkan dari yang terbaru
+            ->take(30)
+            ->paginate(10);
 
         return view('livewire.frontend.my-orders', [
             'orders' => $orders

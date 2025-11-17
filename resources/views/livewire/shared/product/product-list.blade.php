@@ -1,30 +1,5 @@
 @push('styles')
-    <style>
-        .avatar img {
-            object-fit: cover;
-        }
 
-        .dropdown-menu {
-            min-width: 130px;
-            font-size: 0.9rem;
-        }
-    </style>
-
-    <style>
-        thead tr th {
-            border: none !important;
-            letter-spacing: 0.3px;
-        }
-
-        tbody tr:hover {
-            background-color: #f7f9fc !important;
-            transition: 0.2s ease;
-        }
-
-        .table-striped tbody tr:nth-of-type(odd) {
-            background-color: #fcfcfd;
-        }
-    </style>
 @endpush
 
 <div>
@@ -56,11 +31,27 @@
                                 <h4 class="card-title">Daftar Produk</h4>
                                 <div class="card-header-form">
                                     <div class="input-group">
+                                        <button wire:click="export" wire:loading.attr="disabled"
+                                            class="shadow-sm btn btn-success d-flex align-items-center">
+                                            <span wire:loading.remove wire:target="export">
+                                                <i class="mr-2 fas fa-file-excel"></i> Export Excel
+                                            </span>
+                                            <span wire:loading wire:target="export">
+                                                <i class="mr-2 fas fa-spinner fa-spin"></i> Exporting...
+                                            </span>
+                                        </button>
+                                        <button wire:click="openProductListImportModal" wire:loading.attr="disabled"
+                                            class="shadow-sm btn btn-primary d-flex align-items-center">
+                                            <span wire:loading.remove wire:target="export">
+                                                <i class="mr-2 fas fa-file-excel"></i> Import Excel
+                                            </span>
+                                            <span wire:loading wire:target="export">
+                                                <i class="mr-2 fas fa-spinner fa-spin"></i> Exporting...
+                                            </span>
+                                        </button>
                                         <input wire:model.live.debounce.300ms="search" type="text" class="form-control"
                                             placeholder="Cari produk...">
-                                        <div class="input-group-btn">
-                                            <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -172,13 +163,86 @@
                                 </div>
                             </div>
                             <div class="text-right card-footer">
-                                {{ $products->links() }}
+                                <nav class="d-inline-block">
+                                    {{ $products->links('livewire::bootstrap') }}
+                                </nav>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+        {{-- MODAL IMPORT --}}
+        @if($showProductListImportModal)
+            <div class="modal fade show" tabindex="-1" role="dialog"
+                style="display: block; padding-right: 17px; background-color: rgba(0,0,0,0.5); z-index: 1050;"
+                aria-modal="true">
+
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="rounded-lg shadow-lg modal-content">
+
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title font-weight-bold text-dark">
+                                <i class="mr-2 fas fa-file-excel text-success"></i> Upload File Excel
+                            </h5>
+                            <button type="button" class="close" wire:click="closeProductListImportModal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="p-4 modal-body">
+                            <div class="mb-0 form-group">
+                                <div class="p-4 text-center rounded position-relative d-flex justify-content-center align-items-center flex-column"
+                                    style="border: 2px dashed #cdd3d8; background-color: #f8f9fa; transition: all 0.3s;">
+
+                                    <i class="mb-3 fas fa-cloud-upload-alt fa-3x text-secondary"></i>
+
+                                    <div class="text-center custom-file">
+                                        <label class="mb-2 d-block text-muted" style="font-size: 0.9rem;">
+                                            Klik tombol di bawah atau drag file ke sini
+                                        </label>
+                                        <input type="file" wire:model="fileImport"
+                                            class="pl-0 text-center border-0 form-control-file"
+                                            style="width: auto; display: inline-block;">
+                                    </div>
+                                </div>
+
+                                <div wire:loading wire:target="fileImport" class="mt-2 text-center text-primary small">
+                                    <i class="fas fa-spinner fa-spin"></i> Sedang membaca file...
+                                </div>
+
+                                @error('fileImport')
+                                    <div class="mt-2 text-center text-danger small font-weight-bold">
+                                        <i class="fas fa-exclamation-circle"></i> {{ $message }}
+                                    </div>
+                                @enderror
+
+                                <div class="px-3 py-2 mt-3 mb-0 alert alert-info" style="font-size: 0.85rem;">
+                                    <i class="mr-1 fas fa-info-circle"></i>
+                                    <strong>Format Header Wajib:</strong><br>
+                                    nama_kue, harga, stok, diskon
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer bg-whitesmoke br">
+                            <button type="button" class="btn btn-secondary" wire:click="closeProductListImportModal">
+                                Batal
+                            </button>
+                            <button type="button" class="shadow-sm btn btn-primary" wire:click="import"
+                                wire:loading.attr="disabled">
+                                <span wire:loading.remove wire:target="import">
+                                    <i class="mr-1 fas fa-upload"></i> Upload Sekarang
+                                </span>
+                                <span wire:loading wire:target="import">
+                                    <i class="mr-1 fas fa-spinner fa-spin"></i> Memproses...
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
     <!-- Modal Create & Edit Produk (Komponen Anda yang sudah ada) -->
@@ -206,9 +270,18 @@
         <script>
             document.addEventListener('livewire:init', () => {
                 Livewire.on('confirmDelete', (data) => {
+                    // Ambil ID dari data event
+                    const id = data.id || (data[0] ? data[0].id : null);
+
+                    if (!id) {
+                        console.error('ID tidak ditemukan untuk dihapus');
+                        return;
+                    }
+
                     Swal.fire({
-                        title: 'Yakin hapus?',
-                        text: "Data produk dan resep terkait akan dihapus permanen.",
+                        title: 'Yakin hapus produk ini?',
+                        // Pesan khusus untuk produk
+                        text: "Data produk, gambar, DAN SEMUA RESEPNYA akan dihapus permanen.",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
@@ -217,10 +290,44 @@
                         cancelButtonText: 'Batal'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Livewire.dispatch('deleteConfirmed', { id: data.id });
+                            // Kirim balik ke listener #[On('deleteConfirmed')]
+                            Livewire.dispatch('deleteConfirmed', { id: id });
                         }
                     });
                 });
+            });
+        </script>
+
+        <script>
+            // Ganti listener 'livewire:navigated' Anda dengan yang ini
+            document.addEventListener('livewire:navigated', () => {
+
+                // 1. Re-init Dropdowns (Memperbaiki tombol dropdown)
+                // Kita 'dispose' dulu untuk membuang yg lama, lalu init yg baru
+                if ($('[data-toggle="dropdown"]').length) {
+                    $('[data-toggle="dropdown"]').dropdown('dispose');
+                    $('[data-toggle="dropdown"]').dropdown();
+                }
+
+                // 2. Re-init Tooltips (PENTING: Anda punya ini di halaman produk)
+                // Ini agar 'title' di badge PO Aktif bisa muncul saat di-hover
+                if ($('[data-toggle="tooltip"]').length) {
+                    $('[data-toggle="tooltip"]').tooltip('dispose');
+                    $('[data-toggle="tooltip"]').tooltip();
+                }
+
+                // 3. Re-init Popovers (Jaga-jaga jika Anda pakai)
+                if ($('[data-toggle="popover"]').length) {
+                    $('[data-toggle="popover"]').popover('dispose');
+                    $('[data-toggle="popover"]').popover();
+                }
+
+                // 4. Re-init Custom Scrollbar (Nicescroll)
+                // Ini penting agar sidebar tetap bisa di-scroll
+                if (jQuery().nicescroll) {
+                    // Stisla menggunakan class ini untuk sidebar-nya
+                    $(".main-sidebar").getNiceScroll().resize();
+                }
             });
         </script>
     @endpush

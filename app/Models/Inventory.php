@@ -29,6 +29,7 @@ class Inventory extends Model
      */
     public function recipes()
     {
-        return $this->hasMany(ProductRecipe::class);
+        // Pastikan nama class model 'ProductRecipe' benar
+        return $this->hasMany(ProductRecipe::class, 'inventory_id');
     }
 }

@@ -56,25 +56,24 @@ class CategoryList extends Component
         $this->dispatch('confirmDelete', id: $id);
     }
 
-    // 7. Perbarui delete() untuk menggunakan #[On]
-    //    Dan tambahkan penanganan error
+    // 🔹 Eksekusi Hapus (Setelah dikonfirmasi oleh SweetAlert)
     #[On('deleteConfirmed')]
-    public function delete($data) // Menerima array [ 'id' => $id ] dari JS
+    public function delete($id)
     {
-        $id = $data['id']; // Ambil ID dari array
+        // Handle jika $id dikirim sebagai array ['id' => 1] (keamanan ekstra)
+        if (is_array($id)) {
+            $id = $id['id'];
+        }
 
         try {
-            $category = Category::findOrFail($id);
+            $category = Category::findOrFail($id); // Sekarang $id sudah benar
             $category->delete();
 
             // Kirim notifikasi ke frontend
             $this->dispatch('notify', ['message' => 'Kategori berhasil dihapus.']);
 
-            // Tidak perlu $this->loadCategories();
-            // Komponen akan otomatis me-refresh data di render()
-
         } catch (\Exception $e) {
-            // Penanganan error jika kategori terikat (misal: masih ada produk)
+            // Penanganan error jika kategori terikat (masih ada produk)
             if (str_contains($e->getMessage(), 'foreign key constraint')) {
                 $this->dispatch('notify', [
                     'message' => 'Gagal menghapus! Kategori ini masih digunakan oleh produk.',

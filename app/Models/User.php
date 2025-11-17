@@ -23,7 +23,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'phone',   // <-- TAMBAHKAN INI
+        'address', // <-- TAMBAHKAN INI
+        'avatar',  // <-- TAMBAHKAN INI (Opsional)
+        'city',        // <-- TAMBAHKAN INI
+        'postal_code',
     ];
 
     /**

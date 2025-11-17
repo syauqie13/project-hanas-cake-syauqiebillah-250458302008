@@ -4,17 +4,69 @@ namespace App\Livewire\Shared\Product;
 
 use App\Models\Product;
 use Livewire\Component;
-use Livewire\WithPagination;     // 1. Tambahkan use WithPagination
-use Livewire\Attributes\On;       // 2. Tambahkan use On
+use Livewire\Attributes\Url;
+use Livewire\WithFileUploads;
+use App\Imports\ProductsImport;
+use Livewire\Attributes\Locked;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
+use Livewire\WithPagination;     // 1. Tambahkan use
 use Livewire\Attributes\Layout;   // 3. Jaga Layout Anda
+use Livewire\Attributes\On;       // 2. Tambahkan use On
+use App\Exports\ProductsExport; // Asumsi kamu sudah buat exportnya
 
 #[Layout('components.layouts.app')] // Diambil dari kode Anda
 class ProductList extends Component
 {
     use WithPagination; // 4. Gunakan trait Pagination
+    use WithFileUploads;
 
-    public $search = ''; // 5. Tambahkan properti untuk search
+    // --- PROPERTI ---
 
+    #[Url(keep: true, as: 'search')]
+    public $search = '';
+
+    #[Locked]
+    public $showProductListImportModal = false;
+
+    #[Locked]
+    public $fileImport;
+
+    public function export()
+    {
+        // Download langsung
+        return Excel::download(new ProductsExport, 'produk_hanas_cake.xlsx');
+    }
+
+    // --- FITUR IMPORT ---
+    public function openProductListImportModal()
+    {
+        $this->reset('fileImport'); // Kosongkan input file tiap buka modal
+        $this->resetErrorBag();
+        $this->showProductListImportModal = true;
+    }
+
+    public function closeProductListImportModal()
+    {
+        $this->showProductListImportModal = false;
+    }
+
+    public function import()
+    {
+        $this->validate([
+            'fileImport' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
+        try {
+            Excel::import(new ProductsImport, $this->fileImport);
+
+            session()->flash('success', 'Import Berhasil!');
+            $this->showProductListImportModal = false; // Tutup modal
+
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
     // 6. Dengarkan event dari modal Create/Edit
     // Saat produk dibuat atau diupdate, panggil method 'refreshComponent'
     #[On('productCreated')]
@@ -27,40 +79,6 @@ class ProductList extends Component
     }
 
     // 7. Dengarkan event 'deleteConfirmed' dari Swal
-    #[On('deleteConfirmed')]
-    public function delete($data) // Method ini menerima array data
-    {
-        $id = $data['id']; // Ambil ID dari array
-        try {
-            $product = Product::with('recipes')->findOrFail($id);
-
-            // 8. Logika Hapus yang Benar: Hapus resepnya dulu
-            $product->recipes()->delete();
-
-            // Baru hapus produknya
-            $product->delete();
-
-            // 9. Kirim notifikasi dengan format yang benar
-            $this->dispatch('notify', [
-                'message' => 'Produk berhasil dihapus.',
-                'icon' => 'success'
-            ]);
-
-        } catch (\Exception $e) {
-            // 10. Penanganan error jika produk terikat (misal: sudah ada di order)
-            if (str_contains($e->getMessage(), 'foreign key constraint')) {
-                $this->dispatch('notify', [
-                    'message' => 'Gagal menghapus! Produk ini sudah ada di dalam transaksi.',
-                    'icon' => 'error'
-                ]);
-            } else {
-                $this->dispatch('notify', [
-                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-                    'icon' => 'error'
-                ]);
-            }
-        }
-    }
 
     // 11. Method 'create' Anda sudah benar (dispatch event)
     public function create()
@@ -78,6 +96,50 @@ class ProductList extends Component
     public function deleteConfirm($id)
     {
         $this->dispatch('confirmDelete', id: $id);
+    }
+
+    #[On('deleteConfirmed')]
+    public function delete($id)
+    {
+        // Handle jika $id dikirim sebagai array ['id' => 1]
+        if (is_array($id)) {
+            $id = $id['id'];
+        }
+
+        try {
+            $product = Product::with('recipes')->findOrFail($id);
+
+            // A. Hapus Resep Terkait
+            // (PENTING: agar tidak error 'foreign key')
+            $product->recipes()->delete();
+
+            // B. Hapus Gambar Terkait
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // C. Hapus Produk
+            $product->delete();
+
+            $this->dispatch('notify', [
+                'message' => 'Produk dan semua resepnya berhasil dihapus.',
+                'icon' => 'success'
+            ]);
+
+        } catch (\Exception $e) {
+            // Penanganan error jika produk terikat (misal: sudah ada di OrderItem)
+            if (str_contains($e->getMessage(), 'foreign key constraint')) {
+                $this->dispatch('notify', [
+                    'message' => 'Gagal menghapus! Produk ini sudah ada di dalam transaksi.',
+                    'icon' => 'error'
+                ]);
+            } else {
+                $this->dispatch('notify', [
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'icon' => 'error'
+                ]);
+            }
+        }
     }
 
     // 14. Render method yang Diperbarui (menggunakan Pagination)

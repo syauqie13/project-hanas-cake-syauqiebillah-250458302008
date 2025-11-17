@@ -4,117 +4,154 @@ namespace App\Livewire\Shared\Inventories;
 
 use Livewire\Component;
 use App\Models\Inventory;
-use Livewire\WithPagination;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
+use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use App\Exports\InventoryExport;
+use App\Imports\InventoryImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
+#[Layout('components.layouts.app')]
 class InventoryList extends Component
 {
     use WithPagination;
+    use WithFileUploads;
 
-    // Properti untuk modal & form
-    public $isOpen = false;
-    public $inventoryId;
+    protected $paginationTheme = 'bootstrap';
 
-    // Properti sesuai skema
-    public $name, $stock, $unit, $type, $unit_price, $description;
+    // --- PROPERTI ---
 
-    // Properti untuk filter/search
+    // PERBAIKAN: #[Url] sekarang menempel di properti $search
+    #[Url(keep: true, as: 'search')]
     public $search = '';
 
-    // Aturan validasi
-    protected function rules()
-    {
-        return [
-            'name' => [
-                'required', 'string', 'max:255',
-                Rule::unique('inventories')->ignore($this->inventoryId)
-            ],
-            // PERUBAHAN DI SINI: Menggunakan satuan terkecil
-            'type' => 'required|in:bahan_baku,produk_jadi',
-            'unit' => 'required|in:gram,ml,pcs,pack,box', // <-- BARIS DIPERBARUI
+    // Modal Import
+    #[Locked]
+    public $showInventoryListImportModal = false;
+    #[Locked]
+    public $fileImport;
 
-            // Stok sekarang adalah angka bulat (integer)
-            'stock' => 'required|numeric|min:0', // <-- Tipe 'decimal' di DB, tapi input kita angka bulat
-            'unit_price' => 'required|numeric|min:0', // Harga modal tetap boleh desimal
-            'description' => 'nullable|string',
-        ];
+    // Modal Create/Edit (Logika Anda sudah benar)
+    #[Locked]
+    public $isOpen = false;
+    public $inventoryId, $name, $stock, $unit, $type, $unit_price, $description;
+
+    // --- EXPORT ---
+    public function export()
+    {
+        return Excel::download(new InventoryExport, 'inventory_hanas_cake.xlsx');
     }
 
-    // Pesan validasi kustom
-    protected $messages = [
-        'type.in' => 'Tipe yang dipilih tidak valid.',
-        'unit.in' => 'Satuan yang dipilih tidak valid. (Pilih: gram, ml, pcs, pack, box)',
-    ];
-
-    // Listener untuk event 'deleteConfirmed' dari JavaScript
-    #[On('deleteConfirmed')]
-    public function deleteConfirmed($data)
+    // --- IMPORT ---
+    public function openImportModal()
     {
-        $id = $data['id'];
+        $this->reset('fileImport');
+        $this->resetErrorBag();
+        $this->showInventoryListImportModal = true;
+    }
+
+    public function closeImportModal()
+    {
+        $this->showInventoryListImportModal = false;
+    }
+
+    public function import()
+    {
+        $this->validate([
+            'fileImport' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ]);
+
         try {
-            $inventory = Inventory::with('recipes')->findOrFail($id);
-            if ($inventory->recipes->isNotEmpty()) {
+            Excel::import(new InventoryImport, $this->fileImport);
+            session()->flash('success', 'Import berhasil!');
+            $this->showInventoryListImportModal = false;
+        } catch (\Exception $e) {
+            session()->flash('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
+
+    // --- EVENT LISTENERS ---
+    #[On('inventoryCreated')]
+    #[On('inventoryUpdated')]
+    public function refreshComponent()
+    {
+        $this->resetPage();
+    }
+
+    #[On('deleteConfirmed')]
+    public function delete($id)
+    {
+        if (is_array($id))
+            $id = $id['id'];
+
+        try {
+            $inventory = Inventory::findOrFail($id);
+
+            // Cek relasi ke resep
+            if ($inventory->recipes()->exists()) {
                 $this->dispatch('notify', [
-                    'message' => 'Gagal menghapus! Bahan baku ini sedang digunakan di dalam resep produk.',
+                    'message' => 'Gagal! Bahan baku ini sedang dipakai di Resep Produk.',
                     'icon' => 'error'
                 ]);
                 return;
             }
+
             $inventory->delete();
+
             $this->dispatch('notify', [
                 'message' => 'Bahan baku berhasil dihapus.',
                 'icon' => 'success'
             ]);
+
         } catch (\Exception $e) {
-            $this->dispatch('notify', [
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-                'icon' => 'error'
-            ]);
+            if ($e->getCode() == '23000') {
+                $this->dispatch('notify', [
+                    'message' => 'Gagal! Data ini terkunci relasi database.',
+                    'icon' => 'error'
+                ]);
+            } else {
+                $this->dispatch('notify', [
+                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                    'icon' => 'error'
+                ]);
+            }
         }
     }
 
-    public function render()
-    {
-        $inventories = Inventory::where('name', 'like', '%' . $this->search . '%')
-            ->paginate(10);
-
-        return view('livewire.shared.inventories.inventory-list', [
-            'inventories' => $inventories,
-        ]);
-    }
-
+    // --- CREATE / EDIT / DELETE ---
     public function create()
     {
         $this->resetInputFields();
         $this->openModal();
     }
 
-    public function openModal()
+    public function edit($id)
     {
-        $this->isOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->isOpen = false;
-    }
-
-    private function resetInputFields()
-    {
-        $this->inventoryId = null;
-        $this->name = '';
-        $this->stock = '0';
-        $this->unit = '';
-        $this->type = '';
-        $this->unit_price = '0';
-        $this->description = '';
+        $inventory = Inventory::findOrFail($id);
+        $this->inventoryId = $id;
+        $this->name = $inventory->name;
+        $this->stock = $inventory->stock;
+        $this->unit = $inventory->unit;
+        $this->type = $inventory->type;
+        $this->unit_price = $inventory->unit_price;
+        $this->description = $inventory->description;
         $this->resetErrorBag();
+        $this->openModal();
+    }
+
+    public function deleteConfirm($id)
+    {
+        $this->dispatch('confirmDelete', id: $id);
     }
 
     public function store()
     {
-        $this->validate();
+        $this->validate($this->rules());
 
         Inventory::updateOrCreate(['id' => $this->inventoryId], [
             'name' => $this->name,
@@ -132,25 +169,57 @@ class InventoryList extends Component
 
         $this->closeModal();
         $this->resetInputFields();
+        $this->refreshComponent();
     }
 
-    public function edit($id)
+    // --- MODAL HELPERS ---
+    public function openModal()
     {
-        $inventory = Inventory::findOrFail($id);
-        $this->inventoryId = $id;
-        $this->name = $inventory->name;
-        $this->stock = $inventory->stock;
-        $this->unit = $inventory->unit;
-        $this->type = $inventory->type;
-        $this->unit_price = $inventory->unit_price;
-        $this->description = $inventory->description;
-
+        $this->isOpen = true;
+    }
+    public function closeModal()
+    {
+        $this->isOpen = false;
+    }
+    private function resetInputFields()
+    {
+        $this->inventoryId = null;
+        $this->name = '';
+        $this->stock = 0;
+        $this->unit = '';
+        $this->type = '';
+        $this->unit_price = 0;
+        $this->description = '';
         $this->resetErrorBag();
-        $this->openModal();
     }
 
-    public function deleteConfirm($id)
+    // --- VALIDATION ---
+    protected function rules()
     {
-        $this->dispatch('confirmDelete', ['id' => $id]);
+        return [
+            'name' => ['required', 'string', 'max:255', Rule::unique('inventories')->ignore($this->inventoryId)],
+            'type' => 'required|in:bahan_baku,produk_jadi',
+            'unit' => 'required|in:gram,ml,pcs,pack,box',
+            'stock' => 'required|numeric|min:0',
+            'unit_price' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+        ];
+    }
+
+    protected $messages = [
+        'type.in' => 'Tipe yang dipilih tidak valid.',
+        'unit.in' => 'Satuan yang dipilih tidak valid. (Pilih: gram, ml, pcs, pack, box)',
+    ];
+
+    // --- RENDER ---
+    public function render()
+    {
+        $inventories = Inventory::where('name', 'like', '%' . $this->search . '%')
+            ->latest()
+            ->paginate(10);
+
+        return view('livewire.shared.inventories.inventory-list', [
+            'inventories' => $inventories,
+        ]);
     }
 }

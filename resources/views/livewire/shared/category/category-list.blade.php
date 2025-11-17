@@ -3,6 +3,7 @@
         .avatar img {
             object-fit: cover;
         }
+
         .dropdown-menu {
             min-width: 130px;
             font-size: 0.9rem;
@@ -13,13 +14,16 @@
             border: none !important;
             letter-spacing: 0.3px;
         }
+
         tbody tr:hover {
             background-color: #f7f9fc !important;
             transition: 0.2s ease;
         }
+
         .table-striped tbody tr:nth-of-type(odd) {
             background-color: #fcfcfd;
         }
+
         /* Style untuk pagination agar rapi */
         .card-footer .pagination {
             margin-bottom: 0;
@@ -58,10 +62,8 @@
                                 <h4 class="card-title">Daftar Kategori</h4>
                                 <div class="card-header-form">
                                     <div class="input-group">
-                                        <input wire:model.live.debounce.300ms="search" type="text" class="form-control" placeholder="Cari nama kategori...">
-                                        <div class="input-group-btn">
-                                            <button class="btn btn-primary"><i class="fas fa-search"></i></button>
-                                        </div>
+                                        <input wire:model.live.debounce.300ms="search" type="text" class="form-control"
+                                            placeholder="Cari nama kategori...">
                                     </div>
                                 </div>
                             </div>
@@ -143,10 +145,9 @@
                             </div>
 
                             <div class="text-right card-footer">
-                                <!-- ====================================== -->
-                                <!-- === 4. GANTI PAGINASI STATIS DENGAN INI === -->
-                                <!-- ====================================== -->
-                                {{ $categories->links() }}
+                                <nav class="d-inline-block">
+                                    {{ $categories->links('livewire::bootstrap') }}
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -169,14 +170,15 @@
 
         <!-- Notifikasi sukses -->
         <script>
-            window.addEventListener('notify', event => {
+            Livewire.on('notify', (data) => {
                 Swal.fire({
-                    // 5. Perbarui notifikasi agar dinamis (opsional tapi bagus)
-                    icon: event.detail.icon || 'success',
-                    title: event.detail.icon === 'error' ? 'Gagal!' : 'Berhasil!',
-                    text: event.detail.message || 'Aksi berhasil dijalankan!',
+                    icon: data.icon ?? 'error',
+                    title: data.icon === 'error' ? 'Gagal!' : 'Berhasil!',
+                    text: data.message,
                     timer: 2000,
                     showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
                 });
             });
         </script>
@@ -185,9 +187,12 @@
         <script>
             document.addEventListener('livewire:init', () => {
                 Livewire.on('confirmDelete', (data) => {
+                    // Ambil ID (sudah aman)
+                    const id = data.id || (data[0] ? data[0].id : null);
+
                     Swal.fire({
                         title: 'Yakin hapus?',
-                        // 6. Perbarui teks konfirmasi
+                        // Pesan khusus Kategori
                         text: "Data kategori akan dihapus. Ini mungkin mempengaruhi produk terkait.",
                         icon: 'warning',
                         showCancelButton: true,
@@ -197,7 +202,7 @@
                         cancelButtonText: 'Batal'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            Livewire.dispatch('deleteConfirmed', { id: data.id });
+                            Livewire.dispatch('deleteConfirmed', { id: id });
                         }
                     });
                 });

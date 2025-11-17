@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Product;         // 1. Tambahkan Model Product
+use App\Models\Product;
 use App\Models\ProductRecipe;
 use App\Models\Inventory;
 use Midtrans\Config;
@@ -22,25 +22,25 @@ class MidtransWebhookController extends Controller
         Config::$isProduction = config('services.midtrans.is_production');
 
         try {
-            // 2. Buat instance Notification
+            // 2. Buat instance Notification untuk membaca payload
             $notif = new Notification();
 
-            // 3. Terima payload
-            $payload = $request->all();
-            $orderId = $payload['order_id'];
-            $statusCode = $payload['status_code'];
-            $grossAmount = $payload['gross_amount'];
-            $transactionStatus = $payload['transaction_status'];
-            $signatureKey = $payload['signature_key'];
+            $orderId = $notif->order_id;
+            $statusCode = $notif->status_code;
+            $grossAmount = $notif->gross_amount;
+            $transactionStatus = $notif->transaction_status;
+            $type = $notif->payment_type;
+            $fraud = $notif->fraud_status;
 
-            // 4. Validasi Keamanan
-            $expectedSignatureKey = hash('sha512', $orderId . $statusCode . $grossAmount . Config::$serverKey);
+            // 3. Validasi Keamanan (Signature Key)
+            $input = $orderId . $statusCode . $grossAmount . Config::$serverKey;
+            $signature = openssl_digest($input, 'sha512');
 
-            if ($signatureKey !== $expectedSignatureKey) {
+            if ($signature != $notif->signature_key) {
                 return response()->json(['message' => 'Invalid signature'], 403);
             }
 
-            // 5. Temukan Order di Database Anda
+            // 4. Temukan Order di Database
             $order = Order::where('merchant_order_id', $orderId)->first();
 
             if (!$order) {
@@ -48,95 +48,101 @@ class MidtransWebhookController extends Controller
                 return response()->json(['message' => 'Order not found'], 404);
             }
 
-            // 6. Update Status Order (Gunakan Transaksi Database)
+            // 5. Proses Status Transaksi
             DB::beginTransaction();
 
-            // Hanya proses jika statusnya masih 'pending'
             if ($order->payment_status === 'pending') {
-                if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
 
-                    // --- TAHAP 1: UPDATE STATUS ORDER ---
-                    $order->payment_status = 'paid';
-                    $order->status = 'completed';
-                    $order->paid_amount = $grossAmount;
-                    $order->save();
-
-                    DB::commit(); // Commit perubahan status order (UANG SUDAH MASUK)
-
-                    // --- TAHAP 2: KURANGI STOK (OPERASIONAL) ---
-                    // Logika ini disamakan dengan 'prosesPembayaranTunai'
-                    DB::beginTransaction(); // <-- Transaksi BARU terpisah untuk stok
-                    try {
-                        Log::info("Webhook: Memulai pengurangan stok untuk Order ID: $order->id");
-                        $orderItems = OrderItem::where('order_id', $order->id)->get();
-
-                        foreach ($orderItems as $item) {
-
-                            // 4️⃣ Kurangi stok produk utama (dari kode baru Anda)
-                            $product = Product::where('id', $item->product_id)->lockForUpdate()->first();
-                            if ($product) {
-                                if ($product->stock < $item->jumlah) {
-                                    // BEDA DENGAN TUNAI: Jangan 'throw', tapi 'Log::error'
-                                    // Kita tidak bisa membatalkan pembayaran yang sudah lunas.
-                                    Log::error("Webhook: Stok produk {$product->name} (Order ID: {$order->id}) TIDAK MENCUKUPI. Transaksi tetap lunas.");
-                                } else {
-                                    $product->decrement('stock', $item->jumlah);
-                                    Log::info("Webhook: Stok produk {$product->name} dikurangi {$item->jumlah}");
-                                }
-                            }
-
-                            // 5️⃣ Kurangi stok bahan baku (dari kode baru Anda)
-                            $recipes = ProductRecipe::where('product_id', $item->product_id)->get();
-                            foreach ($recipes as $recipe) {
-                                $inventoryItem = Inventory::where('id', $recipe->inventory_id)->lockForUpdate()->first();
-                                if ($inventoryItem) {
-                                    $quantityToReduce = $recipe->quantity_used * $item->jumlah;
-                                    if ($inventoryItem->stock < $quantityToReduce) {
-                                        // BEDA DENGAN TUNAI: Jangan 'throw', tapi 'Log::error'
-                                        Log::error("Webhook: Stok bahan {$inventoryItem->name} (Order ID: {$order->id}) TIDAK MENCUKUPI. Transaksi tetap lunas.");
-                                    } else {
-                                        $inventoryItem->decrement('stock', $quantityToReduce);
-                                        Log::info("Webhook: Stok bahan {$inventoryItem->name} dikurangi {$quantityToReduce}");
-                                    }
-                                } else {
-                                    Log::warning("Webhook: Item inventaris dengan ID: {$recipe->inventory_id} tidak ditemukan untuk resep produk ID: {$item->product_id}.");
-                                }
-                            }
-                        }
-
-                        DB::commit(); // Commit pengurangan stok
-                        Log::info("Webhook: Pengurangan stok untuk Order ID: $order->id SELESAI.");
-
-                    } catch (\Exception $stockError) {
-                        DB::rollBack(); // Batalkan HANYA pengurangan stok
-                        Log::error("Webhook: PENGURANGAN STOK GAGAL (DB Rollback) untuk Order ID: $order->id. Error: " . $stockError->getMessage());
+                if ($transactionStatus == 'capture') {
+                    if ($fraud == 'accept') {
+                        $this->handleSuccess($order, $grossAmount);
                     }
-
-                } else if ($transactionStatus == 'expire') {
-                    $order->payment_status = 'expired';
-                    $order->status = 'cancelled';
-                    $order->save();
-                    DB::commit();
-                } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny') {
+                } else if ($transactionStatus == 'settlement') {
+                    $this->handleSuccess($order, $grossAmount);
+                } else if ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
                     $order->payment_status = 'failed';
                     $order->status = 'cancelled';
                     $order->save();
-                    DB::commit();
-                } else {
-                    DB::rollBack(); // (status pending, dll)
+                } else if ($transactionStatus == 'pending') {
+                    $order->payment_status = 'pending';
+                    $order->save();
                 }
-            } else {
-                DB::rollBack(); // (sudah diproses)
-                Log::info("Webhook: Order $orderId sudah diproses sebelumnya (status: " . $order->payment_status . "). Tidak ada update.");
             }
 
-            // 7. Kirim respon OK ke Midtrans
+            DB::commit();
             return response()->json(['message' => 'Notification processed'], 200);
 
         } catch (\Exception $e) {
-            DB::rollBack(); // (Rollback utama jika ada)
-            Log::error('Webhook Error (Utama): ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Webhook Error: ' . $e->getMessage());
             return response()->json(['message' => 'Webhook Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Menangani logika saat pembayaran BERHASIL
+     */
+    private function handleSuccess($order, $grossAmount)
+    {
+        // 1. Update Status Pembayaran (Sama untuk semua)
+        $order->payment_status = 'paid';
+        $order->paid_amount = $grossAmount;
+
+        // ================================================
+        // === INI ADALAH PERBAIKAN LOGIKA STATUS ANDA ===
+        // ================================================
+
+        // Cek tipe ordernya
+        if ($order->order_type == 'online') {
+            // Jika ini order PO E-commerce, set ke 'processing'
+            $order->status = 'processing';
+            Log::info("Webhook: Order PO (ID: {$order->id}) LUNAS. Status diubah ke 'processing'.");
+        } else {
+            // Jika ini order POS (atau tipe lain), set ke 'completed'
+            $order->status = 'completed';
+            Log::info("Webhook: Order POS (ID: {$order->id}) LUNAS. Status diubah ke 'completed'.");
+        }
+        // ================================================
+        // === AKHIR PERBAIKAN ===
+        // ================================================
+
+        $order->save();
+
+        // 2. Kurangi Stok Bahan Baku (Inventories)
+        // (Logika ini tetap berjalan untuk kedua tipe order)
+        $this->reduceInventoryStock($order);
+    }
+
+    /**
+     * Menangani pengurangan stok bahan baku berdasarkan resep
+     */
+    private function reduceInventoryStock($order)
+    {
+        try {
+            $orderItems = OrderItem::where('order_id', $order->id)->get();
+
+            foreach ($orderItems as $item) {
+                // (Logika pengurangan stok bahan baku Anda tetap sama...)
+                $recipes = ProductRecipe::where('product_id', $item->product_id)->get();
+                if ($recipes->isEmpty()) {
+                    Log::warning("Webhook: Tidak ada resep untuk Product ID: {$item->product_id}");
+                    continue;
+                }
+                foreach ($recipes as $recipe) {
+                    $inventoryItem = Inventory::where('id', $recipe->inventory_id)
+                        ->lockForUpdate()
+                        ->first();
+                    if ($inventoryItem) {
+                        $quantityToReduce = $recipe->quantity_used * $item->jumlah;
+                        $inventoryItem->decrement('stock', $quantityToReduce);
+                        Log::info("Webhook: Mengurangi stok {$inventoryItem->name} sebanyak {$quantityToReduce}.");
+                    } else {
+                        Log::error("Webhook: Bahan baku ID {$recipe->inventory_id} tidak ditemukan.");
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error("Webhook: Gagal mengurangi stok untuk Order ID {$order->id}: " . $e->getMessage());
         }
     }
 }

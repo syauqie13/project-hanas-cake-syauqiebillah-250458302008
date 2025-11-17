@@ -14,6 +14,7 @@ class Order extends Model
     protected $fillable = [
         'customer_id',
         'cashier_id',
+        'user_id',
         'tanggal',
         'total',
         'paid_amount',
@@ -22,7 +23,15 @@ class Order extends Model
         'payment_status',
         'order_type',
         'status',
-        'merchant_order_id'
+        'merchant_order_id',
+        'shipping_name',
+        'shipping_email',
+        'shipping_phone',
+        'shipping_address',
+        'shipping_city',
+        'shipping_postal_code',
+        'shipping_zone_name',
+        'shipping_price'
     ];
 
     protected $casts = [
@@ -57,6 +66,11 @@ class Order extends Model
     }
 
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -70,9 +84,4 @@ class Order extends Model
         return $this->payment_status === 'lunas';
     }
 
-    // Contoh helper untuk format total
-    // public function getFormattedTotalAttribute(): string
-    // {
-    //     return number_format($this->total, 2, ',', '.');
-    // }
 }

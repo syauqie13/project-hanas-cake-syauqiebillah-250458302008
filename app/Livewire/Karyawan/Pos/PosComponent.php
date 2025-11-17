@@ -4,19 +4,20 @@ namespace App\Livewire\Karyawan\Pos;
 
 use Midtrans\Snap;
 use Midtrans\Config;
-use Livewire\Component;
-use App\Models\Customer;
+use App\Models\Order;
 use App\Models\Product;
+use Livewire\Component;
+use App\Models\Category;
+use App\Models\Customer;
+use App\Models\Inventory;
+use App\Models\OrderItem;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\ProductRecipe;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
-use App\Models\Order;
-use App\Models\Category;
-use App\Models\Inventory;
-use App\Models\OrderItem;
-use App\Models\ProductRecipe;
 use Illuminate\Support\Facades\Log; // Pastikan Log di-import
 use Livewire\Attributes\On;         // 1. Pastikan On di-import
 
@@ -272,13 +273,19 @@ class PosComponent extends Component
             $this->dispatch('notify', ['message' => 'Transaksi (Tunai) berhasil disimpan!']);
             // Memicu print struk untuk Tunai
             $this->dispatch('print-receipt', orderId: $order->id);
-            $this->clearCart();
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Kesalahan pada proses pembayaran tunai: {$e->getMessage()}");
             session()->flash('error', 'Terjadi kesalahan (Tunai): ' . $e->getMessage());
         }
+    }
+
+    #[On('clear-pos-cart')]
+    public function clearCartFromEvent()
+    {
+        Log::info('Menerima event clear-pos-cart, membersihkan keranjang...');
+        $this->clearCart(); // Memanggil fungsi clearCart Anda
     }
 
 
@@ -301,7 +308,8 @@ class PosComponent extends Component
                 'status' => 'pending',
             ]);
             // ... (Generate nomor invoice) ...
-            $merchantOrderId = $order->id . '-' . time();
+            $runningNumber = str_pad($order->id, 5, '0', STR_PAD_LEFT);
+            $merchantOrderId = 'MID-' . date('Ym') . '-' . $runningNumber;
             $order->merchant_order_id = $merchantOrderId;
             $order->save();
 
