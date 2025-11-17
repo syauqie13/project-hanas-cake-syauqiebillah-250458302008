@@ -13,6 +13,57 @@ class Navbar extends Component
 {
     public $search = '';
 
+    // --- PROPERTI UNTUK NOTIFIKASI ---
+    public $notifications = [];
+    public $notifCount = 0;
+
+    /**
+     * Mount: Load notifikasi saat komponen pertama kali dimuat.
+     */
+    public function mount()
+    {
+        $this->loadNotifications();
+    }
+
+    /**
+     * Fungsi untuk mengambil data stok menipis
+     */
+    public function loadNotifications()
+    {
+        $lowStockProducts = Product::where('stock', '<', 10) // Ambang batas 10 pcs
+            ->where('stock', '>', 0)
+            ->get();
+
+        $lowStockInventories = Inventory::where('type', 'bahan_baku')
+            ->where('stock', '<', 1000) // Ambang batas 1000 gram/ml
+            ->where('stock', '>', 0)
+            ->get();
+
+        $notifs = [];
+
+        // Notifikasi untuk Produk (Kue Jadi)
+        foreach ($lowStockProducts as $item) {
+            $notifs[] = [
+                'icon' => 'fas fa-birthday-cake', // Ikon kue
+                'color' => 'bg-danger', // Merah
+                'message' => "Stok menipis: {$item->name} (Sisa {$item->stock} pcs)",
+                'url' => route('karyawan.list-product', ['search' => $item->name]) // Link ke halaman produk
+            ];
+        }
+
+        // Notifikasi untuk Inventaris (Bahan Baku)
+        foreach ($lowStockInventories as $item) {
+            $notifs[] = [
+                'icon' => 'fas fa-box-open', // Ikon bahan baku
+                'color' => 'bg-warning', // Kuning
+                'message' => "Bahan baku menipis: {$item->name} (Sisa {$item->stock} {$item->unit})",
+                'url' => route('karyawan.list-inventory', ['search' => $item->name]) // Link ke halaman inventory
+            ];
+        }
+
+        $this->notifications = $notifs;
+        $this->notifCount = count($notifs);
+    }
     public function performSearch()
     {
         if (empty($this->search)) {

@@ -77,7 +77,6 @@
                             <i class="fas fa-truck"></i> <span>Ongkos Kirim</span>
                         </a>
                     </li>
-
                 @endif
             </ul>
 

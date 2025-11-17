@@ -34,6 +34,8 @@ class EditProfile extends Component
         $this->phone = $user->phone;
         $this->address = $user->address;
         $this->oldImage = $user->avatar; // Isi data avatar lama
+        $this->city = $user->city; // Isi data avatar lama
+        $this->postal_code = $user->postal_code; // Isi data avatar lama
     }
 
     public function updateProfile()

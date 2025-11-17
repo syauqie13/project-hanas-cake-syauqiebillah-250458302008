@@ -50,6 +50,8 @@ class Login extends Component
                 return $this->redirect(route('admin.dashboard'), navigate: true);
             } elseif ($user->role == 'karyawan') {
                 return $this->redirect(route('karyawan.dashboard'), navigate: true);
+            } elseif ($user->role == 'pelanggan') {
+                return $this->redirect(route('ecommerce'), navigate: true);
             } else {
                 // Fallback jika 'pelanggan' mencoba login di sini
                 Auth::logout();

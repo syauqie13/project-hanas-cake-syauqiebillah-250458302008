@@ -1,4 +1,6 @@
 @push('styles')
+
+    <link rel="stylesheet" href="{{ asset('css-app.css') }}">
     <style>
         .avatar img {
             object-fit: cover;
@@ -349,31 +351,35 @@
     @endif
 
     @push('js')
+        {{-- PERBAIKAN DI SINI --}}
+
+        <script>
+            window.addEventListener('notify', event => {
+                Swal.fire({
+                    icon: event.detail.icon || 'success',
+                    title: event.detail.icon === 'error' ? 'Gagal!' : 'Berhasil!',
+                    text: event.detail.message || 'Aksi berhasil dijalankan!',
+                    timer: 2000,
+                    showConfirmButton: false,
+                });
+            });
+        </script>
+
         <script>
             document.addEventListener('livewire:init', () => {
-
-                // 1. Listener untuk Notifikasi (Sukses/Gagal)
-                Livewire.on('notify', (data) => {
-                    Swal.fire({
-                        icon: data.icon ?? 'error',
-                        title: data.icon === 'error' ? 'Gagal!' : 'Berhasil!',
-                        text: data.message,
-                        timer: 2000,
-                        showConfirmButton: false,
-                        toast: true,
-                        position: 'top-end'
-                    });
-                });
-
-
-                // 2. Listener untuk Konfirmasi Hapus
                 Livewire.on('confirmDelete', (data) => {
-                    // Ambil ID dengan aman (bisa berupa object atau value langsung)
-                    const id = data.id || data;
+                    // Ambil ID dari data event
+                    const id = data.id || (data[0] ? data[0].id : null);
+
+                    if (!id) {
+                        console.error('ID tidak ditemukan untuk dihapus');
+                        return;
+                    }
 
                     Swal.fire({
                         title: 'Yakin hapus bahan ini?',
-                        text: "Data stok akan hilang permanen. Pastikan bahan ini tidak dipakai di resep manapun.",
+                        // Pesan khusus untuk produk
+                        text: "Data inventory akan dihapus permanen.",
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#d33',
@@ -382,18 +388,13 @@
                         cancelButtonText: 'Batal'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Kirim sinyal balik ke PHP: function delete($id)
+                            // Kirim balik ke listener #[On('deleteConfirmed')]
                             Livewire.dispatch('deleteConfirmed', { id: id });
                         }
                     });
                 });
-
-                // 3. Helpers untuk Modal (Opsional, jika pakai Bootstrap Modal biasa)
-                // Menutup modal saat event 'close-modal' didispatch dari PHP
-                Livewire.on('close-modal', () => {
-                    $('#inventoryModal').modal('hide');
-                });
             });
         </script>
     @endpush
+
 </div>

@@ -1,4 +1,4 @@
-@push('css')
+@push('styles')
     <style>
         /* (Style Anda dari file lain) */
         thead tr th { border: none !important; letter-spacing: 0.3px; }

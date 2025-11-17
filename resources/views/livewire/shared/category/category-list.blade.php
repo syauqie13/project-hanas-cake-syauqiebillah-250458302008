@@ -1,4 +1,6 @@
 @push('styles')
+    <link rel="stylesheet" href="{{ asset('css-app.css') }}">
+
     <style>
         .avatar img {
             object-fit: cover;

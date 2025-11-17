@@ -1,3 +1,7 @@
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css-app.css') }}">
+@endpush
+
 <div wire:poll.15s>
     <div class="main-content">
         <section class="section">
@@ -184,9 +188,9 @@
                                         </td>
                                         <td class="text-center">
                                             <span class="badge
-                                        @if($order->status == 'selesai') badge-light
-                                        @elseif($order->status == 'diproses') badge-primary
-                                        @else badge-warning @endif px-3 py-1">
+                                            @if($order->status == 'selesai') badge-light
+                                            @elseif($order->status == 'diproses') badge-primary
+                                            @else badge-warning @endif px-3 py-1">
                                                 {{ ucfirst($order->status) }}
                                             </span>
                                         </td>

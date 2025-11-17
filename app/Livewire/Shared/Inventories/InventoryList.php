@@ -62,16 +62,32 @@ class InventoryList extends Component
 
     public function import()
     {
-        $this->validate([
-            'fileImport' => 'required|mimes:xlsx,xls,csv|max:2048',
-        ]);
-
         try {
             Excel::import(new InventoryImport, $this->fileImport);
-            session()->flash('success', 'Import berhasil!');
-            $this->showInventoryListImportModal = false;
+
+            // PERBAIKAN 1: Ganti session() dengan dispatch() agar konsisten
+            $this->dispatch('notify', [
+                'message' => 'Data inventaris berhasil diimport.',
+                'icon' => 'success'
+            ]);
+
+            $this->closeImportModal();
+            $this->refreshComponent(); // Refresh tabel
+
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            // Handle error validasi dari Excel (jika InventoryImport punya rules)
+            $failures = $e->failures();
+            $errorMsg = 'Gagal import:';
+            foreach ($failures as $failure) {
+                $errorMsg .= ' Baris ' . $failure->row() . ' - ' . implode(', ', $failure->errors());
+            }
+            $this->dispatch('notify', message: $errorMsg, icon: 'error');
         } catch (\Exception $e) {
-            session()->flash('error', 'Gagal: ' . $e->getMessage());
+            // PERBAIKAN 1: Ganti session() dengan dispatch()
+            $this->dispatch('notify', [
+                'message' => 'Gagal: ' . $e->getMessage(),
+                'icon' => 'error'
+            ]);
         }
     }
 
@@ -93,7 +109,7 @@ class InventoryList extends Component
             $inventory = Inventory::findOrFail($id);
 
             // Cek relasi ke resep
-            if ($inventory->recipes()->exists()) {
+            if ($inventory->recipes()->exists()) { // Asumsi model Inventory punya relasi 'recipes()'
                 $this->dispatch('notify', [
                     'message' => 'Gagal! Bahan baku ini sedang dipakai di Resep Produk.',
                     'icon' => 'error'
@@ -109,18 +125,10 @@ class InventoryList extends Component
             ]);
 
         } catch (\Exception $e) {
-            if ($e->getCode() == '23000') {
-                $this->dispatch('notify', [
-                    'message' => 'Gagal! Data ini terkunci relasi database.',
-                    'icon' => 'error'
-                ]);
-            } else {
-                $this->dispatch('notify', [
-                    'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
-                    'icon' => 'error'
-                ]);
-            }
+            logger()->error('Error delete inventory: ' . $e->getMessage());
+            dd($e->getMessage());
         }
+
     }
 
     // --- CREATE / EDIT / DELETE ---
