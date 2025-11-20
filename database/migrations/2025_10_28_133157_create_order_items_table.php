@@ -12,10 +12,7 @@ return new class extends Migration {
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-
-            // Relasi ke orders
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            // Relasi ke products
             $table->foreignId('product_id')->constrained('products')->onDelete('restrict');
             $table->integer('jumlah');
             $table->decimal('harga_satuan', 10, 2);

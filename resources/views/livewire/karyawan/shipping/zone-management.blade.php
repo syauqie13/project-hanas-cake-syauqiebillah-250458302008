@@ -1,3 +1,7 @@
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css-app.css') }}">
+@endpush
+
 <div>
     <div class="main-content">
         <section class="section">
@@ -50,11 +54,11 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <button wire:click="edit({{ $zone->id }})"
-                                                            class="mr-1 btn btn-sm btn-info">
+                                                            class="mr-1 btn btn-info">
                                                             <i class="fas fa-edit"></i>
                                                         </button>
                                                         <button wire:click="deleteConfirm({{ $zone->id }})"
-                                                            class="btn btn-sm btn-danger">
+                                                            class="btn btn-danger">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     </td>

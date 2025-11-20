@@ -55,13 +55,12 @@ table.table td {
 
 <div wire:poll.5s>
 <!-- Main Content -->
-<div class="main-content">
-<section class="section">
-<div class="section-header d-flex justify-content-between align-itemsC-center">
-<div>
-<h1>📦 Manajemen Pesanan (PO)</h1>
-</div>
-</div>
+    <div class="main-content">
+        <section class="section">
+            <div class="section-header d-flex justify-content-between align-items-center"><div>
+                <h1>📦 Manajemen Pesanan (PO)</h1>
+            </div>
+        </div>
 
         {{-- Statistics Cards --}}
         <div class="row">
@@ -144,62 +143,72 @@ table.table td {
 
         {{-- Card Tabel --}}
         <div class="shadow-sm card">
-            <div
-                class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-                <h4 class="mb-3 mb-md-0">
-                    <i class="mr-2 fas fa-clipboard-list text-primary"></i>
-                    Daftar Transaksi Online
-                </h4>
+                <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <h4 class="mb-3 mb-md-0">
+                        <i class="mr-2 fas fa-clipboard-list text-primary"></i>
+                        Daftar Transaksi Online
+                    </h4>
 
-                {{-- SEARCH (Struktur Asli Anda) --}}
-                <div class="card-header-form">
-                     <div class="d-flex">
-                        {{-- Filter Status (Struktur Asli Anda) --}}
-                        <select wire:model.live="filterStatus" class="mr-2 form-control" style="width: 150px; height: 42px;">
-                            <option value="">Semua Status</option>
-                                            <option value="pending">Menunggu Bayar</option>
-                                            <option value="processing">Sedang Dibuat</option>
-                                            <option value="shipped">Siap Diambil/Dikirim</option>
-                                            <option value="completed">Selesai</option>
-                                            <option value="canceled">Dibatalkan</option>
-                        </select>
-
-                        {{-- Filter Tanggal (Struktur Asli Anda) --}}
-                        {{-- Ini sekarang akan berfungsi karena ada di PHP --}}
-                        <div class="mr-2">
-                            <select wire:model.live="filterTanggal" class="form-control" style="width: 150px; height: 42px;">
-                                <option value="today">Hari Ini</option>
-                                <option value="week">Minggu Ini</option>
-                                <option value="month">Bulan Ini</option>
-                                <option value="all">Semua</option>
-                            </select>
-                        </div>
-
-                        {{-- Input Group (Struktur Asli Anda) --}}
-                        <div class="input-group">
-                            <button wire:click="export" wire:loading.attr="disabled"
-                                class="shadow-sm btn btn-success d-flex align-items-center">
-                                <span wire:loading.remove wire:target="export">
-                                    <i class="mr-2 fas fa-file-excel"></i> Export
-                                </span>
-                                <span wire:loading wire:target="export">
-                                    <i class="mr-2 fas fa-spinner fa-spin"></i>
-                                </span>
-                            </button>
-                            <input wire:model.live.debounce.300ms="search" type="text" class="form-control"
-                                placeholder="Cari ID Order / Nama Pelanggan...">
-                        </div>
+                     <div class="card-header-form">
+                        <input type="text" wire:model.live.debounce.300ms="search" class="form-control"
+                                placeholder="Cari ID Order, Pelanggan, Kasir...">
                     </div>
                 </div>
-            </div>
 
+                {{-- SEARCH (Struktur Asli Anda) --}}
+                 <div class="p-3 border-bottom bg-offline rounded-top">
+                        <div class="row align-items-end">
+
+                            <div class="mb-3 col-md-3">
+                                <label class="font-weight-bold"><i class="mr-1 fas fa-filter"></i> Status</label>
+                                <select wire:model.live="filterStatus" class="shadow-sm form-control">
+                                    <option value="">Semua Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Diproses</option>
+                                    <option value="completed">Selesai</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 col-md-3">
+                                <label class="font-weight-bold"><i class="mr-1 fas fa-calendar"></i> Tanggal</label>
+                                <select wire:model.live="filterTanggal" class="shadow-sm form-control">
+                                    <option value="today">Hari Ini</option>
+                                    <option value="week">Minggu Ini</option>
+                                    <option value="month">Bulan Ini</option>
+                                    <option value="all">Semua</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 col-md-3">
+                                <label class="font-weight-bold"><i class="mr-1 fas fa-credit-card"></i> Metode
+                                    Bayar</label>
+                                <select wire:model.live="filterPaymentMethod" class="shadow-sm form-control">
+                                    <option value="all">Semua Metode</option>
+                                    <option value="tunai">Tunai</option>
+
+                                    <option value="midtrans">Midtrans / Digital</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 col-md-3">
+                                <label class="font-weight-bold"><i class="mr-1 fas fa-download"></i> Export</label>
+                                <button wire:click="export" wire:loading.attr="disabled"
+                                    class="shadow-sm btn btn-success btn-block">
+                                    <span wire:loading.remove wire:target="export">
+                                        <i class="mr-2 fas fa-file-excel"></i> Export Excel
+                                    </span>
+                                    <span wire:loading wire:target="export">
+                                        <i class="mr-2 fas fa-spinner fa-spin"></i> Exporting...
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
             {{-- FILTER BAR (Dihapus karena sudah digabung di card-header) --}}
 
-            <div class="p-0 card-body">
                 <div class="table-responsive">
-                    <table class="table mb-0 table-striped table-md">
-                        {{-- THEAD (Struktur Asli Anda, hanya ganti style) --}}
-                        <thead class="bg-light">
+                    <table class="table mb-0 table-hover table-striped">
+                        <thead>
                             <tr>
                                 <th scope="col" class="align-middle">ID Order</th>
                                 <th scope="col" class="align-middle">Pelanggan</th>
@@ -342,7 +351,6 @@ table.table td {
 
                     </table>
                 </div>
-            </div>
             <div class="text-right card-footer">
                 <nav class="d-inline-block">
                     {{ $orders->links('livewire::bootstrap') }}

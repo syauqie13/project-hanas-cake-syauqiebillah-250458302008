@@ -70,7 +70,7 @@
 
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    <div class="dropdown-title"> Bergabung: {{ auth()->user()->created_at->format('d M Y') }}</div>
+                    <div class="text-center dropdown-title"> {{ auth()->user()->role }} </div>
                     @php
                         $profileRoute = '#';
                         if (auth()->user()->role === 'admin') {

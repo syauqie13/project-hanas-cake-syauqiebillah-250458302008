@@ -47,11 +47,11 @@ class Login extends Component
 
             // 2. Arahkan (Redirect) berdasarkan Role
             if ($user->role == 'admin') {
-                return $this->redirect(route('admin.dashboard'), navigate: true);
+                return $this->redirect(route('admin.dashboard'));
             } elseif ($user->role == 'karyawan') {
-                return $this->redirect(route('karyawan.dashboard'), navigate: true);
+                return $this->redirect(route('karyawan.dashboard'));
             } elseif ($user->role == 'pelanggan') {
-                return $this->redirect(route('ecommerce'), navigate: true);
+                return $this->redirect(route('ecommerce'));
             } else {
                 // Fallback jika 'pelanggan' mencoba login di sini
                 Auth::logout();

@@ -1,4 +1,8 @@
-<div wire:poll.60s>
+<div wire:poll.5s>
+
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css-app.css') }}">
+@endpush
 
     @push('js')
         <script>

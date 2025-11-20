@@ -111,9 +111,11 @@ class DashboardAdmin extends Component
         // LIST 2: Stok Bahan Baku Menipis (Inventories)
         // Ambil 5 stok terendah dari 'bahan_baku'
         $lowStockInventories = Inventory::where('type', 'bahan_baku')
+            ->where('stock', '<', 500)    // hanya tampil jika stok < 500
             ->orderBy('stock', 'asc')
             ->take(5)
             ->get();
+
 
         // Dispatch data ke Chart.js di frontend
         $this->dispatch(

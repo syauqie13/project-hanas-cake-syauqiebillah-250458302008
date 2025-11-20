@@ -50,6 +50,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     return redirect()->route('karyawan.dashboard');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
+
 Route::prefix('admin')->middleware(['auth', 'is.admin','verified'])->name('admin.')->group(function () {
     Route::get('/dashboard', DashboardAdmin::class)->name('dashboard');
     Route::get('/employee', KaryawanList::class)->name('list-karyawan');

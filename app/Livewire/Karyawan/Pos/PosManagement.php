@@ -81,6 +81,24 @@ class PosManagement extends Component
         // --- 1. BUAT KUERI DASAR (Base Query) ---
         $baseQuery = Order::where('order_type', 'pos');
 
+        $baseQuery->where(function ($q) {
+            // KONDISI 1: Tampilkan Order "Sehat" (Permanen)
+            // Syarat: Tidak Pending DAN Tidak Dibatalkan
+            $q->where(function ($permanent) {
+                $permanent->where('payment_status', '!=', 'pending')
+                    ->whereNotIn('status', ['cancelled', 'dibatalkan']);
+            })
+                // KONDISI 2: Tampilkan Order "Sementara" (Pending/Cancel)
+                // Syarat: (Pending ATAU Cancel) TAPI dibuat < 1 jam yang lalu
+                ->orWhere(function ($temporary) {
+                    $temporary->where(function ($badStatus) {
+                        $badStatus->where('payment_status', 'pending')
+                            ->orWhereIn('status', ['cancelled', 'dibatalkan']);
+                    })
+                        ->where('created_at', '>', now()->subHour());
+                });
+        });
+
         // --- 2. TERAPKAN FILTER GLOBAL (Tanggal & Search) ---
         // Terapkan Filter Tanggal
         switch ($this->filterTanggal) {
@@ -114,8 +132,8 @@ class PosManagement extends Component
         $statsQuery = clone $baseQuery;
 
         $stats = $statsQuery->select(
-            DB::raw('SUM(CASE WHEN payment_method = "tunai" THEN total ELSE 0 END) as total_pendapatan_offline'),
-            DB::raw('SUM(CASE WHEN payment_method = "midtrans" THEN total ELSE 0 END) as total_pendapatan_online'),
+            DB::raw('SUM(CASE WHEN payment_method = "tunai" AND payment_status = "paid" THEN total ELSE 0 END) as total_pendapatan_offline'),
+            DB::raw('SUM(CASE WHEN payment_method = "midtrans" AND payment_status = "paid" THEN total ELSE 0 END) as total_pendapatan_online'),
             DB::raw('COUNT(*) as total_pesanan'),
             DB::raw('SUM(CASE WHEN status = "processing" THEN 1 ELSE 0 END) as total_diproses'),
             DB::raw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as total_selesai')

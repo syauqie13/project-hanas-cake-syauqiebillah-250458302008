@@ -92,7 +92,7 @@
                     </div>
 
                     {{-- FILTER BAR --}}
-                    <div class="p-3 border-bottom bg-light rounded-top">
+                    <div class="p-3 border-bottom bg-offline rounded-top">
                         <div class="row align-items-end">
 
                             <div class="mb-3 col-md-3">
@@ -145,12 +145,11 @@
                     {{-- TABLE --}}
                     <div class="table-responsive">
                         <table class="table mb-0 table-hover table-striped">
-                            <thead class="bg-light">
+                            <thead >
                                 <tr>
                                     <th>ID Order</th>
-                                    <th>Tanggal</th>
                                     <th>Pelanggan</th>
-                                    <th>Kasir</th>
+                                    <th class="text-center">Kasir</th>
                                     <th class="text-right">Total</th>
 
                                     <th class="text-center">Metode Bayar</th>
@@ -163,8 +162,12 @@
                             <tbody>
                                 @forelse($orders as $order)
                                     <tr>
-                                        <td><strong>#{{ $order->merchant_order_id }}</strong></td>
-                                        <td>{{ $order->tanggal->format('d M Y, H:i') }}</td>
+                                        <td class="align-middle font-weight-600 text-dark">
+                                    #{{ $order->merchant_order_id }}
+                                    <div class="text-small text-muted">
+                                        {{ $order->tanggal->format('d M Y, H:i') }}
+                                    </div>
+                                </td>
                                         <td>{{ $order->customer->name ?? 'Guest' }}</td>
                                         <td>{{ $order->cashier->name ?? 'N/A' }}</td>
                                         <td class="text-right text-primary font-weight-bold">

@@ -114,7 +114,7 @@
                                 </div>
 
                                 @auth
-                                    <a href="{{ route('pelanggan.checkout') }}" wire:navigate
+                                    <a href="{{ route('pelanggan.checkout') }}"
                                         class="block w-full py-3 mt-4 font-bold text-center text-white transition-all rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:-translate-y-1">
                                         Lanjut Checkout
                                     </a>
