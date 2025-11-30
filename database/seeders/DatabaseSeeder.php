@@ -16,11 +16,33 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Akun Admin - Full Access
         User::create([
-            'name' => 'User Admin',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('123456'),
+            'name' => 'Admin Hana\'s Cake',
+            'email' => 'admin@hanascake.com',
+            'password' => Hash::make('password'),
             'role' => 'admin',
+            'phone' => '081234567890',
         ]);
+
+        // Akun Karyawan - POS & Manajemen Produk
+        User::create([
+            'name' => 'Kasir Hana\'s Cake',
+            'email' => 'kasir@hanascake.com',
+            'password' => Hash::make('password'),
+            'role' => 'karyawan',
+            'phone' => '081234567891',
+        ]);
+
+        // Akun Pelanggan Demo (opsional)
+        User::create([
+            'name' => 'Pelanggan Demo',
+            'email' => 'pelanggan@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'pelanggan',
+            'phone' => '081234567892',
+            'address' => 'Jl. No. 123, Jakarta',
+        ]);
+
     }
 }

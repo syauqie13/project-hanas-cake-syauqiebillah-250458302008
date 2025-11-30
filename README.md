@@ -216,7 +216,7 @@ Gunakan akun berikut untuk testing sistem:
 ## 📸 Preview Tampilan
 
 ### Dashboard Admin
-![Dashboard Admin](link-ke-screenshot-dashboard.png)
+![Dashboard Admin](img/image.png)
 
 ### Interface POS Karyawan
 ![POS Interface](link-ke-screenshot-pos.png)
