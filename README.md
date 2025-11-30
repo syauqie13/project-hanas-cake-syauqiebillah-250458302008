@@ -1,61 +1,161 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+🧁 Hana's Cake: Sistem Informasi Hybrid POS & E-Commerce
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Deskripsi Singkat Aplikasi
 
-## About Laravel
+Hana's Cake adalah Sistem Informasi Manajemen Penjualan dan Inventori yang dirancang secara hybrid, mengintegrasikan fungsionalitas Point of Sale (POS) untuk transaksi offline dan platform E-Commerce untuk pemesanan online. Sistem ini dibangun khusus untuk mengatasi masalah sinkronisasi stok bahan baku pada usaha bakery, di mana setiap penjualan produk jadi otomatis mengurangi bahan baku sesuai dengan resep yang telah ditetapkan (Recipe Management).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Fitur Utama (Core Modules)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Sistem ini memiliki 10 modul utama dengan fokus pada integrasi data real-time:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Fungsionalitas Inti
 
-## Learning Laravel
+Sistem Hybrid POS & E-Commerce: Pencatatan transaksi dari dua kanal berbeda dalam satu database.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Sinkronisasi Stok Resep: Logika otomatis mengurangi stok bahan baku saat produk jadi terjual.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Multi Role User: Hak akses berjenjang (Admin, Karyawan, Pelanggan) untuk menjaga keamanan sistem.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Manajemen Pelanggan (CRM Dasar): Penyimpanan dan pelacakan riwayat pembelian pelanggan.
 
-## Laravel Sponsors
+Laporan & Kontrol
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Dashboard KPI: Ringkasan visual kinerja penjualan harian dan bulanan.
 
-### Premium Partners
+Ekspor Laporan: Opsi export data transaksi ke format PDF dan Excel.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Manajemen Promo Dinamis: Admin dapat membuat dan menerapkan diskon pada transaksi.
 
-## Contributing
+Teknologi yang Digunakan
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Kategori
 
-## Code of Conduct
+Teknologi
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Peran
 
-## Security Vulnerabilities
+Backend Framework
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Laravel 10
 
-## License
+PHP Framework utama untuk logika bisnis, routing, dan ORM.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Frontend Framework
+
+Livewire 3 & Alpine.js
+
+Untuk membuat antarmuka real-time dan interaktif (terutama di modul POS).
+
+Database
+
+MySQL / MariaDB
+
+Basis data relasional untuk menyimpan data transaksi, stok, dan resep.
+
+Web Server
+
+Laravel Herd / Nginx
+
+Lingkungan server lokal yang cepat dan zero-configuration.
+
+Styling
+
+Tailwind CSS
+
+Framework CSS untuk desain yang responsive dan modern.
+
+Cara Instalasi Project
+
+Pastikan Anda telah menginstal PHP (v8.1+), Composer, Node.js/NPM, dan MySQL/Laragon/Herd sebelum memulai.
+
+Clone Repository:
+
+git clone [https://github.com/NamaAnda/nama-repo-anda.git](https://github.com/NamaAnda/nama-repo-anda.git)
+cd hanas-cake
+
+
+Instalasi Dependensi PHP:
+
+composer install
+
+
+Instalasi Dependensi Frontend:
+
+npm install
+npm run dev
+# atau npm run build jika deploy ke production
+
+
+Konfigurasi Environment:
+
+Duplikasi file .env.example menjadi .env.
+
+Buat Application Key: php artisan key:generate
+
+Atur koneksi database di file .env (pastikan nama database sudah dibuat di MySQL Anda):
+
+DB_DATABASE=hanas_cake_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+
+Migrasi dan Seeder:
+
+Jalankan migrasi untuk membuat struktur tabel:
+
+php artisan migrate
+
+
+(Opsional) Jalankan seeder untuk mengisi data awal (user admin, produk, dll.):
+
+php artisan db:seed
+
+
+Cara Menjalankan Project
+
+Start Server Lokal:
+Jika menggunakan Laravel Herd/Laragon, cukup pastikan server MySQL/Apache/Nginx Anda berjalan.
+Jika menggunakan server bawaan Laravel (untuk pengembangan):
+
+php artisan serve
+
+
+Akses Aplikasi:
+
+Buka browser dan akses alamat yang ditampilkan oleh terminal (biasanya http://127.0.0.1:8000 atau URL yang diberikan Herd/Laragon).
+
+(Opsional) Akun Demo
+
+Role
+
+Email
+
+Password
+
+URL
+
+Admin
+
+admin@hanascake.com
+
+password
+
+/admin/dashboard
+
+Karyawan
+
+kasir@hanascake.com
+
+password
+
+/karyawan/pos
+
+Pelanggan
+
+(Daftar/Register di halaman depan)
+
+
+
+/
+
+Preview Tampilan
