@@ -216,13 +216,13 @@ Gunakan akun berikut untuk testing sistem:
 ## 📸 Preview Tampilan
 
 ### Dashboard Admin
-![Dashboard Admin](img/image.png)
+![Dashboard Admin](public/img/image.png)
 
 ### Interface POS Karyawan
-![POS Interface](link-ke-screenshot-pos.png)
+![POS Interface](public/img/pos.png)
 
 ### E-Commerce (Pelanggan)
-![E-Commerce](link-ke-screenshot-ecommerce.png)
+![E-Commerce](public/img/ecommerce.png)
 
 ---
 
@@ -232,7 +232,7 @@ Gunakan akun berikut untuk testing sistem:
 hanas-cake/
 ├── app/
 │   ├── Http/
-│   │   ├── Controllers/      # Controller untuk routing
+│   │   ├── Controllers/       # Controller untuk routing
 │   │   └── Livewire/          # Livewire components
 │   ├── Models/                # Eloquent models
 │   └── Services/              # Business logic services
@@ -244,7 +244,7 @@ hanas-cake/
 │   └── js/                    # Frontend JS/Alpine
 ├── routes/
 │   ├── web.php                # Web routes
-│   └── api.php                # API routes (jika ada)
+│
 └── public/                    # Assets publik
 ```
 
