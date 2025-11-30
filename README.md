@@ -9,7 +9,7 @@
 
 **Sistem Manajemen Penjualan & Inventori Modern untuk Usaha Bakery**
 
-[Demo](#preview-tampilan) • [Fitur](#-fitur-utama-core-modules) • [Instalasi](#-cara-instalasi-project) • [Dokumentasi](#-teknologi-yang-digunakan)
+[Demo](#-preview-tampilan) • [Fitur](#-fitur-utama-core-modules) • [Instalasi](#-cara-instalasi-project) • [Dokumentasi](#-teknologi-yang-digunakan)
 
 </div>
 

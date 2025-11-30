@@ -81,8 +81,8 @@
             </ul>
 
             <div class="p-3 mt-4 mb-4 hide-sidebar-mini">
-                <a href="https://getstisla.com/docs" class="btn btn-primary btn-lg btn-block btn-icon-split">
-                    <i class="fas fa-rocket"></i> Documentation
+                <a href="#" class="btn btn-primary btn-lg btn-block btn-icon-split">
+                    <i class="fas fa-rocket"></i> Salam Coding
                 </a>
             </div>
         </aside>
