@@ -40,13 +40,13 @@ Sistem ini memiliki **10 modul utama** dengan fokus pada integrasi data real-tim
 | 👥 **Multi Role User** | Hak akses berjenjang (Admin, Karyawan, Pelanggan) untuk menjaga keamanan sistem |
 | 🎂 **Recipe Management** | Kelola resep produk dengan detail bahan baku yang dibutuhkan |
 | 🛒 **Manajemen Pelanggan (CRM Dasar)** | Penyimpanan dan pelacakan riwayat pembelian pelanggan |
-| 🏷️ **Manajemen Promo Dinamis** | Admin dapat membuat dan menerapkan diskon pada transaksi |
+| 🏷️ **Manajemen Promo Dinamis** | Admin dapat membuat dan menerapkan diskon pada produk |
 
 ### 📈 Laporan & Kontrol
 
 - 📊 **Dashboard KPI**: Ringkasan visual kinerja penjualan harian dan bulanan
 - 📄 **Ekspor Laporan**: Opsi export data transaksi ke format **PDF** dan **Excel**
-- 🔔 **Notifikasi Stok Minim**: Peringatan otomatis saat bahan baku menipis
+- 🔔 **Notifikasi Stok Minim**: Peringatan dalam aplikasi otomatis saat bahan baku menipis
 - 📦 **Zona Pengiriman**: Manajemen ongkos kirim berdasarkan wilayah
 
 ---
@@ -64,7 +64,7 @@ Sistem ini memiliki **10 modul utama** dengan fokus pada integrasi data real-tim
   <tbody>
     <tr>
       <td><strong>Backend Framework</strong></td>
-      <td><img src="https://img.shields.io/badge/Laravel-10-FF2D20?logo=laravel&logoColor=white" alt="Laravel"></td>
+      <td><img src="https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white" alt="Laravel"></td>
       <td>PHP Framework utama untuk logika bisnis, routing, dan ORM</td>
     </tr>
     <tr>
@@ -102,7 +102,7 @@ Sistem ini memiliki **10 modul utama** dengan fokus pada integrasi data real-tim
 ### Prerequisites
 
 Pastikan Anda telah menginstal:
-- ✅ PHP (v8.1+)
+- ✅ PHP (v8.2+)
 - ✅ Composer
 - ✅ Node.js/NPM (v16+)
 - ✅ MySQL/MariaDB atau Laravel Herd/Laragon
@@ -112,7 +112,7 @@ Pastikan Anda telah menginstal:
 #### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/NamaAnda/nama-repo-anda.git
+git clone https://github.com/syauqie13/hanas-cake-web.git
 cd hanas-cake
 ```
 
@@ -150,7 +150,7 @@ Atur koneksi database di file `.env` (pastikan nama database sudah dibuat di MyS
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
-DB_DATABASE=hanas_cake_db
+DB_DATABASE=hanas_cake
 DB_USERNAME=root
 DB_PASSWORD=
 ```
@@ -206,7 +206,7 @@ Gunakan akun berikut untuk testing sistem:
 | Role | Email | Password | URL | Akses |
 |------|-------|----------|-----|-------|
 | 🔴 **Admin** | `admin@hanascake.com` | `password` | `/admin/dashboard` | Full access ke semua modul |
-| 🟡 **Karyawan** | `kasir@hanascake.com` | `password` | `/karyawan/pos` | POS, Manajemen Produk, Transaksi |
+| 🟡 **Karyawan** | `kasir@hanascake.com` | `password` | `/user/dashboard` | DAshboard, POS, Manajemen Produk, Transaksi |
 | 🟢 **Pelanggan** | *(Daftar/Register di halaman depan)* | - | `/` | E-Commerce, Keranjang, Checkout |
 
 > ⚠️ **Catatan Keamanan:** Pastikan untuk mengubah password default sebelum deploy ke production!
@@ -272,9 +272,9 @@ Project ini menggunakan lisensi **MIT License**. Lihat file `LICENSE` untuk deta
 
 Jika ada pertanyaan atau butuh bantuan:
 
-- 📧 Email: support@hanascake.com
-- 🐛 Issues: [GitHub Issues](https://github.com/NamaAnda/nama-repo-anda/issues)
-- 💬 Diskusi: [GitHub Discussions](https://github.com/NamaAnda/nama-repo-anda/discussions)
+- 📧 Email: syauqiebillah13@gmail.com
+- 🐛 Issues: [GitHub Issues](https://github.com/syauqie13/hanas-cake-web.git)
+- 💬 Diskusi: [GitHub Discussions](https://github.com/syauqie13//hanas-cake-web/discussions)
 
 ---
 
