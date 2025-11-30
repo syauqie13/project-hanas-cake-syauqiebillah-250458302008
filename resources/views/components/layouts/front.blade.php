@@ -1,15 +1,25 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hana's Cake - Kue Homemade Terbaik</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css-front.css') }}">
+
+    <link rel="icon" type="image/png" href="{{ asset('icon/favicon-96x96.png') }}" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="{{ asset('icon/favicon.svg') }}" />
+    <link rel="shortcut icon" href="{{ asset('icon/favicon.ico') }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('icon/apple-touch-icon.png') }}" />
+    <link rel="manifest" href="{{ asset('icon/site.webmanifest') }}" />
     @livewireStyles
     <!-- /END GA -->
     @stack('styles')
 </head>
+
 <body>
     <!-- Navbar -->
     <livewire:front.atom.navbar />
@@ -30,7 +40,8 @@
                         <div class="stars">★★★★★</div>
                     </div>
                 </div>
-                <p class="testimonial-text">"Kue nya enak banget! Saya pesan untuk ulang tahun suami dan semua tamu puas. Presentasi nya juga cantik dan rasa nya premium. Pasti order lagi!"</p>
+                <p class="testimonial-text">"Kue nya enak banget! Saya pesan untuk ulang tahun suami dan semua tamu
+                    puas. Presentasi nya juga cantik dan rasa nya premium. Pasti order lagi!"</p>
             </div>
 
             <div class="testimonial-card">
@@ -41,7 +52,8 @@
                         <div class="stars">★★★★★</div>
                     </div>
                 </div>
-                <p class="testimonial-text">"Chocolate Dream Cake nya juara! Tekstur nya lembut, tidak terlalu manis, dan coklat nya premium. Anak-anak saya suka banget. Recommended!"</p>
+                <p class="testimonial-text">"Chocolate Dream Cake nya juara! Tekstur nya lembut, tidak terlalu manis,
+                    dan coklat nya premium. Anak-anak saya suka banget. Recommended!"</p>
             </div>
 
             <div class="testimonial-card">
@@ -52,7 +64,8 @@
                         <div class="stars">★★★★★</div>
                     </div>
                 </div>
-                <p class="testimonial-text">"Pelayanan cepat dan ramah. Kue nya datang tepat waktu dan kondisi sempurna. Red Velvet nya enak sekali! Terima kasih Hana's Cake!"</p>
+                <p class="testimonial-text">"Pelayanan cepat dan ramah. Kue nya datang tepat waktu dan kondisi sempurna.
+                    Red Velvet nya enak sekali! Terima kasih Hana's Cake!"</p>
             </div>
 
             <div class="testimonial-card">
@@ -63,7 +76,8 @@
                         <div class="stars">★★★★★</div>
                     </div>
                 </div>
-                <p class="testimonial-text">"Sudah langganan di sini sejak tahun lalu. Kualitas nya konsisten bagus dan harga nya worth it. Favorit saya Strawberry Delight!"</p>
+                <p class="testimonial-text">"Sudah langganan di sini sejak tahun lalu. Kualitas nya konsisten bagus dan
+                    harga nya worth it. Favorit saya Strawberry Delight!"</p>
             </div>
 
             <div class="testimonial-card">
@@ -74,7 +88,8 @@
                         <div class="stars">★★★★★</div>
                     </div>
                 </div>
-                <p class="testimonial-text">"Kue ulang tahun untuk istri saya sukses besar! Design nya cantik sesuai request dan rasa nya memang premium. Highly recommended!"</p>
+                <p class="testimonial-text">"Kue ulang tahun untuk istri saya sukses besar! Design nya cantik sesuai
+                    request dan rasa nya memang premium. Highly recommended!"</p>
             </div>
 
             <div class="testimonial-card">
@@ -85,7 +100,8 @@
                         <div class="stars">★★★★★</div>
                     </div>
                 </div>
-                <p class="testimonial-text">"Berry Cheesecake nya enak banget! Cream cheese nya pas tidak terlalu eneg dan buah berry nya segar. Pasti repeat order!"</p>
+                <p class="testimonial-text">"Berry Cheesecake nya enak banget! Cream cheese nya pas tidak terlalu eneg
+                    dan buah berry nya segar. Pasti repeat order!"</p>
             </div>
         </div>
     </section>
@@ -94,9 +110,12 @@
     <section id="about" class="about">
         <h2 class="section-title">Tentang Kami</h2>
         <div class="about-content">
-            <p>Hana's Cake adalah usaha kue premium yang didirikan dengan passion untuk menghadirkan kue-kue berkualitas tinggi dengan cita rasa istimewa dan desain modern yang memukau.</p>
-            <p>Kami menggunakan bahan-bahan pilihan terbaik dan resep yang telah disempurnakan untuk memastikan setiap kue yang kami buat memberikan pengalaman yang tak terlupakan.</p>
-            <p>Dengan pengalaman lebih dari 5 tahun melayani ratusan pelanggan puas, kami siap mewujudkan kue impian Anda untuk berbagai acara spesial seperti ulang tahun, pernikahan, dan moment berharga lainnya.</p>
+            <p>Hana's Cake adalah usaha kue premium yang didirikan dengan passion untuk menghadirkan kue-kue berkualitas
+                tinggi dengan cita rasa istimewa dan desain modern yang memukau.</p>
+            <p>Kami menggunakan bahan-bahan pilihan terbaik dan resep yang telah disempurnakan untuk memastikan setiap
+                kue yang kami buat memberikan pengalaman yang tak terlupakan.</p>
+            <p>Dengan pengalaman lebih dari 5 tahun melayani ratusan pelanggan puas, kami siap mewujudkan kue impian
+                Anda untuk berbagai acara spesial seperti ulang tahun, pernikahan, dan moment berharga lainnya.</p>
         </div>
     </section>
 
@@ -164,4 +183,5 @@
         });
     </script>
 </body>
+
 </html>
