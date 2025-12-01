@@ -17,21 +17,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-history"></i>
-                            <span>Riwayat</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{{ route('karyawan.pos.list') }}">
                             <i class="fas fa-chart-line"></i>
                             <span>Laporan</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-cog"></i>
-                            <span>Pengaturan</span>
                         </a>
                     </li>
                     <li class="nav-item ms-lg-2">
@@ -45,7 +33,7 @@
                             <div class="user-avatar">
                                 <i class="fas fa-user"></i>
                             </div>
-                            <span class="user-name d-none d-lg-block">Karyawan</span>
+                            <span class="user-name d-none d-lg-block">{{ auth()->user()->name }}</span>
                         </div>
                     </li>
                 </ul>

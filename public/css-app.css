@@ -154,7 +154,7 @@ select:focus {
 }
 
 .btn-success {
-    background: linear-gradient(135deg, #000000 0%, #96c93d 100%);
+    background-color: #3e5f44;
     color: white;
     box-shadow: 0 5px 15px rgba(0, 176, 155, 0.3);
 }
@@ -259,7 +259,7 @@ tbody td {
 }
 
 .badge-success {
-    background: linear-gradient(135deg, #000000 0%, #96c93d 100%);
+    background-color: #3e5f44;
     color: white;
 }
 

@@ -17,22 +17,18 @@
 }
 
 body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
     min-height: 100vh;
     padding-bottom: 30px;
 }
 
 /* Navbar Styling */
 .navbar-custom {
-    background: linear-gradient(
-        135deg,
-        rgba(79, 70, 229, 0.98) 0%,
-        rgba(124, 58, 237, 0.98) 100%
-    );
-    backdrop-filter: blur(20px);
-    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.3);
+    /* background: linear-gradient(
+      */
+    background-color: rgba(42, 41, 69, 0.98);
+
     padding: 0;
-    border-bottom: 3px solid rgba(255, 255, 255, 0.2);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -45,11 +41,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        transparent 100%
-    );
+
     pointer-events: none;
 }
 
@@ -309,11 +301,8 @@ body {
 }
 
 .card-header-modern {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--secondary-color) 100%
-    );
+    background-color: rgba(42, 41, 69, 0.98);
+
     color: white;
     padding: 1.5rem;
     border: none;
@@ -375,7 +364,7 @@ body {
 }
 
 .products-grid::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
+    background-color: rgba(42, 41, 69, 0.98);
     border-radius: 10px;
 }
 
@@ -556,11 +545,8 @@ body {
 }
 
 .btn-primary-modern {
-    background: linear-gradient(
-        135deg,
-        var(--primary-color) 0%,
-        var(--secondary-color) 100%
-    );
+        background-color: rgba(42, 41, 69, 0.98);
+
     color: white;
 }
 
