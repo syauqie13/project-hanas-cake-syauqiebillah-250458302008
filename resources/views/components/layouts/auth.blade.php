@@ -28,7 +28,6 @@
 </head>
 
 <body>
-    <script src="{{asset('mazer/assets/static/js/initTheme.js')}}"></script>
 
     <div id="auth">
         {{ $slot }}
