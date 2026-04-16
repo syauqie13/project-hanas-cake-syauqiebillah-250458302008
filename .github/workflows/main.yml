@@ -1,33 +1,25 @@
-name: Deploy Laravel FTP
-
+name: AssetFlow
 on:
-push:
-branches:
-- test1
-
+ push:
+ branches: [ test1 ] #sesuaikan dengan branch repositoryl
 jobs:
-web-deploy:
-runs-on: ubuntu-latest
+ web-deploy:
+ name: 🎉 Deploy
+ runs-on: ubuntu-latest
+ steps:
+ - name: 🚚 Get latest code
+ uses: actions/checkout@v4
+ - name: 📂 Sync files
+ uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+ with:
+ server: 151.243.222.70 #ip server hosting anda- contoh menggunak
+an ip hostingdata.id
+ username: test@arcueia.my.id #sesuaikan dengan username dan pa
+ssword ftp anda
+ password: Anything
+ # exclude accepts a multiline string. Using a block scalar avoids YAM
+L alias parsing.
 
-```
-steps:
-  - name: Checkout code
-    uses: actions/checkout@v4
-
-  - name: Install Composer
-    run: composer install --no-dev --optimize-autoloader
-
-  - name: Deploy via FTP
-    uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-    with:
-      server: ${{ secrets.FTP_SERVER }}
-      username: ${{ secrets.FTP_USERNAME }}
-      password: ${{ secrets.FTP_PASSWORD }}
-      server-dir: /public_html/api/
-      exclude: |
-        **/.git*
-        **/node_modules/**
-        **/tests/**
-        **/.env
-        storage/logs/**
-```
+exclude: |
+ **/.git/**
+ **/node_modules/**
