@@ -2,27 +2,28 @@ name: Deploy Laravel FTP
 
 on:
 push:
-branches: [ test1 ]
+branches:
+- test1
 
 jobs:
 web-deploy:
-name: 🎉 Deploy
 runs-on: ubuntu-latest
 
+```
 steps:
-  - name: 🚚 Checkout code
+  - name: Checkout code
     uses: actions/checkout@v4
 
-  - name: 📦 Install Composer (optional tapi disarankan)
+  - name: Install Composer
     run: composer install --no-dev --optimize-autoloader
 
-  - name: 📂 FTP Deploy
+  - name: Deploy via FTP
     uses: SamKirkland/FTP-Deploy-Action@v4.3.5
     with:
       server: ${{ secrets.FTP_SERVER }}
       username: ${{ secrets.FTP_USERNAME }}
       password: ${{ secrets.FTP_PASSWORD }}
-      server-dir: /public_html/api/   # sesuaikan
+      server-dir: /public_html/api/
       exclude: |
         **/.git*
         **/node_modules/**
