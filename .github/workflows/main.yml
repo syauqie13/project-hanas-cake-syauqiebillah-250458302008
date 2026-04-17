@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Kirim Logic (Controller, Views, Routes)
+      - name: 📂 Step 1:Kirim Logic (Controller, Views, Routes)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -26,19 +26,14 @@ jobs:
           security: loose
           timeout: 120000
           max-parallel: 1
-          state-name: ftp-deploy-logic.json
           exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/vendor/**
-            **/storage/logs/**
-            **/storage/framework/sessions/**
             **/public/**
+            **/vendor/**
+            **/node_modules/**
             .env
             bootstrap/cache/**
 
-      - name: Kirim Assets (Ke public_html)
+      - name: 📂 Step 2:Update Tampilan Otomatis (CSS, JS, Images)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -49,8 +44,8 @@ jobs:
           security: loose
           timeout: 120000
           max-parallel: 1
-          state-name: ftp-deploy-assets.json
           local-dir: public/
           server-dir: public_html/
+          # KUNCI UTAMANYA DISINI:
           exclude: |
-            assets/**
+            assets/modules/**
