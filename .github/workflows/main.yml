@@ -21,10 +21,11 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          # Tambahan bumbu rahasia biar gak ditendang server:
+          protocol: ftp  # Paksa jalur biasa
           port: 21
           security: loose
           timeout: 120000
+          # exclude biarin sama kayak sebelumnya
           # Pengecualian file:
           exclude: |
             **/.git*
