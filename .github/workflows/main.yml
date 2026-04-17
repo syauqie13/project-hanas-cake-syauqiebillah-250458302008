@@ -15,41 +15,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📂 Step 1:Kirim Logic
+      - name: Kirim Logic (Controller, Views, Routes)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
-        port: 21
-        security: loose
-        timeout: 120000
-        # PAKSA SATU-SATU BIAR GAK DISANGKA SPAM
-        max-parallel: 1 
-        state-name: ftp-deploy-logic.json
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/vendor/**
-          **/storage/logs/**
-          **/storage/framework/sessions/**
-          **/public/**
-          .env
-          bootstrap/cache/**
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          security: loose
+          timeout: 120000
+          max-parallel: 1
+          state-name: ftp-deploy-logic.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/vendor/**
+            **/storage/logs/**
+            **/storage/framework/sessions/**
+            **/public/**
+            .env
+            bootstrap/cache/**
 
-      - name: 📂 Step 2:Kirim Assets
+      - name: Kirim Assets (Ke public_html)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
-        port: 21
-        security: loose
-        timeout: 120000
-        max-parallel: 1
-        state-name: ftp-deploy-assets.json
-        local-dir: public/
-        server-dir: public_html/
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          security: loose
+          timeout: 120000
+          max-parallel: 1
+          state-name: ftp-deploy-assets.json
+          local-dir: public/
+          server-dir: public_html/
