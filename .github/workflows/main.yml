@@ -26,15 +26,16 @@ jobs:
           security: loose
           timeout: 120000
           # exclude biarin sama kayak sebelumnya
+          max-parallel: 5
           # Pengecualian file:
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             **/vendor/**
+            **/storage/logs/**
+            **/storage/framework/sessions/**
+            **/public_html/**
             .env
-            storage/*.sqlite
-            public/storage
             public/assets/**
-            *.zip
-            **/*.zip
+            bootstrap/cache/**
