@@ -1,28 +1,32 @@
-name: AssetFlow
+name: Deploy Laravel Otomatis
 
 on:
   push:
     branches:
-      - test1
+      - main  # Ganti jadi 'master' kalau kamu pakai nama master
 
 jobs:
   web-deploy:
-    name: 🎉 Deploy
+    name: Sync Files
     runs-on: ubuntu-latest
-
     steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v4
-
-      - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Ambil Kode Terbaru
+        uses: actions/checkout@v3
         with:
-          server: 151.243.222.70
-          username: test@arcueia.my.id
-          # WAJIB gunakan rahasia (secrets) untuk password
+          fetch-depth: 0
+
+      - name: Kirim File lewat FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: /public_html/   # SESUAIKAN dengan folder subdomain kamu
+          # Kita kecualikan file yang tidak boleh ditimpa di server
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
+            **/vendor/**
+            .env
+            storage/*.sqlite
+            public/storage
