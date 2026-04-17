@@ -3,7 +3,7 @@ name: Deploy Laravel Otomatis
 on:
   push:
     branches:
-      - main  # Ganti jadi 'master' kalau kamu pakai nama master
+      - main  # Pastikan sesuai dengan nama branch utama lu
 
 jobs:
   web-deploy:
@@ -15,19 +15,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Kirim File lewat FTP
+      - name: Kirim Logic (Controller, Views, Routes)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp  # Paksa jalur biasa
+          protocol: ftp
           port: 21
           security: loose
           timeout: 120000
-          # exclude biarin sama kayak sebelumnya
           max-parallel: 5
-          # Pengecualian file:
           exclude: |
             **/.git*
             **/.git*/**
@@ -35,7 +33,20 @@ jobs:
             **/vendor/**
             **/storage/logs/**
             **/storage/framework/sessions/**
-            **/public_html/**
+            **/public/**
             .env
-            public/assets/**
             bootstrap/cache/**
+
+      - name: Kirim Assets (Ke public_html)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          security: loose
+          timeout: 120000
+          max-parallel: 5
+          local-dir: public/
+          server-dir: public_html/
