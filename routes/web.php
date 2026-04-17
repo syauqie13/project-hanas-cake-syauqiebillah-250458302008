@@ -95,8 +95,10 @@ Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->na
 });
 
 Route::get('/gas-link', function () {
-    Artisan::call('storage:link');
-    return "Jembatan Storage sudah dibuat!";
+    $targetFolder = base_path('storage/app/public');
+    $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
+    symlink($targetFolder, $linkFolder);
+    return 'Simlink Berhasil Dibuat!';
 });
 
 
