@@ -15,38 +15,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Kirim Logic (Controller, Views, Routes)
+      - name: 📂 Step 1:Kirim Logic
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          security: loose
-          timeout: 120000
-          max-parallel: 5
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/vendor/**
-            **/storage/logs/**
-            **/storage/framework/sessions/**
-            **/public/**
-            .env
-            bootstrap/cache/**
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        protocol: ftp
+        port: 21
+        security: loose
+        timeout: 120000
+        # PAKSA SATU-SATU BIAR GAK DISANGKA SPAM
+        max-parallel: 1 
+        state-name: ftp-deploy-logic.json
+        exclude: |
+          **/.git*
+          **/.git*/**
+          **/node_modules/**
+          **/vendor/**
+          **/storage/logs/**
+          **/storage/framework/sessions/**
+          **/public/**
+          .env
+          bootstrap/cache/**
 
-      - name: Kirim Assets (Ke public_html)
+      - name: 📂 Step 2:Kirim Assets
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          security: loose
-          timeout: 120000
-          max-parallel: 5
-          local-dir: public/
-          server-dir: public_html/
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        protocol: ftp
+        port: 21
+        security: loose
+        timeout: 120000
+        max-parallel: 1
+        state-name: ftp-deploy-assets.json
+        local-dir: public/
+        server-dir: public_html/
