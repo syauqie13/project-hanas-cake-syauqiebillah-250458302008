@@ -94,6 +94,10 @@ Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->na
     })->name('logout');
 });
 
+Route::get('/gas-link', function () {
+    Artisan::call('storage:link');
+    return "Jembatan Storage sudah dibuat!";
+});
 
 
 
