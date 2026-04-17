@@ -52,3 +52,5 @@ jobs:
           state-name: ftp-deploy-assets.json
           local-dir: public/
           server-dir: public_html/
+          exclude: |
+            assets/**
