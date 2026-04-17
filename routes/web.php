@@ -94,13 +94,6 @@ Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->na
     })->name('logout');
 });
 
-Route::get('/gas-link', function () {
-    $targetFolder = base_path('storage/app/public');
-    $linkFolder = $_SERVER['DOCUMENT_ROOT'] . '/storage';
-    symlink($targetFolder, $linkFolder);
-    return 'Simlink Berhasil Dibuat!';
-});
-
 
 
 
