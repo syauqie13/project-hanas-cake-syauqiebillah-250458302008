@@ -96,7 +96,7 @@
                         </div>
                         <div class="card-wrap">
                             <div class="card-header">
-                                <h4>Pendapatan Hari Ini (Lunas)</h4>
+                                <h4>Pendapatan Hari Ini</h4>
                             </div>
                             <div class="card-body">
                                 Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
