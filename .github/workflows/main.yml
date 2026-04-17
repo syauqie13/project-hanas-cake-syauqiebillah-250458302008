@@ -30,4 +30,6 @@ jobs:
             .env
             storage/*.sqlite
             public/storage
-            public/assets/modules/**
+            public/assets/**
+            *.zip
+            **/*.zip
