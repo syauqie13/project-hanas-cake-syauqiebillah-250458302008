@@ -35,7 +35,7 @@ class OrderController extends Controller
     {
         // Cari pesanan berdasarkan ID, pastikan milik user yang sedang login
         // Muat relasi orderItems beserta detail produknya (nama produk, gambar)
-        $order = Order::with('Items.product')
+        $order = Order::with('Items.product') 
             ->where('id', $id)
             ->where('user_id', $request->user()->id)
             ->first();
