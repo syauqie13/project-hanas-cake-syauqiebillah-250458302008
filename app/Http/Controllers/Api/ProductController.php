@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ShippingZone;
 
 class ProductController extends Controller
 {
@@ -70,4 +71,5 @@ class ProductController extends Controller
             'data' => $product
         ]);
     }
+
 }
