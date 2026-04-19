@@ -11,6 +11,8 @@ class Product extends Model
 
     // Nama tabel (opsional kalau sesuai konvensi)
     protected $table = 'products';
+    protected $appends = ['image_url'];
+
 
     // Kolom yang boleh diisi mass-assignment
     protected $fillable = [
@@ -54,5 +56,13 @@ class Product extends Model
     public function recipes()
     {
         return $this->hasMany(ProductRecipe::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            return url('storage/' . $this->image);
+        }
+        return url('images/default-product.png'); // Gambar placeholder jika kosong
     }
 }

@@ -94,10 +94,7 @@ Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->na
     })->name('logout');
 });
 
-Route::get('/clear-api', function() {
-    Artisan::call('optimize:clear');
-    return "Cache cleared!";
-});
+
 
 
 

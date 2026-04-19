@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProductController;
 
 // 🔓 Route Public (Flutter bisa akses tanpa token)
 Route::post('/register', [AuthController::class, 'register']);
@@ -15,6 +16,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+// Route Produk & Kategori (Public)
+Route::get('/categories', [ProductController::class, 'categories']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
