@@ -15,7 +15,7 @@ class OrderController extends Controller
     {
         // Ambil pesanan milik pelanggan ini saja, urutkan dari yang terbaru
         // Kita juga memuat relasi 'orderItems' agar Flutter tahu berapa jumlah barang di tiap pesanan
-        $orders = Order::with('orderItems')
+        $orders = Order::with('Items')
             ->where('user_id', $request->user()->id)
             ->where('order_type', 'online') // Pastikan hanya pesanan dari aplikasi
             ->orderBy('tanggal', 'desc')
@@ -35,7 +35,7 @@ class OrderController extends Controller
     {
         // Cari pesanan berdasarkan ID, pastikan milik user yang sedang login
         // Muat relasi orderItems beserta detail produknya (nama produk, gambar)
-        $order = Order::with('orderItems.product')
+        $order = Order::with('Items.product')
             ->where('id', $id)
             ->where('user_id', $request->user()->id)
             ->first();
