@@ -18,6 +18,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/checkout', [CheckoutController::class, 'process']);
     Route::get('/shipping-zones', [CheckoutController::class, 'getShippingZones']);
+    Route::get('/orders', [\App\Http\Controllers\Api\OrderController::class, 'index']);
+    Route::get('/orders/{id}', [\App\Http\Controllers\Api\OrderController::class, 'show']);
 });
 
 // Route Produk & Kategori (Public)
