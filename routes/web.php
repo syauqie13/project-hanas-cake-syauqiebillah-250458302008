@@ -34,13 +34,16 @@ use App\Livewire\Auth\VerifyEmail;
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/gas-migrate', function () {
-    // Membersihkan cache config dulu
+    // clear config cache
     Artisan::call('config:clear');
 
-    // Menjalankan migrate fresh (HATI-HATI: Ini hapus data sesuai mau kamu tadi)
-    Artisan::call('migrate:fresh', ['--force' => true]);
+    // migrate fresh + seed
+    Artisan::call('migrate:fresh', [
+        '--force' => true,
+        '--seed' => true
+    ]);
 
-    return "Database berhasil di-fresh!";
+    return "Database berhasil di-fresh + seed!";
 });
 
 Route::get('/', Konten::class)->name('front');
