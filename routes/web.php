@@ -46,8 +46,12 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     // Redirect setelah sukses verifikasi sesuai role
     if ($request->user()->role === 'admin') {
         return redirect()->route('admin.dashboard');
+    } elseif ($request->user()->role === 'karyawan') {
+        return redirect()->route('karyawan.dashboard');
     }
-    return redirect()->route('karyawan.dashboard');
+    
+    // Default untuk pelanggan
+    return redirect()->route('ecommerce');
 })->middleware(['auth', 'signed'])->name('verification.verify');
 
 

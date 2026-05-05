@@ -65,8 +65,8 @@ class Register extends Component
         // Login otomatis
         Auth::login($user);
 
-        // Redirect ke dashboard
-        $this->redirect(route('admin.dashboard'), navigate: true);
+        // Redirect ke halaman pemberitahuan verifikasi email
+        $this->redirect(route('verification.notice'), navigate: true);
     }
 
     /**
