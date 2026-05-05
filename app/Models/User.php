@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Mail\VerificationCodeMail;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -64,5 +66,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function orders()
     {
         return $this->hasMany(Order::class, 'cashier_id');
+    }
+
+    /**
+     * Override the default email verification notification.
+     */
+    public function sendEmailVerificationNotification()
+    {
+        // Generate a 6-digit code
+        $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        // Save to database
+        $this->email_verification_code = $code;
+        $this->save();
+
+        // Send the mail
+        Mail::to($this->email)->send(new VerificationCodeMail($this, $code));
     }
 }

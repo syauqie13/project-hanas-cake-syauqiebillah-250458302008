@@ -39,20 +39,8 @@ Route::get('/auth/register', Register::class)->name('register')->middleware('gue
 // 1. HALAMAN NOTICE (Tampilan "Cek Email")
 Route::get('/email/verify', VerifyEmail::class)->middleware('auth')->name('verification.notice');
 
-// 2. LOGIKA VERIFIKASI (Saat link di email diklik)
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
+// Route verifikasi link lama telah dihapus dan digantikan dengan verifikasi kode OTP di VerifyEmail.php
 
-    // Redirect setelah sukses verifikasi sesuai role
-    if ($request->user()->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    } elseif ($request->user()->role === 'karyawan') {
-        return redirect()->route('karyawan.dashboard');
-    }
-    
-    // Default untuk pelanggan
-    return redirect()->route('ecommerce');
-})->middleware(['auth', 'signed'])->name('verification.verify');
 
 
 Route::prefix('admin')->middleware(['auth', 'is.admin','verified'])->name('admin.')->group(function () {

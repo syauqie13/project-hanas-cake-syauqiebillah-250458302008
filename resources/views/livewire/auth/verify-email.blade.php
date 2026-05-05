@@ -17,19 +17,33 @@
                         <div class="card-body">
                             <p class="text-muted">
                                 Terima kasih telah mendaftar! Sebelum memulai, mohon verifikasi alamat email Anda dengan
-                                mengklik link yang baru saja kami kirimkan ke email Anda.
+                                memasukkan 6 digit kode OTP yang baru saja kami kirimkan ke email Anda.
                             </p>
 
-                            <p class="text-small text-muted">
-                                Jika Anda tidak menerima email tersebut, kami dengan senang hati akan mengirimkan yang
-                                baru.
-                            </p>
+                            <form wire:submit="verifyCode">
+                                <div class="form-group">
+                                    <label for="verificationCode">Kode Verifikasi</label>
+                                    <input id="verificationCode" type="text" class="form-control" name="verificationCode" tabindex="1" required autofocus wire:model="verificationCode" placeholder="Masukkan 6 digit kode">
+                                    @error('verificationCode')
+                                        <div class="text-danger mt-2 text-sm">{{ $message }}</div>
+                                    @enderror
+                                </div>
 
-                            <div class="form-group">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="2" wire:loading.attr="disabled">
+                                        <span wire:loading.remove wire:target="verifyCode">Verifikasi Email</span>
+                                        <span wire:loading wire:target="verifyCode"><i class="fas fa-spinner fa-spin"></i> Memverifikasi...</span>
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="mt-4 text-center">
+                                <p class="text-small text-muted">
+                                    Tidak menerima kode?
+                                </p>
                                 <button wire:click="resendVerification" wire:loading.attr="disabled"
-                                    class="btn btn-primary btn-lg btn-block" tabindex="4">
-                                    <span wire:loading.remove wire:target="resendVerification">Kirim Ulang Link
-                                        Verifikasi</span>
+                                    class="btn btn-outline-primary btn-sm btn-block" tabindex="3">
+                                    <span wire:loading.remove wire:target="resendVerification">Kirim Ulang Kode</span>
                                     <span wire:loading wire:target="resendVerification"><i
                                             class="fas fa-spinner fa-spin"></i> Mengirim...</span>
                                 </button>
