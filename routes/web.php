@@ -31,6 +31,18 @@ use App\Livewire\Shared\User\UpdatePassword;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Livewire\Auth\VerifyEmail;
 
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/gas-migrate', function () {
+    // Membersihkan cache config dulu
+    Artisan::call('config:clear');
+
+    // Menjalankan migrate fresh (HATI-HATI: Ini hapus data sesuai mau kamu tadi)
+    Artisan::call('migrate:fresh', ['--force' => true]);
+
+    return "Database berhasil di-fresh!";
+});
+
 Route::get('/', Konten::class)->name('front');
 
 Route::get('/auth/start-session', Login::class)->name('login')->middleware('guest');
