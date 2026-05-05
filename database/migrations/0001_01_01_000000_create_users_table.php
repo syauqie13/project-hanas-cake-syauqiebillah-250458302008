@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('postal_code', 20)->nullable();
             $table->string('avatar')->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('email_verification_code')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'karyawan', 'pelanggan']);
             $table->rememberToken();
