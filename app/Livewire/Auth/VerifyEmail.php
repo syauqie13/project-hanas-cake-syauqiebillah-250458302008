@@ -7,7 +7,7 @@ use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
-#[Layout('components.layouts.guest')] // Gunakan layout polos/guest
+#[Layout('components.layouts.auth')] // Gunakan layout polos/guest
 class VerifyEmail extends Component
 {
     public $verificationCode = '';

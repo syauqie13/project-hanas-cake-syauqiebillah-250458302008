@@ -58,6 +58,12 @@
                         <span
                             class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
                     </a>
+                    <a href="{{ route('pelanggan.vouchers') }}" wire:navigate
+                        class="relative font-medium text-gray-700 transition-colors hover:text-purple-600 group">
+                        <span>Vouchers</span>
+                        <span
+                            class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                    </a>
 
                     <livewire:frontend.cart-counter />
 

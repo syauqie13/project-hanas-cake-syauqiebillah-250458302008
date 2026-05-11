@@ -33,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',  // <-- TAMBAHKAN INI (Opsional)
         'city',        // <-- TAMBAHKAN INI
         'postal_code',
+        'payment_pin'
     ];
 
     /**
@@ -43,6 +44,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'payment_pin'
     ];
 
     /**
@@ -82,5 +84,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // Send the mail
         Mail::to($this->email)->send(new VerificationCodeMail($this, $code));
+    }
+
+    public function claimedVouchers()
+    {
+        return $this->belongsToMany(Voucher::class, 'user_vouchers')
+            ->withPivot('is_used', 'used_at')
+            ->withTimestamps();
     }
 }

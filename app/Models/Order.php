@@ -31,7 +31,8 @@ class Order extends Model
         'shipping_city',
         'shipping_postal_code',
         'shipping_zone_name',
-        'shipping_price'
+        'shipping_price',
+        'voucher_id',
     ];
 
     protected $casts = [

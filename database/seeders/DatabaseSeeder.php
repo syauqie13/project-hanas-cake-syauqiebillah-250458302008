@@ -15,34 +15,36 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      */
     public function run(): void
-    {
-        // Akun Admin - Full Access
-        User::create([
-            'name' => 'Admin Hana\'s Cake',
-            'email' => 'admin@hanascake.com',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'phone' => '081234567890',
-        ]);
+{
+    // Akun Admin - Full Access
+    User::create([
+        'name' => 'Admin Hana\'s Cake',
+        'email' => 'admin@hanascake.com',
+        'email_verified_at' => now(), // Tambahkan baris ini
+        'password' => Hash::make('password'),
+        'role' => 'admin',
+        'phone' => '081234567890',
+    ]);
 
-        // Akun Karyawan - POS & Manajemen Produk
-        User::create([
-            'name' => 'Kasir Hana\'s Cake',
-            'email' => 'kasir@hanascake.com',
-            'password' => Hash::make('password'),
-            'role' => 'karyawan',
-            'phone' => '081234567891',
-        ]);
+    // Akun Karyawan - POS & Manajemen Produk
+    User::create([
+        'name' => 'Kasir Hana\'s Cake',
+        'email' => 'kasir@hanascake.com',
+        'email_verified_at' => now(), // Tambahkan baris ini
+        'password' => Hash::make('password'),
+        'role' => 'karyawan',
+        'phone' => '081234567891',
+    ]);
 
-        // Akun Pelanggan Demo (opsional)
-        User::create([
-            'name' => 'Pelanggan Demo',
-            'email' => 'pelanggan@example.com',
-            'password' => Hash::make('password'),
-            'role' => 'pelanggan',
-            'phone' => '081234567892',
-            'address' => 'Jl. No. 123, Jakarta',
-        ]);
-
-    }
+    // Akun Pelanggan Demo (opsional)
+    User::create([
+        'name' => 'Pelanggan Demo',
+        'email' => 'pelanggan@example.com',
+        'email_verified_at' => now(), // Tambahkan baris ini
+        'password' => Hash::make('password'),
+        'role' => 'pelanggan',
+        'phone' => '081234567892',
+        'address' => 'Jl. No. 123, Jakarta',
+    ]);
+}
 }

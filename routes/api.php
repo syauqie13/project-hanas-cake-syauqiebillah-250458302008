@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\PinController;
+use App\Http\Controllers\Api\VoucherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransWebhookController;
@@ -20,6 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/shipping-zones', [CheckoutController::class, 'getShippingZones']);
     Route::get('/orders', [\App\Http\Controllers\Api\OrderController::class, 'index']);
     Route::get('/orders/{id}', [\App\Http\Controllers\Api\OrderController::class, 'show']);
+    Route::post('/vouchers/apply', [VoucherController::class, 'apply']);
+    Route::post('/pin/setup', [PinController::class, 'setPin']);
+    // Endpoint untuk memvalidasi PIN sebelum checkout
+    Route::post('/pin/verify', [PinController::class, 'verify']);
 });
 
 // Route Produk & Kategori (Public)

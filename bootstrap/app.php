@@ -15,17 +15,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias([
-            'is.admin' => CheckIsAdmin::class,
-            'is.karyawan' => CheckIsKaryawan::class,
-            'is.pelanggan' => CheckIsPelanggan::class,
-        ]);
-        $middleware->validateCsrfTokens(except: [
-            'api/midtrans/webhook', // <-- URL Anda
-            'api/midtrans/webhook/*' // <-- Opsional, untuk jaga-jaga
-        ]);
-        $middleware->trustProxies(at: ['*']);
-    })
+    $middleware->alias([
+        'is.admin' => CheckIsAdmin::class,
+        'is.karyawan' => CheckIsKaryawan::class,
+        'is.pelanggan' => CheckIsPelanggan::class,
+    ]);
+
+    // 1. Bypass CSRF (Pastikan tidak ada typo)
+    $middleware->validateCsrfTokens(except: [
+        'api/midtrans/webhook',
+    ]);
+
+    // 2. WAJIB: Trust Proxies untuk Ngrok
+    // Menggunakan '*' berarti kita percaya pada proxy manapun (cocok untuk dev ngrok)
+    $middleware->trustProxies(at: '*');
+
+    // 3. Paksa agar rute API tidak mencoba menggunakan Session
+    $middleware->statefulApi(); 
+})
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

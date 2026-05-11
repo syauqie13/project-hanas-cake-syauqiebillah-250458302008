@@ -23,6 +23,7 @@ use App\Livewire\Shared\Category\CategoryList;
 use App\Livewire\Karyawan\Order\OrderManagement;
 use App\Livewire\Frontend\UserProfile\EditProfile;
 use App\Livewire\Karyawan\Shipping\ZoneManagement;
+use App\Livewire\Karyawan\Voucher\VoucherManagement;
 use App\Livewire\Shared\Inventories\InventoryList;
 use App\Http\Controllers\CustomerPaymentController;
 use App\Livewire\Karyawan\Pos\PosManagement;
@@ -30,7 +31,7 @@ use App\Livewire\Shared\User\Profil;
 use App\Livewire\Shared\User\UpdatePassword;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Livewire\Auth\VerifyEmail;
-
+use App\Livewire\Frontend\SetupPin;
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/gas-migrate', function () {
@@ -81,6 +82,7 @@ Route::prefix('karyawan')->middleware(['auth', 'is.karyawan', 'verified'])->name
     Route::get('/pos/management', PosManagement::class)->name('pos.list');
     Route::get('/production-list', ProductionList::class)->name('production-list');
     Route::get('/shipping-zones', ZoneManagement::class)->name('shipping-zones');
+    Route::get('/vouchers', VoucherManagement::class)->name('vouchers');
     Route::get('/profil', Profil::class)->name('profile');
     Route::get('/update-password', UpdatePassword::class)->name('update.password');
 });
@@ -89,10 +91,12 @@ Route::get('/ecommerce', Shop::class)->name('ecommerce');
 Route::get('/cart', CartPage::class)->name('cart');
 
 Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->name('pelanggan.')->group(function () {
+    Route::get('/vouchers', \App\Livewire\Frontend\VoucherClaimPage::class)->name('vouchers');
     Route::get('/checkout', CheckoutPage::class)->name('checkout');
     Route::get('/my-orders', MyOrders::class)->name('my-orders');
     Route::get('/profile', EditProfile::class)->name('profile');
     Route::get('/pay/{order}', [CustomerPaymentController::class, 'show'])->name('pay');
+    Route::get('/setup-pin', SetupPin::class)->name('setup-pin');
     Route::post('/logout', function (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
