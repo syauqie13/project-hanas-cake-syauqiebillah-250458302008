@@ -168,32 +168,7 @@
                                 @error('phone') <span class="mt-1 text-xs text-red-500">{{ $message }}</span> @enderror
                             </div>
 
-                            {{-- Alamat Pemesan (Billing) --}}
-                            @if($delivery_type == 'pickup')
-                                <div class="md:col-span-2">
-                                    <label for="address" class="block mb-1.5 text-sm font-semibold text-gray-700">Alamat
-                                        Pemesan (Tagihan)</label>
-                                    <textarea wire:model="address" id="address_billing" rows="3"
-                                        class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white"
-                                        placeholder="Alamat untuk data tagihan"></textarea>
-                                    @error('address') <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label for="city" class="block mb-1.5 text-sm font-semibold text-gray-700">Kota</label>
-                                    <input wire:model="city" id="city_billing" type="text" placeholder="Contoh: Jakarta"
-                                        class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                    @error('city') <span class="mt-1 text-xs text-red-500">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label for="postal_code" class="block mb-1.5 text-sm font-semibold text-gray-700">Kode
-                                        Pos</label>
-                                    <input wire:model="postal_code" id="postal_code_billing" type="text" placeholder="12345"
-                                        class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                    @error('postal_code') <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            @endif
+
                         </div>
                     </div>
                 </div>

@@ -48,12 +48,12 @@ class CheckoutPage extends Component
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:20',
-            'address' => 'required|string|max:500',
-            'city' => 'required|string|max:100',
-            'postal_code' => 'required|string|max:10',
         ];
 
         if ($this->delivery_type == 'delivery') {
+            $rules['address'] = 'required|string|max:500';
+            $rules['city'] = 'required|string|max:100';
+            $rules['postal_code'] = 'required|string|max:10';
             $rules['shipping_zone_id'] = 'required|exists:shipping_zones,id';
             if ($this->requires_confirmation) {
                 $rules['confirmed_shipping'] = 'accepted';
@@ -258,13 +258,14 @@ class CheckoutPage extends Component
                 'payment_method' => 'midtrans',
                 'payment_status' => 'pending',
                 'order_type' => 'online',
+                'delivery_type' => $this->delivery_type,
                 'status' => 'pending',
                 'shipping_name' => $this->name,
                 'shipping_email' => $this->email,
                 'shipping_phone' => $this->phone,
-                'shipping_address' => $this->address,
-                'shipping_city' => $this->city,
-                'shipping_postal_code' => $this->postal_code,
+                'shipping_address' => $this->delivery_type == 'delivery' ? $this->address : null,
+                'shipping_city' => $this->delivery_type == 'delivery' ? $this->city : null,
+                'shipping_postal_code' => $this->delivery_type == 'delivery' ? $this->postal_code : null,
                 'shipping_zone_name' => $zoneName,
                 'shipping_price' => $shippingPrice,
             ]);

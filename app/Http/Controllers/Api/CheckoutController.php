@@ -14,9 +14,10 @@ class CheckoutController extends Controller
 {
     public function process(Request $request)
     {
-        // 1. Validasi Payload (Tambahkan shipping_zone_id)
+        // 1. Validasi Payload (Tambahkan delivery_type dan shipping_zone_id kondisional)
         $request->validate([
-            'shipping_zone_id' => 'required|exists:shipping_zones,id',
+            'delivery_type' => 'required|in:pickup,delivery',
+            'shipping_zone_id' => 'required_if:delivery_type,delivery|exists:shipping_zones,id',
             'total_belanja' => 'required|numeric',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -26,9 +27,20 @@ class CheckoutController extends Controller
 
         $user = $request->user();
 
-        // 2. Ambil data Zona Pengiriman dari database
-        $zone = ShippingZone::find($request->shipping_zone_id);
-        $ongkir = $zone->price; // Misal nama kolom harganya adalah 'price'
+        // 2. Ambil data Zona Pengiriman dari database jika tipe pengiriman adalah delivery
+        $ongkir = 0;
+        $zoneName = null;
+
+        if ($request->delivery_type === 'delivery') {
+            $zone = ShippingZone::find($request->shipping_zone_id);
+            if ($zone) {
+                $ongkir = $zone->price;
+                $zoneName = $zone->name;
+            }
+        } else {
+            $zoneName = 'Ambil di Toko (Pickup)';
+        }
+
         $grandTotal = $request->total_belanja + $ongkir;
 
         DB::beginTransaction();
@@ -45,18 +57,19 @@ class CheckoutController extends Controller
                 'merchant_order_id' => $merchantOrderId,
                 'payment_status' => 'pending',
                 'order_type' => 'online',
+                'delivery_type' => $request->delivery_type,
                 'status' => 'pending',
 
                 // Data Alamat & Zona
                 'shipping_name' => $user->name,
                 'shipping_email' => $user->email,
                 'shipping_phone' => $user->phone,
-                'shipping_address' => $user->address,
-                'shipping_city' => $user->city,
-                'shipping_postal_code' => $user->postal_code,
+                'shipping_address' => $request->delivery_type === 'delivery' ? $user->address : null,
+                'shipping_city' => $request->delivery_type === 'delivery' ? $user->city : null,
+                'shipping_postal_code' => $request->delivery_type === 'delivery' ? $user->postal_code : null,
 
-                // Ambil dari tabel shipping_zones
-                'shipping_zone_name' => $zone->name, // Simpan nama zonanya (misal: "Bogor Barat")
+                // Ambil dari tabel shipping_zones atau hardcode jika pickup
+                'shipping_zone_name' => $zoneName, 
                 'shipping_price' => $ongkir,
             ]);
 
