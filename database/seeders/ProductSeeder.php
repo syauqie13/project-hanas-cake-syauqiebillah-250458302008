@@ -42,7 +42,7 @@ class ProductSeeder extends Seeder
                 ['slug' => Str::slug($c['name'])],
                 array_merge($c, [
                     'category_id' => $category ? $category->id : null,
-                    'image' => null,
+                    'image' => 'default-product.jpg',
                     'is_po' => false,
                 ])
             );

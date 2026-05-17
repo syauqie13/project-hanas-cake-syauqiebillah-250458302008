@@ -14,10 +14,10 @@ class InventorySeeder extends Seeder
     public function run(): void
     {
         $items = [
-            ['name' => 'Tepung Terigu', 'type' => 'bahan', 'unit' => 'kg', 'stock' => 50, 'unit_price' => 20000, 'description' => 'Tepung serbaguna untuk kue.'],
-            ['name' => 'Gula Pasir', 'type' => 'bahan', 'unit' => 'kg', 'stock' => 40, 'unit_price' => 15000, 'description' => 'Gula untuk pemanis.'],
-            ['name' => 'Telur Ayam', 'type' => 'bahan', 'unit' => 'butir', 'stock' => 200, 'unit_price' => 1500, 'description' => 'Telur ayam lokal.'],
-            ['name' => 'Mentega', 'type' => 'bahan', 'unit' => 'kg', 'stock' => 20, 'unit_price' => 60000, 'description' => 'Mentega kualitas bagus.'],
+            ['name' => 'Tepung Terigu', 'type' => 'bahan_baku', 'unit' => 'pack', 'stock' => 50, 'unit_price' => 20000, 'description' => 'Tepung serbaguna untuk kue.'],
+            ['name' => 'Gula Pasir', 'type' => 'bahan_baku', 'unit' => 'pack', 'stock' => 40, 'unit_price' => 15000, 'description' => 'Gula untuk pemanis.'],
+            ['name' => 'Telur Ayam', 'type' => 'bahan_baku', 'unit' => 'pcs', 'stock' => 200, 'unit_price' => 1500, 'description' => 'Telur ayam lokal.'],
+            ['name' => 'Mentega', 'type' => 'bahan_baku', 'unit' => 'pack', 'stock' => 20, 'unit_price' => 60000, 'description' => 'Mentega kualitas bagus.'],
         ];
 
         foreach ($items as $i) {
