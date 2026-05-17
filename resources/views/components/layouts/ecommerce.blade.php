@@ -28,7 +28,7 @@
         <div class="container px-6 py-4 mx-auto">
             <div class="flex items-center justify-between">
 
-                <a href="{{ route('ecommerce') }}" class="flex items-center space-x-3 group">
+                <a href="{{ route('front') }}" class="flex items-center space-x-3 group">
                     <div class="flex items-center justify-center w-10 h-10 transition-transform duration-300 transform bg-[#5c4033] rounded-xl group-hover:rotate-12 shadow-md">
                         <i class="text-xl text-white fas fa-birthday-cake"></i>
                     </div>
