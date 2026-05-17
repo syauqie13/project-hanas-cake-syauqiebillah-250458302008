@@ -6,6 +6,10 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\CategorySeeder;
+use Database\Seeders\ProductSeeder;
+use Database\Seeders\CustomerSeeder;
+use Database\Seeders\InventorySeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -46,5 +50,12 @@ class DatabaseSeeder extends Seeder
         'phone' => '081234567892',
         'address' => 'Jl. No. 123, Jakarta',
     ]);
+        // Jalankan seeders tambahan setelah user pelanggan dibuat
+        $this->call([
+            CategorySeeder::class,
+            InventorySeeder::class,
+            ProductSeeder::class,
+            CustomerSeeder::class,
+        ]);
 }
 }
