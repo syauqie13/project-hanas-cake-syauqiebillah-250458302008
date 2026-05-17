@@ -22,19 +22,17 @@
     <link rel="stylesheet" href="{{ asset('css-ecommerce.css') }}">
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+<body class="min-h-screen bg-gray-50 pb-20 md:pb-0 font-sans text-gray-800">
 
     <nav class="sticky top-0 z-50 shadow-lg glass" x-data="{ mobileMenuOpen: false }">
         <div class="container px-6 py-4 mx-auto">
             <div class="flex items-center justify-between">
 
                 <a href="{{ route('ecommerce') }}" class="flex items-center space-x-3 group">
-                    <div
-                        class="flex items-center justify-center w-10 h-10 transition-transform duration-300 transform bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl group-hover:rotate-12">
+                    <div class="flex items-center justify-center w-10 h-10 transition-transform duration-300 transform bg-[#5c4033] rounded-xl group-hover:rotate-12 shadow-md">
                         <i class="text-xl text-white fas fa-birthday-cake"></i>
                     </div>
-                    <span
-                        class="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">
+                    <span class="text-2xl font-bold text-[#5c4033] tracking-tight">
                         Hana Cake
                     </span>
                 </a>
@@ -45,7 +43,7 @@
                     </div>
 
                     <button @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="text-gray-600 hover:text-purple-600 focus:outline-none">
+                        class="text-gray-600 hover:text-[#5c4033] focus:outline-none">
                         <i class="text-2xl fas fa-bars" x-show="!mobileMenuOpen"></i>
                         <i class="text-2xl fas fa-times" x-show="mobileMenuOpen" style="display: none;"></i>
                     </button>
@@ -53,16 +51,14 @@
 
                 <div class="items-center hidden space-x-8 md:flex">
                     <a href="{{ route('ecommerce') }}" wire:navigate
-                        class="relative font-medium text-gray-700 transition-colors hover:text-purple-600 group">
+                        class="relative font-bold text-gray-700 transition-colors hover:text-[#5c4033] group">
                         <span>Shop (PO)</span>
-                        <span
-                            class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#5c4033] group-hover:w-full transition-all duration-300"></span>
                     </a>
                     <a href="{{ route('pelanggan.vouchers') }}" wire:navigate
-                        class="relative font-medium text-gray-700 transition-colors hover:text-purple-600 group">
+                        class="relative font-bold text-gray-700 transition-colors hover:text-[#5c4033] group">
                         <span>Vouchers</span>
-                        <span
-                            class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 group-hover:w-full transition-all duration-300"></span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#5c4033] group-hover:w-full transition-all duration-300"></span>
                     </a>
 
                     <livewire:frontend.cart-counter />
@@ -72,10 +68,10 @@
 
                             <div class="relative group" x-data="{ open: false }">
                                 <button @click="open = !open" @click.away="open = false"
-                                    class="flex items-center space-x-2 font-medium text-gray-700 transition-colors hover:text-purple-600 focus:outline-none">
+                                    class="flex items-center space-x-2 font-bold text-gray-700 transition-colors hover:text-[#5c4033] focus:outline-none">
 
                                     <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}"
-                                        alt="Avatar" class="object-cover w-8 h-8 border-2 border-purple-100 rounded-full">
+                                        alt="Avatar" class="object-cover w-8 h-8 border-2 border-[#eedcd3] rounded-full">
 
                                     <span>{{ Auth::user()->name }}</span>
 
@@ -95,12 +91,12 @@
                                     </div>
 
                                     <a href="{{ route('pelanggan.profile') }}" wire:navigate
-                                        class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                        class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-[#eedcd3]/30 hover:text-[#5c4033] transition-colors">
                                         <i class="w-5 mr-2 text-center text-gray-400 fas fa-user-edit"></i> Edit Profil
                                     </a>
 
                                     <a href="{{ route('pelanggan.my-orders') }}" wire:navigate
-                                        class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors">
+                                        class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-[#eedcd3]/30 hover:text-[#5c4033] transition-colors">
                                         <i class="w-5 mr-2 text-center text-gray-400 fas fa-shopping-bag"></i> Pesanan Saya
                                     </a>
 
@@ -115,18 +111,18 @@
 
                         @else
                             <a href="{{ route('karyawan.pos') }}" wire:navigate
-                                class="flex items-center px-5 py-2 text-sm font-medium text-white transition-all duration-300 rounded-full bg-gradient-to-r from-orange-500 to-red-500 hover:shadow-lg hover:scale-105">
+                                class="flex items-center px-5 py-2 text-sm font-bold text-white transition-all duration-300 rounded-full bg-[#5c4033] hover:shadow-lg hover:scale-105 hover:bg-[#4a3328]">
                                 <i class="mr-2 fas fa-cash-register"></i>Masuk POS
                             </a>
                         @endif
                     @else
                         <div class="flex items-center space-x-4">
                             <a href="{{ route('login') }}" wire:navigate
-                                class="font-medium text-gray-600 transition-colors hover:text-purple-600">
+                                class="font-bold text-gray-600 transition-colors hover:text-[#5c4033]">
                                 Login
                             </a>
                             <a href="{{ route('register') }}" wire:navigate
-                                class="flex items-center px-5 py-2 font-medium text-white rounded-full shadow-md btn-gradient">
+                                class="flex items-center px-5 py-2 font-bold text-white rounded-full shadow-md bg-[#5c4033] hover:bg-[#4a3328] transition-colors">
                                 <i class="mr-2 text-sm fas fa-user-plus"></i> Register
                             </a>
                         </div>
@@ -142,7 +138,7 @@
 
                 <div class="flex flex-col mt-4 space-y-3">
                     <a href="{{ route('ecommerce') }}" wire:navigate
-                        class="block px-4 py-2 font-medium text-gray-700 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                        class="block px-4 py-2 font-bold text-gray-700 rounded-lg hover:bg-[#eedcd3]/30 hover:text-[#5c4033]">
                         <i class="w-6 mr-2 text-center fas fa-store"></i> Shop (PO)
                     </a>
 
@@ -151,18 +147,18 @@
                             <div class="px-4 pt-2 my-2 border-t border-gray-100">
                                 <div class="flex items-center mb-3">
                                     <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}"
-                                        alt="Avatar" class="object-cover w-8 h-8 mr-3 border-2 border-purple-100 rounded-full">
-                                    <span class="font-semibold text-gray-700">{{ Auth::user()->name }}</span>
+                                        alt="Avatar" class="object-cover w-8 h-8 mr-3 border-2 border-[#eedcd3] rounded-full">
+                                    <span class="font-bold text-gray-700">{{ Auth::user()->name }}</span>
                                 </div>
                             </div>
 
                             <a href="{{ route('pelanggan.profile') }}" wire:navigate
-                                class="block px-4 py-2 text-sm text-gray-700 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                                class="block px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-[#eedcd3]/30 hover:text-[#5c4033]">
                                 <i class="w-6 mr-2 text-center fas fa-user-edit"></i> Edit Profil
                             </a>
 
                             <a href="{{ route('pelanggan.my-orders') }}" wire:navigate
-                                class="block px-4 py-2 text-sm text-gray-700 rounded-lg hover:bg-purple-50 hover:text-purple-600">
+                                class="block px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-[#eedcd3]/30 hover:text-[#5c4033]">
                                 <i class="w-6 mr-2 text-center fas fa-shopping-bag"></i> Pesanan Saya
                             </a>
 
@@ -172,18 +168,18 @@
                             </button>
                         @else
                             <a href="{{ route('karyawan.pos') }}" wire:navigate
-                                class="block px-4 py-2 mx-4 mt-2 text-sm font-medium text-center text-white rounded-full shadow-md bg-gradient-to-r from-orange-500 to-red-500">
+                                class="block px-4 py-2 mx-4 mt-2 text-sm font-bold text-center text-white rounded-full shadow-md bg-[#5c4033]">
                                 <i class="mr-2 fas fa-cash-register"></i>Masuk POS
                             </a>
                         @endif
                     @else
                         <div class="flex flex-col px-4 pt-4 my-2 space-y-3 border-t border-gray-100">
                             <a href="{{ route('login') }}" wire:navigate
-                                class="block w-full py-2 text-center text-gray-600 border border-gray-300 rounded-full hover:bg-gray-50">
+                                class="block w-full py-2 font-bold text-center text-gray-600 border border-gray-300 rounded-full hover:bg-gray-50">
                                 Login
                             </a>
                             <a href="{{ route('register') }}" wire:navigate
-                                class="block w-full py-2 text-center text-white rounded-full shadow-md btn-gradient">
+                                class="block w-full py-2 font-bold text-center text-white rounded-full shadow-md bg-[#5c4033]">
                                 Register
                             </a>
                         </div>
@@ -200,19 +196,75 @@
 
     {{ $slot }}
 
-    <footer class="py-8 mt-16 text-white gradient-bg">
-        <div class="container px-6 mx-auto text-center">
-            <div class="flex items-center justify-center gap-3 mb-4">
-                <div class="flex items-center justify-center w-10 h-10 bg-white rounded-xl">
-                    <i class="text-xl text-purple-600 fas fa-birthday-cake"></i>
+    <footer class="py-12 mt-16 bg-[#5c4033] text-[#eedcd3]">
+        <div class="container px-6 mx-auto">
+            <div class="flex flex-col items-center justify-between md:flex-row">
+                <div class="flex flex-col items-center mb-6 md:items-start md:mb-0">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center justify-center w-12 h-12 bg-[#eedcd3] rounded-xl shadow-md">
+                            <i class="text-2xl text-[#5c4033] fas fa-birthday-cake"></i>
+                        </div>
+                        <span class="text-3xl font-extrabold text-white tracking-tight">Hana Cake</span>
+                    </div>
+                    <p class="text-sm font-medium text-[#eedcd3]/80">Manisnya setiap momen, berawal dari sini.</p>
                 </div>
-                <span class="text-2xl font-bold">Hana Cake</span>
+
+                <div class="flex space-x-6">
+                    <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#eedcd3]/10 hover:bg-[#eedcd3] hover:text-[#5c4033] transition-all">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#eedcd3]/10 hover:bg-[#eedcd3] hover:text-[#5c4033] transition-all">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#eedcd3]/10 hover:bg-[#eedcd3] hover:text-[#5c4033] transition-all">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                </div>
             </div>
-            <p class="text-purple-100">© 2025 Hana Cake. Semua hak dilindungi.</p>
+            
+            <div class="w-full h-px bg-[#eedcd3]/20 my-8"></div>
+            
+            <div class="text-center text-sm font-medium text-[#eedcd3]/60">
+                <p>© 2025 Hana Cake. Semua hak dilindungi.</p>
+            </div>
         </div>
     </footer>
 
     @livewireScripts
+
+    <!-- Bottom Navigation Bar (Mobile Only) -->
+    @if(!request()->routeIs('pelanggan.checkout'))
+    <div class="fixed bottom-0 left-0 right-0 z-[60] bg-[#eedcd3] shadow-[0_-4px_15px_rgba(0,0,0,0.05)] rounded-t-3xl md:hidden">
+        <div class="flex justify-around items-center h-16">
+            <a href="{{ route('front') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('front') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors' }}">
+                <i class="fas fa-home text-xl mb-0.5"></i>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('front') ? 'block' : 'hidden' }}">Home</span>
+            </a>
+            
+            <a href="{{ route('pelanggan.vouchers') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('pelanggan.vouchers') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors' }}">
+                <i class="fas fa-ticket-alt text-xl mb-0.5"></i>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('pelanggan.vouchers') ? 'block' : 'hidden' }}">Promo</span>
+            </a>
+            
+            <a href="{{ route('cart') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('cart') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors relative' }}">
+                <div class="relative">
+                    <i class="fas fa-shopping-cart text-xl mb-0.5"></i>
+                    @if(count(session()->get('cart', [])) > 0)
+                        <span class="absolute -top-1 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-[#eedcd3]">
+                            {{ array_sum(array_column(session()->get('cart', []), 'quantity')) }}
+                        </span>
+                    @endif
+                </div>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('cart') ? 'block' : 'hidden' }}">Keranjang</span>
+            </a>
+            
+            <a href="{{ route('pelanggan.profile') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('pelanggan.profile') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors' }}">
+                <i class="far fa-user text-xl mb-0.5"></i>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('pelanggan.profile') ? 'block' : 'hidden' }}">Profil</span>
+            </a>
+        </div>
+    </div>
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -223,8 +275,8 @@
                 text: "Anda akan dikembalikan ke halaman utama.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#8b5cf6',
-                cancelButtonColor: '#6b7280',
+                confirmButtonColor: '#5c4033',
+                cancelButtonColor: '#8b6f5e',
                 confirmButtonText: 'Ya, Logout!',
                 cancelButtonText: 'Batal',
                 background: '#fff',
@@ -282,8 +334,8 @@
                         text: "Silakan login terlebih dahulu untuk melanjutkan checkout.",
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#8b5cf6',
-                        cancelButtonColor: '#6b7280',
+                        confirmButtonColor: '#5c4033',
+                        cancelButtonColor: '#8b6f5e',
                         confirmButtonText: '<i class="mr-2 fas fa-sign-in-alt"></i>Login Sekarang',
                         cancelButtonText: 'Batal',
                         background: '#fff',

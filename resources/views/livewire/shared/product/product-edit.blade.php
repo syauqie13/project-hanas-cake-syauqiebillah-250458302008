@@ -73,6 +73,37 @@
                             @error('discount') <small class="text-danger">{{ $message }}</small> @enderror
                         </div>
 
+                        <!-- Deskripsi -->
+                        <div class="mb-3 form-group">
+                            <label class="fw-semibold">Deskripsi Detail Produk</label>
+                            <textarea class="rounded-lg shadow-sm form-control @error('description') is-invalid @enderror"
+                                placeholder="Masukkan komposisi, berat, atau detail deskripsi..." wire:model.defer="description" rows="4"></textarea>
+                            @error('description') <small class="text-danger">{{ $message }}</small> @enderror
+                        </div>
+
+                        <div class="p-3 mb-3 border rounded bg-light">
+                            <h6 class="fw-bold"><i class="mr-2 fas fa-tags text-secondary"></i> Variasi Produk (Opsional)</h6>
+                            <small class="text-muted d-block mb-3">Kosongkan jika tidak ada. Pisahkan dengan koma (contoh: Cokelat, Keju, Stroberi).</small>
+                            
+                            <!-- Pilihan Rasa -->
+                            <div class="mb-3 form-group">
+                                <label class="fw-semibold">Pilihan Rasa</label>
+                                <input type="text"
+                                    class="rounded-lg shadow-sm form-control @error('flavors') is-invalid @enderror"
+                                    placeholder="contoh: Cokelat, Keju" wire:model.defer="flavors">
+                                @error('flavors') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+
+                            <!-- Pilihan Porsi -->
+                            <div class="mb-0 form-group">
+                                <label class="fw-semibold">Pilihan Porsi</label>
+                                <input type="text"
+                                    class="rounded-lg shadow-sm form-control @error('portions') is-invalid @enderror"
+                                    placeholder="contoh: Kecil, Sedang, Besar" wire:model.defer="portions">
+                                @error('portions') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+                        </div>
+
                         {{-- ============================================= --}}
                         {{-- === BAGIAN BARU UNTUK PRE-ORDER (PO) === --}}
                         {{-- ============================================= --}}

@@ -13,7 +13,9 @@ class ProductCreate extends Component
 {
     use WithFileUploads;
 
-    public $category_id, $name, $slug, $price, $stock, $discount, $image;
+    public $category_id, $name, $slug, $price, $stock, $discount, $image, $description;
+    public $flavors = '';
+    public $portions = '';
 
     // Properti PO dari kode saya (ditambahkan)
     public $is_po = false;
@@ -31,7 +33,7 @@ class ProductCreate extends Component
     public function showCreateModal()
     {
         // Reset form (termasuk properti PO)
-        $this->reset(['category_id', 'name', 'slug', 'price', 'stock', 'discount', 'image', 'is_po', 'po_deadline']);
+        $this->reset(['category_id', 'name', 'slug', 'price', 'stock', 'discount', 'image', 'description', 'flavors', 'portions', 'is_po', 'po_deadline']);
         $this->resetErrorBag(); // Selalu reset error bag
         $this->showModal = true;
 
@@ -74,6 +76,9 @@ class ProductCreate extends Component
             'stock' => 'required|integer|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
             'image' => 'nullable|image|max:2048', // maksimal 2MB
+            'description' => 'nullable|string',
+            'flavors' => 'nullable|string',
+            'portions' => 'nullable|string',
 
             // Aturan PO ditambahkan
             'is_po' => 'boolean',
@@ -94,6 +99,19 @@ class ProductCreate extends Component
             $counter++;
         }
 
+        // Proses flavors & portions (explode by comma and trim whitespace)
+        $flavorsArray = null;
+        if (!empty($validated['flavors'])) {
+            $flavorsArray = array_map('trim', explode(',', $validated['flavors']));
+            $flavorsArray = array_filter($flavorsArray); // Remove empty values
+        }
+
+        $portionsArray = null;
+        if (!empty($validated['portions'])) {
+            $portionsArray = array_map('trim', explode(',', $validated['portions']));
+            $portionsArray = array_filter($portionsArray); // Remove empty values
+        }
+
         // Simpan ke database (Tambahkan field PO)
         Product::create([
             'category_id' => $validated['category_id'],
@@ -103,6 +121,9 @@ class ProductCreate extends Component
             'stock' => $validated['stock'],
             'discount' => $validated['discount'] ?? 0,
             'image' => $imagePath,
+            'description' => $this->description,
+            'flavors' => empty($flavorsArray) ? null : array_values($flavorsArray),
+            'portions' => empty($portionsArray) ? null : array_values($portionsArray),
 
             // Field PO yang ditambahkan
             'is_po' => $this->is_po,
@@ -115,7 +136,7 @@ class ProductCreate extends Component
         $this->dispatch('notify', ['message' => 'Produk berhasil ditambahkan!']);
 
         // Reset form agar bersih
-        $this->reset(['category_id', 'name', 'slug', 'price', 'stock', 'discount', 'image', 'is_po', 'po_deadline']);
+        $this->reset(['category_id', 'name', 'slug', 'price', 'stock', 'discount', 'image', 'description', 'flavors', 'portions', 'is_po', 'po_deadline']);
     }
 
     public function render()

@@ -82,17 +82,21 @@ Route::prefix('karyawan')->middleware(['auth', 'is.karyawan', 'verified'])->name
     Route::get('/pos/management', PosManagement::class)->name('pos.list');
     Route::get('/production-list', ProductionList::class)->name('production-list');
     Route::get('/shipping-zones', ZoneManagement::class)->name('shipping-zones');
+    Route::get('/stores', \App\Livewire\Shared\Store\StoreManagement::class)->name('stores.list');
     Route::get('/vouchers', VoucherManagement::class)->name('vouchers');
     Route::get('/profil', Profil::class)->name('profile');
     Route::get('/update-password', UpdatePassword::class)->name('update.password');
 });
 
 Route::get('/ecommerce', Shop::class)->name('ecommerce');
+Route::get('/store-selection', \App\Livewire\Frontend\StoreSelection::class)->name('store-selection');
 Route::get('/cart', CartPage::class)->name('cart');
 
 Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->name('pelanggan.')->group(function () {
     Route::get('/vouchers', \App\Livewire\Frontend\VoucherClaimPage::class)->name('vouchers');
     Route::get('/checkout', CheckoutPage::class)->name('checkout');
+    Route::get('/alamat', \App\Livewire\Frontend\AddressSelection::class)->name('alamat');
+    Route::get('/alamat/tambah', \App\Livewire\Frontend\AddressCreate::class)->name('alamat.tambah');
     Route::get('/my-orders', MyOrders::class)->name('my-orders');
     Route::get('/profile', EditProfile::class)->name('profile');
     Route::get('/pay/{order}', [CustomerPaymentController::class, 'show'])->name('pay');

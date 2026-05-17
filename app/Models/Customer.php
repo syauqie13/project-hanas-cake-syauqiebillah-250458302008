@@ -20,6 +20,9 @@ class Customer extends Model
         'name',
         'address',
         'phone',
+        'latitude',
+        'longitude',
+        'detail_address',
     ];
 
     /**
@@ -32,5 +35,9 @@ class Customer extends Model
 
     public function orders() {
         return $this->hasMany(Order::class);
+    }
+
+    public function addresses() {
+        return $this->hasMany(CustomerAddress::class);
     }
 }

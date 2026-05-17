@@ -9,7 +9,7 @@ use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product; // Pastikan Model Product di-import
 
-#[Layout('components.layouts.front')]
+#[Layout('components.layouts.ecommerce')]
 
 class Konten extends Component
 {

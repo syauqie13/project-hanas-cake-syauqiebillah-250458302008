@@ -15,7 +15,9 @@ class ProductEdit extends Component
     use WithFileUploads;
 
     public $productId;
-    public $name, $price, $categoryId, $discount, $stock, $slug;
+    public $name, $price, $categoryId, $discount, $stock, $slug, $description;
+    public $flavors = '';
+    public $portions = '';
     public $image, $old_image;
 
     // public $categories = []; // <-- Dihapus, kita akan ambil di render()
@@ -50,6 +52,10 @@ class ProductEdit extends Component
         $this->stock = $product->stock;
         $this->categoryId = $product->category_id; // Sesuaikan nama variabel
         $this->old_image = $product->image;
+        $this->description = $product->description;
+        
+        $this->flavors = is_array($product->flavors) ? implode(', ', $product->flavors) : '';
+        $this->portions = is_array($product->portions) ? implode(', ', $product->portions) : '';
 
         // --- DATA PO DIMUAT DI SINI ---
         $this->is_po = $product->is_po;
@@ -86,6 +92,9 @@ class ProductEdit extends Component
             'stock' => 'required|integer|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
             'image' => 'nullable|image|max:2048', // max 2MB
+            'description' => 'nullable|string',
+            'flavors' => 'nullable|string',
+            'portions' => 'nullable|string',
 
             // --- VALIDASI PO DITAMBAHKAN ---
             'is_po' => 'boolean',
@@ -110,6 +119,19 @@ class ProductEdit extends Component
         // Normalisasi nilai discount sebelum disimpan
         $discount = $this->discount === '' ? null : $this->discount;
 
+        // Proses flavors & portions
+        $flavorsArray = null;
+        if (!empty($this->flavors)) {
+            $flavorsArray = array_map('trim', explode(',', $this->flavors));
+            $flavorsArray = array_filter($flavorsArray);
+        }
+
+        $portionsArray = null;
+        if (!empty($this->portions)) {
+            $portionsArray = array_map('trim', explode(',', $this->portions));
+            $portionsArray = array_filter($portionsArray);
+        }
+
         $product->update([
             'name' => $this->name,
             'slug' => $this->slug,
@@ -118,6 +140,9 @@ class ProductEdit extends Component
             'stock' => $this->stock,
             'discount' => $discount, // sudah aman
             'image' => $imagePath,
+            'description' => $this->description,
+            'flavors' => empty($flavorsArray) ? null : array_values($flavorsArray),
+            'portions' => empty($portionsArray) ? null : array_values($portionsArray),
 
             // --- DATA PO DITAMBAHKAN SAAT UPDATE ---
             'is_po' => $this->is_po,
@@ -132,6 +157,6 @@ class ProductEdit extends Component
         $this->dispatch('notify', ['message' => 'Produk berhasil diperbarui.']);
 
         // Reset field (tambahkan field PO)
-        $this->reset(['productId', 'name', 'slug', 'price', 'categoryId', 'discount', 'stock', 'image', 'old_image', 'is_po', 'po_deadline']);
+        $this->reset(['productId', 'name', 'slug', 'price', 'categoryId', 'discount', 'stock', 'image', 'old_image', 'description', 'flavors', 'portions', 'is_po', 'po_deadline']);
     }
 }
