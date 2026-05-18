@@ -5,7 +5,11 @@ namespace App\Livewire\Frontend;
 use Livewire\Component;
 use App\Models\Product;
 use App\Models\Category; // 1. Tambahkan Model Category
+use App\Models\CustomerAddress;
+use App\Models\Store;
 use Livewire\Attributes\Layout;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Title;
 use Livewire\WithPagination; // 2. Tambahkan WithPagination
 
@@ -36,11 +40,11 @@ class Shop extends Component
     public function openProductDetail($id)
     {
         $this->selectedProductForDetail = Product::findOrFail($id);
-        
+
         // Reset pilihan setiap kali buka modal
         $this->selectedFlavor = null;
         $this->selectedPortion = null;
-        
+
         // Jika hanya ada 1 pilihan, otomatis pilihkan
         if ($this->selectedProductForDetail->flavors && count($this->selectedProductForDetail->flavors) == 1) {
             $this->selectedFlavor = $this->selectedProductForDetail->flavors[0];
@@ -52,12 +56,22 @@ class Shop extends Component
         $this->dispatch('open-product-modal');
     }
 
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2) {
-        $earthRadius = 6371;
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Jari-jari bumi dalam kilometer
+
+        // Pastikan semua kordinat menjadi tipe data float
+        $lat1 = (float) $lat1;
+        $lon1 = (float) $lon1;
+        $lat2 = (float) $lat2;
+        $lon2 = (float) $lon2;
+
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
-        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
-        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
         return round($earthRadius * $c, 2);
     }
 
@@ -68,53 +82,78 @@ class Shop extends Component
             $this->mode = 'po';
         }
 
-        // Setup Selected Store
-        $storeId = session('selected_store_id');
+        $this->loadStore();
+        $this->calculateDeliveryInfo(); // Panggil fungsi saat halaman pertama dimuat
+    }
+
+    // Pisahkan fungsi Load Store agar lebih rapi
+    private function loadStore()
+    {
+        $storeId = Session::get('selected_store_id');
         if ($storeId) {
-            $this->selectedStore = \App\Models\Store::find($storeId);
-        }
-        
-        if (!$this->selectedStore) {
-            $this->selectedStore = \App\Models\Store::where('is_active', true)->first();
-            if ($this->selectedStore) {
-                session()->put('selected_store_id', $this->selectedStore->id);
-            }
+            $this->selectedStore = Store::find($storeId);
         }
 
-        // Setup Location & Distance
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->customer) {
-            $customer = \Illuminate\Support\Facades\Auth::user()->customer;
-            
-            $addressId = \Illuminate\Support\Facades\Session::get('selected_address_id');
-            $address = null;
-            
-            if ($addressId) {
-                $address = \App\Models\CustomerAddress::where('customer_id', $customer->id)->where('id', $addressId)->first();
+        if (!$this->selectedStore) {
+            $this->selectedStore = Store::where('is_active', true)->first();
+            if ($this->selectedStore) {
+                Session::put('selected_store_id', $this->selectedStore->id);
             }
-            
+        }
+    }
+
+    // INI INTI PERBAIKANNYA: 
+    // Fungsi khusus untuk kalkulasi jarak yang bisa dipanggil berulang kali
+    #[On('address-updated')]
+    #[On('store-updated')]
+    public function calculateDeliveryInfo()
+    {
+        // Reset status awal
+        $this->isOutOfBounds = false;
+        $this->distance = null;
+        $this->eta = null;
+
+        if (Auth::check() && Auth::user()->customer) {
+            $customer = Auth::user()->customer;
+            $addressId = Session::get('selected_address_id');
+            $address = null;
+
+            // Cari alamat berdasarkan Session
+            if ($addressId) {
+                $address = CustomerAddress::where('customer_id', $customer->id)->where('id', $addressId)->first();
+            }
+
+            // Fallback: Cari alamat utama, atau alamat pertama yang ada
             if (!$address) {
-                $address = \App\Models\CustomerAddress::where('customer_id', $customer->id)->where('is_primary', true)->first();
-                if (!$address) {
-                    $address = \App\Models\CustomerAddress::where('customer_id', $customer->id)->first();
-                }
-                
+                $address = CustomerAddress::where('customer_id', $customer->id)->where('is_primary', true)->first()
+                    ?? CustomerAddress::where('customer_id', $customer->id)->first();
+
                 if ($address) {
-                    \Illuminate\Support\Facades\Session::put('selected_address_id', $address->id);
+                    Session::put('selected_address_id', $address->id);
                 }
             }
 
             if ($address) {
                 $this->detailAddress = $address->detail_address ?? '';
                 $this->activeAddressTitle = $address->title ?? '';
-                
+
+                // Pastikan Store dan Alamat User punya kordinat latitude & longitude
                 if ($this->selectedStore && $this->selectedStore->latitude && $address->latitude) {
-                    $this->distance = $this->calculateDistance($address->latitude, $address->longitude, $this->selectedStore->latitude, $this->selectedStore->longitude);
-                    
+
+                    $this->distance = $this->calculateDistance(
+                        $address->latitude,
+                        $address->longitude,
+                        $this->selectedStore->latitude,
+                        $this->selectedStore->longitude
+                    );
+
+                    // Cek jarak khusus mode delivery
                     if ($this->mode == 'delivery') {
                         if ($this->distance > 5) {
-                            $this->isOutOfBounds = true;
+                            $this->isOutOfBounds = true; // Lebih dari 5KM = Out of Bounds
                         } else {
-                            $this->eta = round($this->distance * 3 + 15); // Simple ETA calculation
+                            $this->isOutOfBounds = false;
+                            $this->eta = round($this->distance * 3 + 15); // Asumsi 3 menit/km + 15 menit prep
                         }
                     }
                 }
@@ -122,20 +161,13 @@ class Shop extends Component
         }
     }
 
-    #[\Livewire\Attributes\On('location-updated')]
-    public function updateLocation($lat, $lng)
-    {
-        // Fitur ini digantikan dengan halaman AddressSelection.
-        // Jika dibutuhkan, arahkan user ke halaman Tambah Alamat
-    }
-
     public function updatedDetailAddress($value)
     {
-        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->customer) {
-            $addressId = \Illuminate\Support\Facades\Session::get('selected_address_id');
+        if (Auth::check() && Auth::user()->customer) {
+            $addressId = Session::get('selected_address_id');
             if ($addressId) {
-                \App\Models\CustomerAddress::where('id', $addressId)
-                    ->where('customer_id', \Illuminate\Support\Facades\Auth::user()->customer->id)
+                CustomerAddress::where('id', $addressId)
+                    ->where('customer_id', Auth::user()->customer->id)
                     ->update(['detail_address' => $value]);
             }
         }
@@ -157,7 +189,7 @@ class Shop extends Component
         }
 
         if (in_array($this->mode, ['pickup', 'delivery']) && $product->stock <= 0) {
-             $this->dispatch('notify', [
+            $this->dispatch('notify', [
                 'message' => 'Produk ini tidak tersedia untuk ready stock.',
                 'icon' => 'error'
             ]);
@@ -241,12 +273,12 @@ class Shop extends Component
     public function render()
     {
         $products = Product::query()
-            ->when($this->mode == 'po', function($q) {
+            ->when($this->mode == 'po', function ($q) {
                 // Mode PO: Hanya tampilkan barang yang di-set PO dan deadline belum lewat
                 $q->where('is_po', true)
-                  ->where('po_deadline', '>', now());
+                    ->where('po_deadline', '>', now());
             })
-            ->when(in_array($this->mode, ['pickup', 'delivery']), function($q) {
+            ->when(in_array($this->mode, ['pickup', 'delivery']), function ($q) {
                 // Mode Pickup/Delivery (Ready): Bebas barang apa saja (PO atau Bukan), 
                 // ASALKAN punya stok fisik > 0.
             })

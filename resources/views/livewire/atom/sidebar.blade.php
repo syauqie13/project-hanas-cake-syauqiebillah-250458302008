@@ -82,6 +82,10 @@
                             <i class="fas fa-ticket-alt"></i> <span>Manajemen Voucher</span>
                         </a>
                     </li>
+                    <li class="{{ Request::routeIs('karyawan.stores') ? 'active' : '' }}">
+                        <a class="nav-link" href="{{ route('karyawan.stores') }}" wire:navigate>
+                            <i class="fas fa-store"></i> <span>Manajemen Store</span>
+                        </a>
                 @endif
             </ul>
 

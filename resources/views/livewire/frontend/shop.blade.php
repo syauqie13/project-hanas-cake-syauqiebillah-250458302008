@@ -85,6 +85,9 @@
                                 Menghitung jarak...
                             @endif
                         </p>
+                        @if($distance !== null && !$isOutOfBounds)
+                            <p class="text-xs text-gray-500 mt-1">Estimasi ongkos kirim: <strong>Rp {{ number_format($shippingCost, 0, ',', '.') }}</strong></p>
+                        @endif
                         @endif
                     </a>
                 </div>

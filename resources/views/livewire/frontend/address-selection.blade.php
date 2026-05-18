@@ -13,7 +13,7 @@
             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <i class="fas fa-search text-gray-400"></i>
             </div>
-            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari Lokasi" 
+            <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari alamat" 
                 class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#5c4033] focus:ring-1 focus:ring-[#5c4033] transition-colors">
         </div>
 
@@ -34,29 +34,23 @@
             @forelse($addresses as $address)
                 <div class="py-5 flex items-start gap-4 cursor-pointer group" wire:click="selectAddress({{ $address->id }})">
                     <div class="mt-1">
-                        <i class="fas fa-crosshairs text-gray-400 group-hover:text-[#5c4033] transition-colors text-lg"></i>
-                    </div>
+                    <i class="fas fa-map-marker-alt text-gray-400 group-hover:text-[#5c4033] transition-colors text-lg"></i>
+                </div>
+                
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-800 text-sm md:text-base group-hover:text-[#5c4033] transition-colors">
+                        {{ $address->title }} 
+                        @if($address->is_primary)
+                            <span class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded ml-2">Utama</span>
+                        @endif
+                    </h3>
                     
-                    <div class="flex-1">
-                        <h3 class="font-bold text-gray-800 text-sm md:text-base group-hover:text-[#5c4033] transition-colors">
-                            {{ $address->title }} 
-                            @if($address->is_primary)
-                                <span class="bg-green-100 text-green-700 text-[10px] px-2 py-0.5 rounded ml-2">Utama</span>
-                            @endif
-                        </h3>
-                        
-                        @if($address->detail_address)
-                            <p class="text-xs md:text-sm text-gray-500 mt-1 leading-relaxed line-clamp-2">
-                                {{ $address->detail_address }}
-                            </p>
-                        @endif
-                        
-                        @if($address->latitude && $address->longitude)
-                            <p class="text-xs text-gray-400 mt-2 font-medium">
-                                <i class="fas fa-map-marker-alt text-gray-300 mr-1"></i> Koordinat Tersimpan
-                            </p>
-                        @endif
-                    </div>
+                    @if($address->detail_address)
+                        <p class="text-xs md:text-sm text-gray-500 mt-1 leading-relaxed line-clamp-2">
+                            {{ $address->detail_address }}
+                        </p>
+                    @endif
+                </div>
                     
                     <div class="pl-2">
                         <i class="far fa-bookmark text-gray-400 text-lg group-hover:text-[#5c4033] transition-colors"></i>

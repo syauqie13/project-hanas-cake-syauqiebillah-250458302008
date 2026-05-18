@@ -5,6 +5,7 @@ namespace App\Livewire\Frontend;
 use Livewire\Component;
 use App\Models\CustomerAddress;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -19,34 +20,33 @@ class AddressCreate extends Component
     public $longitude;
     public $is_primary = false;
 
+    // Tambahkan validasi untuk latitude dan longitude
     protected $rules = [
         'title' => 'required|string|max:255',
         'receiver_name' => 'required|string|max:255',
         'receiver_phone' => 'required|string|max:20',
-        'latitude' => 'required|numeric',
-        'longitude' => 'required|numeric',
+        'latitude' => 'required',
+        'longitude' => 'required',
     ];
 
     protected $messages = [
         'title.required' => 'Judul alamat harus diisi (contoh: Rumah, Kantor).',
         'receiver_name.required' => 'Nama penerima harus diisi.',
         'receiver_phone.required' => 'Nomor telepon harus diisi.',
-        'latitude.required' => 'Lokasi GPS belum didapatkan. Silakan klik tombol Ambil Koordinat GPS.',
+        'latitude.required' => 'Gagal mendapatkan titik lokasi GPS. Pastikan izin lokasi aktif.',
     ];
 
-    public function setLocation($lat, $lng)
+    // Fungsi untuk menangkap koordinat dari Javascript (Blade)
+    #[On('update-coordinates')]
+    public function setCoordinates($lat, $lng)
     {
         $this->latitude = $lat;
         $this->longitude = $lng;
-        
-        $this->dispatch('notify', [
-            'message' => 'Koordinat GPS berhasil didapatkan!',
-            'icon' => 'success'
-        ]);
     }
 
     public function saveAddress()
     {
+        // Jika latitude/longitude kosong, sistem akan menahan submit & memunculkan pesan error
         $this->validate();
 
         $user = Auth::user();
@@ -59,12 +59,10 @@ class AddressCreate extends Component
             ]);
         }
 
-        // Kalau ini diset primary, unset primary yang lain
         if ($this->is_primary) {
             CustomerAddress::where('customer_id', $customer->id)->update(['is_primary' => false]);
         }
         
-        // Kalau belum punya alamat sama sekali, jadikan primary otomatis
         $addressCount = CustomerAddress::where('customer_id', $customer->id)->count();
         if ($addressCount === 0) {
             $this->is_primary = true;
@@ -76,16 +74,17 @@ class AddressCreate extends Component
             'detail_address' => $this->detail_address,
             'receiver_name' => $this->receiver_name,
             'receiver_phone' => $this->receiver_phone,
+            // Koordinat sekarang dijamin masuk ke database
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'is_primary' => $this->is_primary,
         ]);
 
-        // Jadikan alamat yang baru dibuat sebagai alamat terpilih saat ini
         Session::put('selected_address_id', $address->id);
         Session::put('delivery_mode', 'delivery');
 
-        return $this->redirect('/ecommerce', navigate: true);
+        // Pastikan membawa parameter mode ke halaman shop agar kalkulasi berjalan
+        return $this->redirect(route('ecommerce', ['mode' => 'delivery']), navigate: true);
     }
 
     public function render()

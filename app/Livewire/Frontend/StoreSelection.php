@@ -75,6 +75,6 @@ class StoreSelection extends Component
         }
 
         return view('livewire.frontend.store-selection', compact('stores'))
-            ->layout('components.layouts.ecommerce');
+            ->layout('components.layouts.guest');
     }
 }

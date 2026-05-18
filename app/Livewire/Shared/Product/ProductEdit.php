@@ -52,8 +52,9 @@ class ProductEdit extends Component
         $this->stock = $product->stock;
         $this->categoryId = $product->category_id; // Sesuaikan nama variabel
         $this->old_image = $product->image;
+        $this->image = null; // Pastikan file upload sebelumnya tidak terbawa saat membuka modal edit baru
         $this->description = $product->description;
-        
+
         $this->flavors = is_array($product->flavors) ? implode(', ', $product->flavors) : '';
         $this->portions = is_array($product->portions) ? implode(', ', $product->portions) : '';
 
@@ -79,7 +80,8 @@ class ProductEdit extends Component
     {
         $this->validate([
             'name' => [
-                'required', 'min:3',
+                'required',
+                'min:3',
                 // Gunakan Rule::unique() agar lebih mudah dibaca
                 Rule::unique('products')->ignore($this->productId),
             ],
@@ -104,7 +106,10 @@ class ProductEdit extends Component
 
         $product = Product::findOrFail($this->productId);
 
-        // Simpan gambar baru jika ada
+        // HAPUS ATAU KOMENTARI KODE INI:
+// if ($this->image instanceof \Livewire\TemporaryUploadedFile) {
+
+        // GANTI MENJADI SEPERTI INI:
         if ($this->image) {
             // Hapus gambar lama jika ada
             if ($this->old_image && Storage::disk('public')->exists($this->old_image)) {
@@ -113,6 +118,7 @@ class ProductEdit extends Component
             // Simpan gambar baru
             $imagePath = $this->image->store('products', 'public');
         } else {
+            // Jika tidak ada gambar yang diupload, gunakan gambar lama
             $imagePath = $this->old_image;
         }
 

@@ -32,6 +32,7 @@ use App\Livewire\Shared\User\UpdatePassword;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Livewire\Auth\VerifyEmail;
 use App\Livewire\Frontend\SetupPin;
+use App\Livewire\Karyawan\Store\StoreManagement;
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/gas-migrate', function () {
@@ -82,10 +83,11 @@ Route::prefix('karyawan')->middleware(['auth', 'is.karyawan', 'verified'])->name
     Route::get('/pos/management', PosManagement::class)->name('pos.list');
     Route::get('/production-list', ProductionList::class)->name('production-list');
     Route::get('/shipping-zones', ZoneManagement::class)->name('shipping-zones');
-    Route::get('/stores', \App\Livewire\Shared\Store\StoreManagement::class)->name('stores.list');
+    Route::get('/stores', StoreManagement::class)->name('stores');
     Route::get('/vouchers', VoucherManagement::class)->name('vouchers');
     Route::get('/profil', Profil::class)->name('profile');
     Route::get('/update-password', UpdatePassword::class)->name('update.password');
+
 });
 
 Route::get('/ecommerce', Shop::class)->name('ecommerce');
