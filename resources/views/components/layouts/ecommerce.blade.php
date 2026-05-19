@@ -24,7 +24,7 @@
 
 <body class="min-h-screen bg-gray-50 pb-20 md:pb-0 font-sans text-gray-800">
 
-    <nav class="sticky top-0 z-50 shadow-lg glass" x-data="{ mobileMenuOpen: false }">
+    <nav class="sticky top-0 z-50 shadow-lg glass">
         <div class="container px-6 py-4 mx-auto">
             <div class="flex items-center justify-between">
 
@@ -42,11 +42,16 @@
                         <livewire:frontend.cart-counter />
                     </div>
 
-                    <button @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="text-gray-600 hover:text-[#5c4033] focus:outline-none">
-                        <i class="text-2xl fas fa-bars" x-show="!mobileMenuOpen"></i>
-                        <i class="text-2xl fas fa-times" x-show="mobileMenuOpen" style="display: none;"></i>
-                    </button>
+                    @auth
+                        <a href="{{ route('pelanggan.profile') }}" class="focus:outline-none">
+                            <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}"
+                                alt="Avatar" class="object-cover w-8 h-8 border-2 border-[#eedcd3] rounded-full">
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="text-gray-600 hover:text-[#5c4033] focus:outline-none">
+                            <i class="far fa-user text-2xl"></i>
+                        </a>
+                    @endauth
                 </div>
 
                 <div class="items-center hidden space-x-8 md:flex">
@@ -92,7 +97,7 @@
 
                                     <a href="{{ route('pelanggan.profile') }}" wire:navigate
                                         class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-[#eedcd3]/30 hover:text-[#5c4033] transition-colors">
-                                        <i class="w-5 mr-2 text-center text-gray-400 fas fa-user-edit"></i> Edit Profil
+                                        <i class="w-5 mr-2 text-center text-gray-400 fas fa-user-edit"></i>Profil & Pengaturan
                                     </a>
 
                                     <a href="{{ route('pelanggan.my-orders') }}" wire:navigate
@@ -130,62 +135,7 @@
                 </div>
             </div>
 
-            <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
-                class="pb-4 mt-4 border-t border-gray-100 md:hidden" style="display: none;">
-
-                <div class="flex flex-col mt-4 space-y-3">
-                    <a href="{{ route('ecommerce') }}" wire:navigate
-                        class="block px-4 py-2 font-bold text-gray-700 rounded-lg hover:bg-[#eedcd3]/30 hover:text-[#5c4033]">
-                        <i class="w-6 mr-2 text-center fas fa-store"></i> Shop (PO)
-                    </a>
-
-                    @auth
-                        @if(Auth::user()->role == 'pelanggan')
-                            <div class="px-4 pt-2 my-2 border-t border-gray-100">
-                                <div class="flex items-center mb-3">
-                                    <img src="{{ Auth::user()->avatar ? asset('storage/' . Auth::user()->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=random' }}"
-                                        alt="Avatar" class="object-cover w-8 h-8 mr-3 border-2 border-[#eedcd3] rounded-full">
-                                    <span class="font-bold text-gray-700">{{ Auth::user()->name }}</span>
-                                </div>
-                            </div>
-
-                            <a href="{{ route('pelanggan.profile') }}" wire:navigate
-                                class="block px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-[#eedcd3]/30 hover:text-[#5c4033]">
-                                <i class="w-6 mr-2 text-center fas fa-user-edit"></i> Edit Profil
-                            </a>
-
-                            <a href="{{ route('pelanggan.my-orders') }}" wire:navigate
-                                class="block px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-[#eedcd3]/30 hover:text-[#5c4033]">
-                                <i class="w-6 mr-2 text-center fas fa-shopping-bag"></i> Pesanan Saya
-                            </a>
-
-                            <button onclick="confirmLogout()"
-                                class="w-full px-4 py-2 mt-2 text-sm text-left text-red-600 rounded-lg hover:bg-red-50">
-                                <i class="w-6 mr-2 text-center fas fa-sign-out-alt"></i> Logout
-                            </button>
-                        @else
-                            <a href="{{ route('karyawan.pos') }}" wire:navigate
-                                class="block px-4 py-2 mx-4 mt-2 text-sm font-bold text-center text-white rounded-full shadow-md bg-[#5c4033]">
-                                <i class="mr-2 fas fa-cash-register"></i>Masuk POS
-                            </a>
-                        @endif
-                    @else
-                        <div class="flex flex-col px-4 pt-4 my-2 space-y-3 border-t border-gray-100">
-                            <a href="{{ route('login') }}" wire:navigate
-                                class="block w-full py-2 font-bold text-center text-gray-600 border border-gray-300 rounded-full hover:bg-gray-50">
-                                Login
-                            </a>
-                            <a href="{{ route('register') }}" wire:navigate
-                                class="block w-full py-2 font-bold text-center text-white rounded-full shadow-md bg-[#5c4033]">
-                                Register
-                            </a>
-                        </div>
-                    @endauth
-                </div>
-            </div>
+            
 
         </div>
     </nav>

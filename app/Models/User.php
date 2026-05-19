@@ -33,7 +33,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'avatar',  // <-- TAMBAHKAN INI (Opsional)
         'city',        // <-- TAMBAHKAN INI
         'postal_code',
-        'payment_pin'
+        'payment_pin',
+        'birth_date',
+        'gender',
     ];
 
     /**

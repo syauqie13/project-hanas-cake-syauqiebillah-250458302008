@@ -69,7 +69,7 @@ class VerifyEmail extends Component
         if ($role === 'admin' || $role === 'karyawan') {
             return redirect()->intended(route($role . '.dashboard'));
         } elseif ($role === 'pelanggan') {
-            return redirect()->intended(route('ecommerce')); 
+            return redirect()->intended(route('front')); 
         }
     }
 

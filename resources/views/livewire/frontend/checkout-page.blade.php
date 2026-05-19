@@ -1,476 +1,266 @@
-<div>
-    <main class="container px-4 pt-6 pb-32 mx-auto md:px-6 md:py-8">
+<div class="w-full min-h-screen bg-gray-50 pb-32 font-sans text-gray-800 antialiased relative">
+    
+    <div class="bg-white sticky top-0 z-30 px-4 py-4 flex items-center border-b border-gray-100 md:px-12 lg:px-24">
+        <a href="{{ route('ecommerce') }}" wire:navigate class="w-10 h-10 flex items-center justify-center text-[#5c4033] hover:bg-gray-50 rounded-full transition">
+            <i class="fas fa-chevron-left text-lg"></i>
+        </a>
+        <h1 class="text-lg md:text-xl font-bold text-[#5c4033] flex-1 text-center pr-10">Checkout</h1>
+    </div>
 
-        <h1 class="mb-4 text-2xl font-bold text-gray-800 md:mb-6 md:text-3xl">Checkout</h1>
-
-        {{-- Notifikasi Error --}}
-        @if (session()->has('error'))
-            <div class="p-4 mb-4 text-sm text-red-800 bg-red-100 rounded-lg animate-pulse" role="alert">
-                <span class="font-medium">Error!</span> {{ session('error') }}
+    <div class="bg-[#f4dfd4]/40 px-4 py-4 flex items-center justify-between border-b border-[#f4dfd4]/60 md:px-12 lg:px-24">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm shrink-0">
+                @if($delivery_type == 'pickup')
+                    <img src="{{ asset('images/pickup.png') }}" class="w-9 h-9 object-contain" alt="Pick Up" onerror="this.src='https://placehold.co/40x40?text=PU'">
+                @else
+                    <img src="{{ asset('images/delivery.png') }}" class="w-9 h-9 object-contain" alt="Delivery" onerror="this.src='https://placehold.co/40x40?text=DEL'">
+                @endif
             </div>
-        @endif
+            <div>
+                <h2 class="text-base font-bold text-[#5c4033] capitalize">{{ $delivery_type == 'po' ? 'Pre-Order' : $delivery_type }}</h2>
+                <p class="text-[11px] text-[#8b6f5e] font-medium">
+                    {{ $delivery_type == 'pickup' ? 'Ambil di Store tanpa antri' : 'Garansi tepat waktu, dijamin!' }}
+                </p>
+            </div>
+        </div>
+        <a href="{{ route('ecommerce', ['mode' => $delivery_type]) }}" wire:navigate class="bg-white border border-[#5c4033] text-[#5c4033] text-xs font-bold rounded-full px-4 py-1.5 hover:bg-[#5c4033] hover:text-white transition-all shadow-sm">
+            Ubah
+        </a>
+    </div>
 
-        <form wire:submit.prevent="placeOrder">
-            <div class="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-3">
+    <div class="max-w-2xl mx-auto mt-3 space-y-2.5 px-0 sm:px-4">
+        
+        <div class="bg-white p-5 shadow-sm sm:rounded-2xl border border-gray-100">
+            <h3 class="font-bold text-gray-800 text-sm md:text-base mb-4">
+                {{ $delivery_type == 'pickup' ? 'Ambil pesananmu di' : 'Pesananmu dikirim dari' }}
+            </h3>
 
-                <!-- KOLOM KIRI (FORM) -->
-                <div
-                    class="p-5 border shadow-sm md:shadow-xl md:p-8 bg-white/80 md:bg-white/70 backdrop-blur-md border-white/30 rounded-xl md:rounded-2xl md:col-span-2">
+            <div class="relative pl-1">
+                @if($delivery_type != 'pickup')
+                    <div class="absolute left-4.5 top-8 bottom-8 w-px border-l border-dashed border-gray-300"></div>
+                @endif
 
-                    <!-- ============================================= -->
-                    <!-- === BLOK METODE PENERIMAAN (BARU) === -->
-                    <!-- ============================================= -->
-                    <div class="flex items-center gap-3 pb-4 mb-6 border-b border-gray-100">
-                        <div
-                            class="flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-full">
-                            <i class="fas fa-truck"></i>
-                        </div>
-                        <h2 class="text-lg font-bold text-gray-900 md:text-xl">Metode Penerimaan</h2>
+                <div class="flex items-start gap-4 mb-5 relative z-10">
+                    <div class="w-9 h-9 bg-[#f4dfd4] rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
+                        <i class="fas fa-store text-[#5c4033] text-xs"></i>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <!-- Tombol Delivery -->
-                        <button type="button" wire:click="$set('delivery_type', 'delivery')"
-                            class="p-4 rounded-lg border-2 transition-all duration-200 {{ $delivery_type == 'delivery' ? 'bg-purple-50 border-purple-600 shadow-lg' : 'bg-white border-gray-200 hover:border-gray-300' }}">
-                            <div class="flex items-center justify-center gap-3">
-                                <i
-                                    class="fas fa-motorcycle text-xl {{ $delivery_type == 'delivery' ? 'text-purple-600' : 'text-gray-400' }}"></i>
-                                <span
-                                    class="font-semibold {{ $delivery_type == 'delivery' ? 'text-purple-800' : 'text-gray-700' }}">Dikirim
-                                    (Delivery)</span>
-                            </div>
-                        </button>
-                        <!-- Tombol Pickup -->
-                        <button type="button" wire:click="$set('delivery_type', 'pickup')"
-                            class="p-4 rounded-lg border-2 transition-all duration-200 {{ $delivery_type == 'pickup' ? 'bg-purple-50 border-purple-600 shadow-lg' : 'bg-white border-gray-200 hover:border-gray-300' }}">
-                            <div class="flex items-center justify-center gap-3">
-                                <i
-                                    class="fas fa-store text-xl {{ $delivery_type == 'pickup' ? 'text-purple-600' : 'text-gray-400' }}"></i>
-                                <span
-                                    class="font-semibold {{ $delivery_type == 'pickup' ? 'text-purple-800' : 'text-gray-700' }}">Ambil
-                                    Sendiri</span>
-                            </div>
-                        </button>
-                    </div>
-                    <!-- ============================================= -->
-
-
-                    <!-- === BAGIAN PENGIRIMAN (KONDISIONAL) === -->
-                    @if ($delivery_type == 'delivery')
-                        <div wire:key="delivery-section" class="animate-fade-in">
-                            <div class="flex items-center gap-3 pb-4 mb-6 border-b border-gray-100">
-                                <div
-                                    class="flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-full">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <h2 class="text-lg font-bold text-gray-900 md:text-xl">Alamat Pengiriman</h2>
-                            </div>
-
-                            <div class="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2">
-                                <div class="md:col-span-2">
-                                    <label class="block mb-1.5 text-sm font-semibold text-gray-700">Pilih Area / Zona
-                                        Pengiriman</label>
-                                    <select wire:model.live="shipping_zone_id"
-                                        class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                        <option value="">-- Pilih Area --</option>
-                                        @foreach($zones as $zone)
-                                            <option value="{{ $zone->id }}">
-                                                {{ $zone->name }}
-                                                ({{ $zone->price == 0 ? 'Gratis / Konfirmasi WA' : 'Rp ' . number_format($zone->price, 0, ',', '.') }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('shipping_zone_id') <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                {{-- Input Alamat (Sama seperti kode Anda) --}}
-                                <div class="md:col-span-2">
-                                    <label for="address" class="block mb-1.5 text-sm font-semibold text-gray-700">Alamat
-                                        Lengkap</label>
-                                    <textarea wire:model="address" id="address" rows="3"
-                                        class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white"
-                                        placeholder="Nama Jalan, No. Rumah, RT/RW..."></textarea>
-                                    @error('address') <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div>
-                                    <label for="city" class="block mb-1.5 text-sm font-semibold text-gray-700">Kota</label>
-                                    <input wire:model="city" id="city" type="text" placeholder="Contoh: Jakarta"
-                                        class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                    @error('city') <span class="mt-1 text-xs text-red-500">{{ $message }}</span> @enderror
-                                </div>
-                                <div>
-                                    <label for="postal_code" class="block mb-1.5 text-sm font-semibold text-gray-700">Kode
-                                        Pos</label>
-                                    <input wire:model="postal_code" id="postal_code" type="text" placeholder="12345"
-                                        class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                    @error('postal_code') <span class="mt-1 text-xs text-red-500">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- === BAGIAN PICKUP (KONDISIONAL) === -->
-                    @if ($delivery_type == 'pickup')
-                        <div wire:key="pickup-section" class="animate-fade-in">
-                            <div class="flex items-center gap-3 pb-4 mb-6 border-b border-gray-100">
-                                <div
-                                    class="flex items-center justify-center w-8 h-8 text-green-600 bg-green-100 rounded-full">
-                                    <i class="fas fa-store"></i>
-                                </div>
-                                <h2 class="text-lg font-bold text-gray-900 md:text-xl">Informasi Pengambilan</h2>
-                            </div>
-                            <div class="p-4 border border-green-200 bg-green-50 rounded-xl">
-                                <h4 class="font-bold text-green-800">Pesanan Ambil di Toko</h4>
-                                <p class="mt-1 text-sm text-green-700">Anda akan mengambil pesanan Anda di toko. Ongkos
-                                    kirim otomatis Rp 0.</p>
-                                <p class="mt-2 text-sm text-green-900"><strong>Alamat Toko:</strong><br>Hana Cake, Gang
-                                    Masjid Rt 017 Rw 003 Desa Tegal Kunir Lor, Kecamatan Mauk, Kabupaten Tangerang.</p>
-                            </div>
-                        </div>
-                    @endif
-
-                    <!-- === DATA PEMESAN (SELALU TAMPIL) === -->
-                    <div class="pt-6 mt-6 border-t border-gray-100">
-                        <div class="flex items-center gap-3 pb-4 mb-6 border-b border-gray-100">
-                            <div
-                                class="flex items-center justify-center w-8 h-8 text-purple-600 bg-purple-100 rounded-full">
-                                <i class="fas fa-user-alt"></i>
-                            </div>
-                            <h2 class="text-lg font-bold text-gray-900 md:text-xl">Data Pemesan</h2>
-                        </div>
-                        <div class="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2">
-                            <div class="md:col-span-2">
-                                <label for="name" class="block mb-1.5 text-sm font-semibold text-gray-700">Nama
-                                    Lengkap</label>
-                                <input wire:model="name" id="name_billing" type="text" placeholder="Nama Pemesan"
-                                    class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                @error('name') <span class="mt-1 text-xs text-red-500">{{ $message }}</span> @enderror
-                            </div>
-                            <div>
-                                <label for="email"
-                                    class="block mb-1.5 text-sm font-semibold text-gray-700">Email</label>
-                                <input wire:model="email" id="email_billing" type="email" placeholder="email@contoh.com"
-                                    class="block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                @error('email') <span class="mt-1 text-xs text-red-500">{{ $message }}</span> @enderror
-                            </div>
-                            <div>
-                                <label for="phone" class="block mb-1.5 text-sm font-semibold text-gray-700">No.
-                                    WhatsApp</label>
-                                <div class="flex">
-                                    <span
-                                        class="inline-flex items-center px-3 text-sm text-gray-500 border border-r-0 border-gray-300 rounded-l-lg bg-gray-50">+62</span>
-                                    <input wire:model="phone" id="phone_billing" type="tel" placeholder="81234567890"
-                                        class="flex-1 block w-full px-4 py-2.5 text-sm md:text-base transition duration-150 border-gray-300 rounded-r-lg shadow-sm focus:border-purple-500 focus:ring focus:ring-purple-200 focus:ring-opacity-50 bg-white">
-                                </div>
-                                @error('phone') <span class="mt-1 text-xs text-red-500">{{ $message }}</span> @enderror
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- KOLOM KANAN (RINGKASAN) -->
-                <div class="md:col-span-1">
-                    <div
-                        class="sticky p-5 border shadow-sm md:shadow-xl md:p-8 bg-white/80 md:bg-white/70 backdrop-blur-md border-white/30 rounded-xl md:rounded-2xl top-24">
-                        <div class="flex items-center gap-3 pb-4 mb-4 border-b border-gray-100">
-                            <div
-                                class="flex items-center justify-center w-8 h-8 text-pink-600 bg-pink-100 rounded-full">
-                                <i class="fas fa-receipt"></i>
-                            </div>
-                            <h2 class="text-lg font-bold text-gray-900 md:text-xl">Ringkasan</h2>
-                        </div>
-
-                        <div class="pr-1 mb-4 space-y-3 overflow-y-auto max-h-64 custom-scrollbar">
-                            @forelse($cartItems as $id => $item)
-                                {{-- (Tampilan item keranjang Anda - sudah benar) --}}
-                                <div wire:key="summary-{{ $id }}" class="flex gap-3">
-                                    <img src="{{ $item['image'] ? asset('storage/' . $item['image']) : 'https://placehold.co/100x100/e2e8f0/cbd5e0?text=Kue' }}"
-                                        alt="{{ $item['name'] }}"
-                                        class="object-cover border border-gray-100 rounded-lg w-14 h-14">
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-800 truncate">{{ $item['name'] }}</p>
-                                        <div class="flex items-center justify-between mt-1">
-                                            <p class="text-xs text-gray-500">x {{ $item['quantity'] }}</p>
-                                            <span class="text-sm font-semibold text-gray-700">
-                                                Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="py-4 text-sm text-center text-gray-500">Keranjang kosong.</p>
-                            @endforelse
-                        </div>
-
-                        <!-- === INPUT VOUCHER === -->
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Punya Kode Voucher?</label>
-                            @if(!$appliedVoucherId)
-                                <div class="flex items-start gap-2">
-                                    <div class="flex-grow">
-                                        <input type="text" wire:model="voucherCode" placeholder="Masukkan kode voucher"
-                                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 outline-none">
-                                        @error('voucherCode') <span
-                                        class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                    </div>
-                                    <button type="button" wire:click="applyVoucher"
-                                        class="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition">
-                                        Gunakan
-                                    </button>
-                                </div>
+                    <div class="flex-1 border-b border-gray-100 pb-3">
+                        <h4 class="text-sm font-bold text-gray-800">{{ $selectedStore ? $selectedStore->name : 'Mencari Cabang...' }}</h4>
+                        <p class="text-[11px] text-gray-400 mt-0.5">
+                            @if($delivery_type != 'pickup' && $distance !== null)
+                                <span class="{{ $isOutOfBounds ? 'text-red-600 font-bold' : 'text-green-600 font-bold' }}">{{ $distance }}km</span> 
+                                {{ $isOutOfBounds ? '• Di luar jangkauan kurir' : 'dari lokasimu' }}
                             @else
-                                <div
-                                    class="flex items-center justify-between p-3 bg-green-50 text-green-800 rounded-lg border border-green-200">
-                                    <div class="flex items-center gap-2">
-                                        <i class="fas fa-check-circle text-green-500"></i>
-                                        <span class="text-sm">Voucher <strong>{{ $voucherCode }}</strong> aktif!</span>
-                                    </div>
-                                    <button type="button" wire:click="removeVoucher"
-                                        class="text-xs text-red-600 hover:text-red-800 font-medium">
-                                        Hapus
-                                    </button>
-                                </div>
+                                Cabang Terpilih Hana's Cake
                             @endif
-                        </div>
-                        <!-- ===================== -->
-
-                        @if(count($availableVouchers) > 0)
-                            <div class="mb-4">
-                                <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Atau Pilih Promo:</p>
-                                <div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
-                                    @foreach($availableVouchers as $v)
-                                                    @php
-                                                        // Logika pengecekan apakah subtotal cukup untuk voucher ini
-                                                        $isLocked = $subtotal < $v->min_purchase;
-                                                    @endphp
-
-                                                    <div wire:key="voucher-{{ $v->id }}" class="border rounded-lg p-3 flex justify-between items-center transition 
-                                        {{ $appliedVoucherId == $v->id ? 'border-indigo-500 bg-indigo-100 ring-1 ring-indigo-500' : 'border-indigo-200 bg-indigo-50 hover:bg-indigo-100' }}
-                                        {{ $isLocked ? 'opacity-50 grayscale pointer-events-none' : '' }}">
-
-                                                        <div>
-                                                            <p
-                                                                class="text-sm font-bold {{ $appliedVoucherId == $v->id ? 'text-indigo-900' : 'text-indigo-800' }}">
-                                                                {{ $v->code }}
-                                                            </p>
-                                                            <p
-                                                                class="text-xs {{ $appliedVoucherId == $v->id ? 'text-indigo-700' : 'text-indigo-600' }}">
-                                                                Diskon
-                                                                {{ $v->type == 'nominal' ? 'Rp ' . number_format($v->value, 0, ',', '.') : $v->value . '%' }}
-
-                                                                @if($v->min_purchase)
-                                                                    <br>
-                                                                    <span
-                                                                        class="{{ $isLocked ? 'text-red-500 font-semibold' : 'text-gray-500' }}">
-                                                                        Min. Belanja Rp {{ number_format($v->min_purchase, 0, ',', '.') }}
-                                                                    </span>
-                                                                @endif
-                                                            </p>
-                                                        </div>
-
-                                                        <div>
-                                                            @if($appliedVoucherId == $v->id)
-                                                                <button type="button" wire:click="removeVoucher"
-                                                                    class="px-3 py-1.5 text-xs font-bold text-red-600 bg-white border border-red-400 rounded shadow-sm hover:bg-red-50 transition">
-                                                                    Batalkan
-                                                                </button>
-                                                            @elseif($isLocked)
-                                                                <button type="button" disabled
-                                                                    class="px-3 py-1.5 text-xs font-bold text-gray-400 bg-gray-100 border border-gray-200 rounded shadow-sm cursor-not-allowed">
-                                                                    Klaim
-                                                                </button>
-                                                            @elseif(in_array($v->id, $claimedVoucherIds))
-                                                                <button type="button" wire:click="useClaimedVoucher({{ $v->id }})"
-                                                                    class="px-3 py-1.5 text-xs font-bold text-indigo-700 bg-white border border-indigo-500 rounded shadow-sm hover:bg-indigo-50 transition">
-                                                                    Pakai
-                                                                </button>
-                                                            @else
-                                                                <button type="button" wire:click="claimVoucher({{ $v->id }})"
-                                                                    class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded shadow-sm hover:bg-gray-50 transition">
-                                                                    Klaim
-                                                                </button>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
-                        <!-- ======================== -->
-
-                        <div class="pt-4 mt-2 border-t border-gray-200 border-dashed">
-                            <div class="flex items-center justify-between mb-2 text-sm">
-                                <span class="text-gray-600">Subtotal Produk</span>
-                                <span class="font-semibold">Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
-                            </div>
-
-                            <!-- === TAMPILAN ONGKIR (DIPERBARUI) === -->
-                            <div class="flex items-center justify-between mb-4 text-sm">
-                                <span class="text-gray-600">Ongkos Kirim</span>
-                                <span class="font-semibold text-indigo-600">
-                                    @if($delivery_type == 'pickup')
-                                        Gratis (Ambil Sendiri)
-                                    @elseif($shipping_cost > 0)
-                                        Rp {{ number_format($shipping_cost, 0, ',', '.') }}
-                                    @elseif($shipping_zone_id)
-                                        Gratis
-                                    @else
-                                        -
-                                    @endif
-                                </span>
-                            </div>
-
-                            @if($discountAmount > 0)
-                                <div class="flex items-center justify-between mb-4 text-sm text-green-600">
-                                    <span>Diskon Voucher</span>
-                                    <span class="font-semibold">- Rp
-                                        {{ number_format($discountAmount, 0, ',', '.') }}</span>
-                                </div>
-                            @endif
-                            <!-- =================================== -->
-
-                            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
-                                <span class="text-base font-bold text-gray-800">Total Tagihan</span>
-                                <span
-                                    class="text-xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">
-                                    Rp {{ number_format($total, 0, ',', '.') }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- === CHECKBOX KONFIRMASI (DIPERBARUI) === -->
-                        @if($delivery_type == 'delivery' && $requires_confirmation)
-                            <div class="p-3 mt-4 border border-yellow-200 rounded-lg bg-yellow-50">
-                                <label class="flex items-start space-x-2 cursor-pointer">
-                                    <input type="checkbox" wire:model.live="confirmed_shipping"
-                                        class="mt-1 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                                    <span class="text-xs text-yellow-800">
-                                        <strong>Konfirmasi Diperlukan:</strong> Lokasi ini di luar jangkauan standar. Saya
-                                        sudah menghubungi admin via WhatsApp untuk menyepakati pengiriman.
-                                    </span>
-                                </label>
-                                @error('confirmed_shipping') <span class="block mt-1 text-xs text-red-500">Anda harus
-                                mencentang ini.</span> @enderror
-                            </div>
-                        @endif
-                        <!-- ======================================= -->
-
-                        <button type="button" @click="$dispatch('open-pin-modal')"
-                            class="hidden md:flex items-center justify-center w-full px-6 py-3.5 mt-6 font-bold text-white rounded-xl shadow-lg btn-gradient hover:shadow-xl transform transition hover:-translate-y-0.5">
-                            <span><i class="mr-2 fas fa-lock"></i> Bayar Sekarang</span>
-                        </button>
+                        </p>
                     </div>
                 </div>
+
+                @if($delivery_type != 'pickup')
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-9 h-9 bg-green-50 rounded-full flex items-center justify-center shrink-0 border-2 border-white shadow-sm">
+                            <i class="fas fa-map-marker-alt text-green-600 text-xs"></i>
+                        </div>
+                        <a href="{{ route('pelanggan.alamat') }}" wire:navigate class="flex-1 flex justify-between items-center group py-1">
+                            <div>
+                                <p class="text-sm font-bold text-gray-800 group-hover:text-[#5c4033] transition-colors">
+                                    {{ $address ? explode(' - ', $address)[0] : 'Pilih Alamat Tujuan' }}
+                                </p>
+                                <p class="text-xs text-gray-400 mt-0.5 line-clamp-1">
+                                    {{ $address ? (explode(' - ', $address)[1] ?? '') : 'Klik di sini untuk menentukan titik pengiriman' }}
+                                </p>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs group-hover:text-[#5c4033] transition-colors pl-2"></i>
+                        </a>
+                    </div>
+                @endif
             </div>
 
-            <!-- Mobile Bottom Bar (Diperbarui) -->
-            <div
-                class="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] md:hidden">
-                <div class="flex gap-4">
-                    <div class="flex flex-col justify-center flex-1">
-                        <span class="text-xs text-gray-500">Total Pembayaran</span>
-                        <span class="text-lg font-bold text-purple-700">
-                            Rp {{ number_format($total, 0, ',', '.') }}
-                        </span>
-                    </div>
-                    <button type="submit" wire:loading.attr="disabled"
-                        class="flex items-center justify-center flex-1 px-4 py-3 font-bold text-white transition-transform shadow-md rounded-xl btn-gradient active:scale-95 disabled:opacity-70">
-                        <span wire:loading.remove wire:target="placeOrder">
-                            Bayar <i class="ml-2 fas fa-chevron-right"></i>
-                        </span>
-                        <span wire:loading wire:target="placeOrder">
-                            <i class="fas fa-spinner fa-spin"></i>
-                        </span>
-                    </button>
+            @error('distance')
+                <div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600 flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle"></i> {{ $message }}
                 </div>
+            @enderror
+            @error('address')
+                <div class="mt-4 p-3 bg-red-50 border border-red-100 rounded-xl text-xs font-semibold text-red-600 flex items-center gap-2">
+                    <i class="fas fa-info-circle"></i> {{ $message }}
+                </div>
+            @enderror
+        </div>
+
+        <div class="bg-white p-5 shadow-sm sm:rounded-2xl border border-gray-100">
+            <h3 class="font-bold text-gray-800 text-sm md:text-base mb-4">Detail Pesanan</h3>
+            
+            <div class="divide-y divide-gray-100">
+                @foreach($cartItems as $key => $item)
+                    <div class="flex items-start gap-4 py-3 first:pt-0 last:pb-0">
+                        <div class="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-100">
+                            <img src="{{ isset($item['image']) ? asset('storage/' . $item['image']) : 'https://placehold.co/150x150/eedcd3/5c4033?text=Kue' }}" class="w-full h-full object-cover" alt="{{ $item['name'] }}">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-gray-800 leading-tight">{{ $item['name'] }}</h4>
+                            <p class="text-[11px] text-gray-400 mt-0.5">
+                                {{ isset($item['flavor']) ? 'Rasa: '.$item['flavor'] : '' }} 
+                            </p>
+                            <p class="text-sm font-extrabold text-[#5c4033] mt-2">
+                                Rp {{ number_format($item['price'], 0, ',', '.') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 mt-1">
+                            <span class="text-xs font-bold text-gray-500">x{{ $item['quantity'] }}</span>
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
-        </form>
-    </main>
+            <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-xs text-gray-500 font-medium">Mau nambah menu kue yang lain?</p>
+                <a href="{{ route('ecommerce') }}" wire:navigate class="border border-gray-300 text-gray-700 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-gray-50 transition-all flex items-center gap-1">
+                    Tambah
+                </a>
+            </div>
 
-    <div x-data="{ open: false }" @open-pin-modal.window="open = true" @close-pin-modal.window="open = false"
-        x-show="open" class="fixed inset-0 z-[999] overflow-y-auto" style="display: none;">
-
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
-
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all">
-                <div class="text-center">
-                    <div
-                        class="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-shield-alt fa-2xl"></i>
+            @if($delivery_type == 'delivery' || $delivery_type == 'po')
+                <div class="mt-3 p-3 bg-gray-50 rounded-xl flex items-center gap-3 border border-gray-100">
+                    <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm text-[#5c4033] shrink-0">
+                        <i class="fas fa-shopping-bag text-xs"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900">Keamanan Transaksi</h3>
-                    <p class="text-sm text-gray-500 mt-1">Masukkan 6-digit PIN Pembayaran Anda</p>
+                    <div class="flex-1">
+                        <h5 class="text-xs font-bold text-gray-700">Tas Belanja Box Kue</h5>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Ditambahkan otomatis untuk keamanan delivery</p>
+                    </div>
                 </div>
+            @endif
+        </div>
 
-                <div class="mt-6">
-                    <input type="password" wire:model="pin_input" maxlength="6" placeholder="••••••"
-                        class="w-full text-center text-3xl tracking-[1em] font-bold py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-0 transition-all">
-
-                    @error('pin_input')
-                        <span class="text-red-500 text-xs mt-2 block text-center">{{ $message }}</span>
-                    @enderror
+        <div class="bg-white p-5 shadow-sm sm:rounded-2xl border border-gray-100">
+            <h3 class="font-bold text-gray-800 text-sm md:text-base mb-3">Voucher Toko</h3>
+            
+            <div class="flex gap-2">
+                <div class="relative flex-1">
+                    <input type="text" wire:model="voucherCode" placeholder="Masukkan kode voucher" {{ $appliedVoucherId ? 'disabled' : '' }}
+                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs uppercase font-bold focus:outline-none focus:border-[#5c4033] focus:bg-white disabled:opacity-60 placeholder-gray-400">
                 </div>
+                @if($appliedVoucherId)
+                    <button type="button" wire:click="removeVoucher" class="bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-4 rounded-xl hover:bg-red-100 transition-colors">Batal</button>
+                @else
+                    <button type="button" wire:click="applyVoucher" class="bg-[#5c4033] text-white text-xs font-bold px-5 rounded-xl hover:bg-[#4a3328] transition-colors shadow-sm">Gunakan</button>
+                @endif
+            </div>
+            @error('voucherCode') <span class="text-red-500 text-xs mt-1.5 block font-medium">{{ $message }}</span> @enderror
 
-                <div class="mt-4 text-center">
-                    <p class="text-xs text-gray-400">Lupa PIN?
-                        <button type="button" wire:click="sendResetPinEmail"
-                            class="text-purple-600 font-bold hover:underline">
-                            Klik di sini untuk reset
-                        </button>
-                    </p>
+            @if(count($availableVouchers) > 0)
+                <div class="mt-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                    @foreach($availableVouchers as $voucher)
+                        <div class="shrink-0 border {{ $appliedVoucherId == $voucher->id ? 'border-[#5c4033] bg-[#f4dfd4]/20' : 'border-gray-200 bg-white' }} p-3 rounded-xl flex items-center gap-3 shadow-2xs max-w-[240px]">
+                            <div class="text-[#5c4033]"><i class="fas fa-ticket-alt text-lg"></i></div>
+                            <div class="flex-1">
+                                <h5 class="text-xs font-bold text-gray-800 uppercase leading-none">{{ $voucher->code }}</h5>
+                                <p class="text-[10px] text-gray-400 mt-1">Potongan {{ $voucher->type == 'percentage' ? $voucher->value.'%' : 'Rp '.number_format($voucher->value) }}</p>
+                            </div>
+                            @if(in_array($voucher->id, $claimedVoucherIds))
+                                @if($appliedVoucherId == $voucher->id)
+                                    <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded">Aktif</span>
+                                @else
+                                    <button type="button" wire:click="useClaimedVoucher({{ $voucher->id }})" class="bg-[#5c4033] text-white text-[10px] font-bold px-2.5 py-1 rounded hover:bg-[#4a3328]">Pakai</button>
+                                @endif
+                            @else
+                                <button type="button" wire:click="claimVoucher({{ $voucher->id }})" class="border border-[#5c4033] text-[#5c4033] text-[10px] font-bold px-2.5 py-1 rounded hover:bg-[#5c4033] hover:text-white">Klaim</button>
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
+            @endif
+        </div>
 
-                <div class="mt-8 flex flex-col gap-3">
-                    <button wire:click="validatePinAndPlaceOrder" wire:loading.attr="disabled"
-                        class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50">
-                        <span wire:loading.remove wire:target="validatePinAndPlaceOrder">Konfirmasi Pembayaran</span>
-                        <span wire:loading wire:target="validatePinAndPlaceOrder"><i
-                                class="fas fa-spinner fa-spin mr-2"></i> Memvalidasi...</span>
-                    </button>
-
-                    <button @click="open = false"
-                        class="text-sm text-gray-400 font-semibold hover:text-gray-600 transition-all">
-                        Batalkan
-                    </button>
+        <div class="bg-white p-5 shadow-sm sm:rounded-2xl border border-gray-100 space-y-2.5 text-xs md:text-sm">
+            <h3 class="font-bold text-gray-800 text-sm md:text-base mb-1">Rincian Pembayaran</h3>
+            <div class="flex justify-between text-gray-500 font-medium">
+                <span>Subtotal Kue</span>
+                <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
+            </div>
+            @if($discountAmount > 0)
+                <div class="flex justify-between text-red-600 font-medium">
+                    <span>Diskon Voucher</span>
+                    <span>- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
                 </div>
+            @endif
+            @if($delivery_type != 'pickup')
+                <div class="flex justify-between text-gray-500 font-medium">
+                    <span>Biaya Pengiriman ({{ $distance ?? '0' }} km)</span>
+                    <span>Rp {{ number_format($shipping_cost, 0, ',', '.') }}</span>
+                </div>
+            @endif
+            <hr class="border-gray-100 my-2">
+            <div class="flex justify-between font-extrabold text-base text-[#5c4033] pt-1">
+                <span>Total Tagihan</span>
+                <span>Rp {{ number_format($total, 0, ',', '.') }}</span>
             </div>
         </div>
     </div>
 
-    {{-- JavaScript (Tetap Sama, sudah benar) --}}
-    @push('js')
-        <script src="https://app.sandbox.midtrans.com/snap/snap.js"
-            data-client-key="{{ config('services.midtrans.client_key') }}"></script>
-        <script>
-            document.addEventListener('livewire:init', () => {
-                Livewire.on('snap-show', (data) => {
-                    if (data.snapToken) {
-                        const merchantOrderId = data.merchantOrderId;
-                        window.snap.pay(data.snapToken, {
-                            onSuccess: function (result) {
-                                window.location.href = `/pelanggan/my-orders`;
-                            },
-                            onPending: function (result) {
-                                window.location.href = `/pelanggan/my-orders`;
-                            },
-                            onError: function (result) {
-                                alert('Pembayaran Gagal. Silakan coba lagi.');
-                            },
-                            onClose: function () {
-                                console.log('Popup ditutup.');
-                            }
-                        });
-                    }
-                });
-            });
-        </script>
-    @endpush
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 py-3.5 flex items-center justify-between z-40 md:max-w-xl md:mx-auto md:bottom-4 md:rounded-2xl md:border md:shadow-lg">
+        <div>
+            <p class="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Total Pembayaran</p>
+            <p class="text-lg font-black text-[#5c4033] mt-0.5">Rp {{ number_format($total, 0, ',', '.') }}</p>
+        </div>
+        
+        <button x-data type="button" @click="$dispatch('open-pin-modal')" 
+            {{ ($isOutOfBounds || ($delivery_type != 'pickup' && !$address)) ? 'disabled' : '' }}
+            class="bg-[#5c4033] text-white text-sm font-bold px-8 py-3.5 rounded-xl shadow-md shadow-[#5c4033]/20 hover:bg-[#4a3328] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+            Bayar Sekarang
+        </button>
+    </div>
+
+    <div x-data="{ openPin: false }" x-show="openPin" @open-pin-modal.window="openPin = true" @close-pin-modal.window="openPin = false" style="display: none;" class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
+        <div x-show="openPin" x-transition.opacity class="fixed inset-0 bg-black/40 backdrop-blur-xs" @click="openPin = false"></div>
+        <div x-show="openPin" x-transition.scale.95 class="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden p-6 z-10 text-center">
+            <i class="fas fa-shield-alt text-3xl text-[#5c4033] mb-2"></i>
+            <h3 class="text-base font-extrabold text-gray-800">Keamanan Pembayaran</h3>
+            <p class="text-xs text-gray-400 mt-1 mb-5">Masukkan 6 digit PIN Akun Hana's Cake Anda</p>
+            
+            <form wire:submit.prevent="validatePinAndPlaceOrder" class="space-y-4">
+                <input type="password" wire:model="pin_input" maxlength="6" placeholder="******" class="tracking-widest text-center text-xl font-bold w-full py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#5c4033] focus:bg-white">
+                @error('pin_input') <span class="text-red-500 text-xs block font-medium">{{ $message }}</span> @enderror
+                
+                <div class="flex flex-col gap-2 pt-2">
+                    <button type="submit" wire:loading.attr="disabled" class="w-full bg-[#5c4033] text-white font-bold py-3 rounded-xl text-xs transition hover:bg-[#4a3328]">
+                        <span wire:loading.remove wire:target="validatePinAndPlaceOrder">Konfirmasi Pembayaran</span>
+                        <span wire:loading wire:target="validatePinAndPlaceOrder"><i class="fas fa-circle-notch fa-spin"></i> Memproses Token...</span>
+                    </button>
+                    <button type="button" wire:click="sendResetPinEmail" class="text-xs font-bold text-gray-400 py-1.5 hover:text-[#5c4033]">Lupa PIN Pembayaran?</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 </div>
+
+@assets
+<script type="text/javascript" 
+        src="https://app.sandbox.midtrans.com/snap/snap.js" 
+        data-client-key="{{ config('services.midtrans.client_key') }}">
+</script>
+@endassets
+
+@script
+<script>
+    $wire.on('snap-show', (event) => {
+        // Livewire 3 bisa mengirim data dalam bentuk object langsung atau dibungkus array.
+        // Kita gunakan operator ini agar kompatibel dengan keduanya:
+        let token = event[0]?.snapToken || event?.snapToken;
+        
+        if (typeof snap !== 'undefined') {
+            snap.pay(token, {
+                onSuccess: function(result) { window.location.href = '/pelanggan/my-orders'; },
+                onPending: function(result) { window.location.href = '/pelanggan/my-orders'; },
+                onError: function(result) { alert("Pembayaran gagal diproses!"); },
+                onClose: function() { alert('Anda menutup layar pembayaran tanpa menyelesaikan transaksi.'); }
+            });
+        } else {
+            alert('Gagal memuat library Midtrans. Pastikan koneksi internet stabil dan refresh halaman.');
+        }
+    });
+</script>
+@endscript

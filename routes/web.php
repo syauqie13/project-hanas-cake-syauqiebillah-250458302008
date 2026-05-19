@@ -31,7 +31,10 @@ use App\Livewire\Shared\User\Profil;
 use App\Livewire\Shared\User\UpdatePassword;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Livewire\Auth\VerifyEmail;
+use App\Livewire\Frontend\AddressCreate;
+use App\Livewire\Frontend\AddressEdit;
 use App\Livewire\Frontend\SetupPin;
+use App\Livewire\Frontend\UserProfile\ProfileDashboard;
 use App\Livewire\Karyawan\Store\StoreManagement;
 use Illuminate\Support\Facades\Artisan;
 
@@ -98,9 +101,12 @@ Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->na
     Route::get('/vouchers', \App\Livewire\Frontend\VoucherClaimPage::class)->name('vouchers');
     Route::get('/checkout', CheckoutPage::class)->name('checkout');
     Route::get('/alamat', \App\Livewire\Frontend\AddressSelection::class)->name('alamat');
-    Route::get('/alamat/tambah', \App\Livewire\Frontend\AddressCreate::class)->name('alamat.tambah');
+    Route::get('/alamat/tambah', AddressCreate::class)->name('alamat.tambah');
+    Route::get('/alamat/{id}/edit', AddressEdit::class)->name('alamat.edit');
     Route::get('/my-orders', MyOrders::class)->name('my-orders');
-    Route::get('/profile', EditProfile::class)->name('profile');
+    Route::get('/profile', ProfileDashboard::class)->name('profile');
+    Route::get('/profile/edit', EditProfile::class)->name('profile.edit');
+    Route::get('/profile/pengaturan', App\Livewire\Frontend\UserProfile\Settings::class)->name('profile.settings');
     Route::get('/pay/{order}', [CustomerPaymentController::class, 'show'])->name('pay');
     Route::get('/setup-pin', SetupPin::class)->name('setup-pin');
     Route::post('/logout', function (Request $request) {

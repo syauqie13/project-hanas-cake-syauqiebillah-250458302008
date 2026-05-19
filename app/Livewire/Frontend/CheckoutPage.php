@@ -6,13 +6,15 @@ use Livewire\Component;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ShippingZone;
 use App\Models\Voucher;
 use App\Models\UserVoucher;
+use App\Models\Store;
+use App\Models\CustomerAddress;
 use App\Notifications\ResetPinNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Livewire\Attributes\Layout;
@@ -27,15 +29,15 @@ class CheckoutPage extends Component
     public $total = 0;
     public $pin_input;
 
-    // Properti Form Pengiriman
-    public $name, $email, $phone, $address, $city, $postal_code;
+    // Data Pelanggan
+    public $name, $email, $phone, $address;
 
-    // --- PROPERTI ONGKIR ---
+    // --- PROPERTI ONGKIR GPS (BARU) ---
     public $delivery_type = 'delivery';
-    public $shipping_zone_id;
+    public $selectedStore = null;
+    public $distance = null;
     public $shipping_cost = 0;
-    public $requires_confirmation = false;
-    public $confirmed_shipping = false;
+    public $isOutOfBounds = false;
 
     // --- PROPERTI VOUCHER ---
     public $voucherCode = '';
@@ -50,108 +52,143 @@ class CheckoutPage extends Component
             'phone' => 'required|string|max:20',
         ];
 
-        if ($this->delivery_type == 'delivery') {
+        // Validasi khusus pengiriman
+        if ($this->delivery_type == 'delivery' || $this->delivery_type == 'po') {
             $rules['address'] = 'required|string|max:500';
-            $rules['city'] = 'required|string|max:100';
-            $rules['postal_code'] = 'required|string|max:10';
-            $rules['shipping_zone_id'] = 'required|exists:shipping_zones,id';
-            if ($this->requires_confirmation) {
-                $rules['confirmed_shipping'] = 'accepted';
+            if ($this->isOutOfBounds) {
+                // Sengaja dibuat gagal jika di luar jangkauan
+                $rules['distance'] = 'numeric|max:10'; 
             }
         }
         return $rules;
     }
 
+    protected $messages = [
+        'distance.max' => 'Lokasi pengiriman di luar jangkauan (Maks 5km). Silakan ganti alamat atau metode.',
+        'address.required' => 'Pilih alamat pengiriman terlebih dahulu.',
+    ];
+
     public function mount()
     {
-        $this->cartItems = session()->get('cart', []);
+        $this->cartItems = Session::get('cart', []);
 
         if (empty($this->cartItems)) {
             return $this->redirect(route('ecommerce'), navigate: true);
         }
+
+        // Ambil mode yang dipilih di halaman sebelumnya
+        $this->delivery_type = Session::get('active_mode', 'pickup');
 
         $user = Auth::user();
         if ($user) {
             $this->name = $user->name;
             $this->email = $user->email;
             $this->phone = $user->phone;
-            $this->address = $user->address;
-            $this->city = $user->city;
-            $this->postal_code = $user->postal_code;
         }
 
+        $this->calculateDeliveryCost();
         $this->calculateTotal();
     }
 
-    // --- LOGIKA HITUNG ONGKIR ---
+    // --- LOGIKA HITUNG ONGKIR BERBASIS GPS ---
+    public function calculateDeliveryCost()
+    {
+        $this->shipping_cost = 0;
+        $this->isOutOfBounds = false;
+        $this->distance = null;
+
+        $storeId = Session::get('selected_store_id');
+        if ($storeId) {
+            $this->selectedStore = Store::find($storeId);
+        }
+
+        if (($this->delivery_type == 'delivery' || $this->delivery_type == 'po') && Auth::check()) {
+            $customer = Auth::user()->customer;
+            $addressId = Session::get('selected_address_id');
+            
+            // Cari alamat (Prioritas: yang sedang dipilih > yang utama > yang pertama ada)
+            $addressModel = CustomerAddress::where('customer_id', $customer->id)->where('id', $addressId)->first()
+                    ?? CustomerAddress::where('customer_id', $customer->id)->where('is_primary', true)->first()
+                    ?? CustomerAddress::where('customer_id', $customer->id)->first();
+
+            if ($addressModel) {
+                $this->address = $addressModel->title . ' - ' . $addressModel->detail_address;
+
+                if ($this->selectedStore && $this->selectedStore->latitude && $addressModel->latitude) {
+                    $this->distance = $this->calculateDistance(
+                        $addressModel->latitude, 
+                        $addressModel->longitude, 
+                        $this->selectedStore->latitude, 
+                        $this->selectedStore->longitude
+                    );
+
+                    if ($this->distance > 10) {
+                        $this->isOutOfBounds = true;
+                        $this->shipping_cost = 0;
+                    } else {
+                        $this->isOutOfBounds = false;
+                        // Tarif: <= 1km = 2k, selebihnya kelipatan 2k/km
+                        $this->shipping_cost = $this->distance <= 1 ? 2000 : ceil($this->distance) * 2000;
+                    }
+                }
+            } else {
+                $this->address = null;
+            }
+        } else {
+            $this->address = 'Ambil langsung di Toko/Store';
+        }
+    }
+
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2) {
+        $earthRadius = 6371;
+        $dLat = deg2rad((float)$lat2 - (float)$lat1);
+        $dLon = deg2rad((float)$lon2 - (float)$lon1);
+        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad((float)$lat1)) * cos(deg2rad((float)$lat2)) * sin($dLon/2) * sin($dLon/2);
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        return round($earthRadius * $c, 2);
+    }
+
     public function updatedDeliveryType($value)
     {
-        if ($value == 'pickup') {
-            $this->shipping_zone_id = null;
-            $this->shipping_cost = 0;
-            $this->requires_confirmation = false;
-        }
-        $this->calculateTotal();
-    }
-
-    public function updatedShippingZoneId($value)
-    {
-        if ($this->delivery_type == 'delivery') {
-            $zone = ShippingZone::find($value);
-            if ($zone) {
-                $this->shipping_cost = $zone->price;
-                $this->requires_confirmation = $zone->requires_confirmation;
-            }
-        }
-        $this->confirmed_shipping = false;
+        Session::put('active_mode', $value);
+        $this->calculateDeliveryCost();
         $this->calculateTotal();
     }
 
     // --- LOGIKA VOUCHER ---
-
     public function applyVoucher()
     {
-        // Jika input manual kosong, berikan error
         if (!$this->voucherCode) {
             $this->addError('voucherCode', 'Masukkan kode voucher terlebih dahulu.');
             return;
         }
 
-        $voucher = \App\Models\Voucher::where('code', $this->voucherCode)
-            ->where('is_active', true)
-            ->first();
+        $voucher = Voucher::where('code', $this->voucherCode)->where('is_active', true)->first();
 
         if (!$voucher) {
             $this->addError('voucherCode', 'Kode voucher tidak valid.');
             return;
         }
 
-        // Panggil logika untuk memasang voucher (misal ke fungsi internal)
         $this->applyVoucherLogic($voucher);
     }
 
     private function applyVoucherLogic($voucher)
     {
-        // Cek minimal belanja (sesuaikan nama variabel subtotal kamu)
         if ($this->subtotal < $voucher->min_purchase) {
             $this->addError('voucherCode', 'Minimal belanja Rp ' . number_format($voucher->min_purchase) . ' belum tercapai.');
             return;
         }
 
         $this->appliedVoucherId = $voucher->id;
-
-        // Hitung ulang total belanja kamu (panggil fungsi hitung total yang sudah ada di tokomu)
         $this->calculateTotal();
 
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'message' => 'Voucher ' . $voucher->code . ' berhasil dipasang!'
-        ]);
+        $this->dispatch('notify', ['type' => 'success', 'message' => 'Voucher ' . $voucher->code . ' berhasil dipasang!']);
     }
+
     public function claimVoucher($voucherId)
     {
-        if (!Auth::check())
-            return;
+        if (!Auth::check()) return;
 
         UserVoucher::firstOrCreate([
             'user_id' => Auth::id(),
@@ -164,8 +201,7 @@ class CheckoutPage extends Component
     public function useClaimedVoucher($voucherId)
     {
         $voucher = Voucher::find($voucherId);
-        if (!$voucher)
-            return;
+        if (!$voucher) return;
 
         if ($voucher->min_purchase && $this->subtotal < $voucher->min_purchase) {
             $this->dispatch('notify', ['message' => 'Minimal belanja belum terpenuhi.', 'icon' => 'error']);
@@ -177,7 +213,7 @@ class CheckoutPage extends Component
             if ($voucher->max_discount && $discount > $voucher->max_discount) {
                 $discount = $voucher->max_discount;
             }
-            $this->discountAmount = (int) $discount; // Wajib integer
+            $this->discountAmount = (int) $discount;
         } else {
             $this->discountAmount = (int) $voucher->value;
         }
@@ -211,7 +247,6 @@ class CheckoutPage extends Component
             }
         }
 
-        // Batalkan voucher otomatis jika subtotal kurang dari minimal
         if ($this->appliedVoucherId) {
             $voucher = Voucher::find($this->appliedVoucherId);
             if ($voucher && $voucher->min_purchase && $this->subtotal < $voucher->min_purchase) {
@@ -221,38 +256,27 @@ class CheckoutPage extends Component
         }
 
         $this->total = $this->subtotal - $this->discountAmount + $this->shipping_cost;
-        if ($this->total < 0)
-            $this->total = 0;
+        if ($this->total < 0) $this->total = 0;
     }
 
-    // --- EKSEKUSI PEMBAYARAN ---
+    // --- EKSEKUSI PEMBAYARAN MIDTRANS ---
     public function placeOrder()
     {
         $this->validate();
-
-        // PAKSA HITUNG ULANG DI SINI UNTUK MEMASTIKAN DATA TERBARU
         $this->calculateTotal();
 
-        $zoneName = 'Ambil di Toko (Pickup)';
-        $shippingPrice = 0;
-
-        if ($this->delivery_type == 'delivery') {
-            $zone = ShippingZone::find($this->shipping_zone_id);
-            if ($zone) {
-                $zoneName = $zone->name;
-                $shippingPrice = (int) $zone->price;
-            }
-        }
+        $storeName = $this->selectedStore ? $this->selectedStore->name : 'Hana\'s Cake Store';
+        $shippingPrice = (int) $this->shipping_cost;
+        $invoiceZoneName = ($this->delivery_type == 'pickup') ? 'Ambil di Toko' : "Kirim Berbasis Jarak ({$this->distance}km)";
 
         DB::beginTransaction();
         try {
-            // 1. Buat Order Awal dengan TOTAL HASIL CALCULATE TERBARU
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'voucher_id' => $this->appliedVoucherId,
                 'cashier_id' => 1,
                 'tanggal' => now(),
-                'total' => (int) $this->total, // Gunakan hasil calculateTotal()
+                'total' => (int) $this->total,
                 'paid_amount' => 0,
                 'change_amount' => 0,
                 'payment_method' => 'midtrans',
@@ -263,25 +287,22 @@ class CheckoutPage extends Component
                 'shipping_name' => $this->name,
                 'shipping_email' => $this->email,
                 'shipping_phone' => $this->phone,
-                'shipping_address' => $this->delivery_type == 'delivery' ? $this->address : null,
-                'shipping_city' => $this->delivery_type == 'delivery' ? $this->city : null,
-                'shipping_postal_code' => $this->delivery_type == 'delivery' ? $this->postal_code : null,
-                'shipping_zone_name' => $zoneName,
+                'shipping_address' => $this->delivery_type != 'pickup' ? $this->address : null,
+                'shipping_city' => $storeName, 
+                'shipping_postal_code' => null,
+                'shipping_zone_name' => $invoiceZoneName,
                 'shipping_price' => $shippingPrice,
             ]);
 
             $merchantOrderId = 'PO-' . $order->id . '-' . time();
             $order->merchant_order_id = $merchantOrderId;
 
-            // 2. Siapkan Rincian untuk Midtrans
             $item_details_for_midtrans = [];
             $midtransGrossAmount = 0;
 
-            // Masukkan Barang
             foreach ($this->cartItems as $item) {
                 $product = Product::find($item['product_id']);
-                if (!$product)
-                    throw new \Exception("Produk tidak ditemukan.");
+                if (!$product) throw new \Exception("Produk tidak ditemukan.");
 
                 $finalPrice = (int) ($product->price - ($product->price * $product->discount / 100));
 
@@ -302,18 +323,16 @@ class CheckoutPage extends Component
                 $midtransGrossAmount += ($finalPrice * $item['quantity']);
             }
 
-            // Masukkan Ongkir
             if ($shippingPrice > 0) {
                 $item_details_for_midtrans[] = [
-                    'id' => 'SHIPPING',
+                    'id' => 'SHIPPING_KM',
                     'price' => $shippingPrice,
                     'quantity' => 1,
-                    'name' => 'Biaya Pengiriman'
+                    'name' => "Ongkir Kurir ({$this->distance}km)"
                 ];
                 $midtransGrossAmount += $shippingPrice;
             }
 
-            // Masukkan Diskon Voucher (Item Negatif)
             if ($this->discountAmount > 0) {
                 $item_details_for_midtrans[] = [
                     'id' => 'VOUCHER',
@@ -324,13 +343,11 @@ class CheckoutPage extends Component
                 $midtransGrossAmount -= (int) $this->discountAmount;
             }
 
-            // UPDATE DATABASE DENGAN HASIL HITUNG ITEM_DETAILS (Agar sinkron dengan Midtrans)
             $order->total = $midtransGrossAmount;
             $order->save();
 
-            Log::info("Membuat order PO pending (Midtrans) ID: {$order->id}. Total DB: {$order->total}. Gross Midtrans: {$midtransGrossAmount}");
+            Log::info("Membuat order pending (Midtrans) ID: {$order->id}. Gross Midtrans: {$midtransGrossAmount}");
 
-            // 3. Konfigurasi Midtrans
             Config::$serverKey = config('services.midtrans.server_key');
             Config::$isProduction = config('services.midtrans.is_production');
             Config::$is3ds = false;
@@ -339,26 +356,22 @@ class CheckoutPage extends Component
             $params = [
                 'transaction_details' => [
                     'order_id' => $merchantOrderId,
-                    'gross_amount' => (int) $midtransGrossAmount, // Harus integer murni
+                    'gross_amount' => (int) $midtransGrossAmount,
                 ],
                 'customer_details' => [
                     'first_name' => $this->name,
                     'email' => $this->email,
                     'phone' => $this->phone,
                     'shipping_address' => [
-                        'address' => $this->address,
-                        'city' => $this->city,
-                        'postal_code' => $this->postal_code,
+                        'address' => $this->address ?? 'Toko',
                     ]
                 ],
                 'item_details' => $item_details_for_midtrans,
             ];
 
-            // 4. Minta Snap Token
             $snapToken = Snap::getSnapToken($params);
             DB::commit();
 
-            // 5. Bersihkan keranjang
             session()->forget('cart');
             $this->dispatch('cartUpdated');
 
@@ -371,16 +384,12 @@ class CheckoutPage extends Component
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Checkout Error: {$e->getMessage()}");
-            $this->dispatch('notify', [
-                'message' => 'Gagal: ' . $e->getMessage(),
-                'icon' => 'error'
-            ]);
+            $this->dispatch('notify', ['message' => 'Gagal: ' . $e->getMessage(), 'icon' => 'error']);
         }
     }
 
     public function validatePinAndPlaceOrder()
     {
-        // 1. Validasi input PIN tidak boleh kosong
         $this->validate([
             'pin_input' => 'required|digits:6'
         ], [
@@ -388,17 +397,12 @@ class CheckoutPage extends Component
             'pin_input.digits' => 'PIN harus 6 digit angka.'
         ]);
 
-        // 2. Cek kecocokan payment_pin di DB
         if (!\Illuminate\Support\Facades\Hash::check($this->pin_input, auth()->user()->payment_pin)) {
             $this->addError('pin_input', 'PIN Pembayaran salah!');
             return;
         }
 
-        // 3. Jika benar, panggil fungsi placeOrder yang sudah kita buat tadi
-        // Pastikan di dalam placeOrder() nanti ada perintah tutup modal
         $this->placeOrder();
-
-        // 4. Reset input dan tutup modal
         $this->reset('pin_input');
         $this->dispatch('close-pin-modal');
     }
@@ -406,19 +410,11 @@ class CheckoutPage extends Component
     public function sendResetPinEmail()
     {
         $user = auth()->user();
-
         try {
             $user->notify(new ResetPinNotification());
-
-            $this->dispatch('notify', [
-                'type' => 'success',
-                'message' => 'Link reset PIN sudah dikirim ke Gmail Anda.'
-            ]);
+            $this->dispatch('notify', ['type' => 'success', 'message' => 'Link reset PIN sudah dikirim ke Gmail Anda.']);
         } catch (\Exception $e) {
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'message' => 'Gagal mengirim email: ' . $e->getMessage()
-            ]);
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Gagal mengirim email: ' . $e->getMessage()]);
         }
     }
 
@@ -426,26 +422,16 @@ class CheckoutPage extends Component
     {
         $user = Auth::user();
 
-        // 1. Ambil Voucher yang tersedia secara umum (dan belum expired)
         $availableVouchers = Voucher::where('is_active', true)
             ->where(function ($q) {
-                $q->whereNull('valid_until')
-                    ->orWhere('valid_until', '>=', now());
-            })
-            ->get();
+                $q->whereNull('valid_until')->orWhere('valid_until', '>=', now());
+            })->get();
 
-        // 2. Ambil ID voucher yang SUDAH diklaim oleh user ini (baik yang sudah dipakai atau belum)
         $userVoucherData = UserVoucher::where('user_id', $user->id)->get();
-
-        // ID yang sudah diklaim tapi BELUM dipakai (Status: Bisa Pakai)
         $claimedNotUsedIds = $userVoucherData->where('is_used', false)->pluck('voucher_id')->toArray();
-
-        // ID yang SUDAH dipakai (Status: Harus Hilang dari list)
         $alreadyUsedIds = $userVoucherData->where('is_used', true)->pluck('voucher_id')->toArray();
 
         return view('livewire.frontend.checkout-page', [
-            'zones' => ShippingZone::all(),
-            // Filter: Hanya tampilkan voucher yang BELUM pernah dipakai oleh user ini
             'availableVouchers' => $availableVouchers->whereNotIn('id', $alreadyUsedIds),
             'claimedVoucherIds' => $claimedNotUsedIds
         ]);

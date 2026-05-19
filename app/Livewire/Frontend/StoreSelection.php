@@ -16,10 +16,33 @@ class StoreSelection extends Component
     public function mount()
     {
         $this->mode = request()->query('mode', 'pickup');
-        
-        if (Auth::check() && Auth::user()->customer) {
-            $this->userLat = Auth::user()->customer->latitude;
-            $this->userLng = Auth::user()->customer->longitude;
+
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->customer) {
+            $customer = \Illuminate\Support\Facades\Auth::user()->customer;
+            $address = null;
+
+            // 1. Coba ambil dari session alamat yang sedang dipilih (Sama seperti halaman Shop)
+            if (session()->has('selected_address_id')) {
+                $address = \App\Models\CustomerAddress::find(session('selected_address_id'));
+            }
+
+            // 2. Jika tidak ada di session, ambil alamat utamanya (primary)
+            if (!$address) {
+                $address = \App\Models\CustomerAddress::where('customer_id', $customer->id)
+                    ->orderBy('is_primary', 'desc')
+                    ->first();
+            }
+
+            // 3. Jika alamat pengiriman ada, gunakan koordinat dari alamat tersebut!
+            if ($address && $address->latitude && $address->longitude) {
+                $this->userLat = $address->latitude;
+                $this->userLng = $address->longitude;
+            }
+            // 4. Fallback ke tabel customer lama (hanya jika user belum pernah buat alamat)
+            else {
+                $this->userLat = $customer->latitude;
+                $this->userLng = $customer->longitude;
+            }
         }
     }
 
@@ -28,7 +51,7 @@ class StoreSelection extends Component
     {
         $this->userLat = $lat;
         $this->userLng = $lng;
-        
+
         if (Auth::check() && Auth::user()->customer) {
             Auth::user()->customer->update([
                 'latitude' => $lat,
@@ -43,12 +66,13 @@ class StoreSelection extends Component
         return $this->redirect(route('ecommerce', ['mode' => $this->mode]), navigate: true);
     }
 
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2) {
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
         $earthRadius = 6371; // km
         $dLat = deg2rad($lat2 - $lat1);
         $dLon = deg2rad($lon2 - $lon1);
-        $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
-        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) * sin($dLon / 2);
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         $dist = $earthRadius * $c;
         return round($dist, 2);
     }
@@ -56,7 +80,7 @@ class StoreSelection extends Component
     public function render()
     {
         $stores = Store::where('is_active', true)->get();
-        
+
         if ($this->userLat && $this->userLng) {
             foreach ($stores as $store) {
                 if ($store->latitude && $store->longitude) {

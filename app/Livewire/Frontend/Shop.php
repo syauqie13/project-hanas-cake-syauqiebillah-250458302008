@@ -36,6 +36,7 @@ class Shop extends Component
     public $selectedProductForDetail = null;
     public $selectedFlavor = null;
     public $selectedPortion = null;
+    public $shippingCost = 0;
 
     public function openProductDetail($id)
     {
@@ -77,10 +78,20 @@ class Shop extends Component
 
     public function mount()
     {
-        $this->mode = request()->query('mode', 'po');
-        if (!in_array($this->mode, ['po', 'pickup', 'delivery'])) {
-            $this->mode = 'po';
+        // 1. Ambil mode dari URL terlebih dahulu
+        $modeFromUrl = request()->query('mode');
+
+        // 2. Jika ada di URL dan valid, gunakan itu. 
+        // Jika tidak ada di URL, ambil ingatan terakhir dari Session.
+        // Jika Session juga kosong, barulah default ke 'po'.
+        if ($modeFromUrl && in_array($modeFromUrl, ['po', 'pickup', 'delivery'])) {
+            $this->mode = $modeFromUrl;
+        } else {
+            $this->mode = session('active_mode', 'po');
         }
+
+        // 3. Simpan mode yang sedang aktif ini ke Session agar sistem selalu ingat
+        session()->put('active_mode', $this->mode);
 
         $this->loadStore();
         $this->calculateDeliveryInfo(); // Panggil fungsi saat halaman pertama dimuat
@@ -148,12 +159,23 @@ class Shop extends Component
                     );
 
                     // Cek jarak khusus mode delivery
-                    if ($this->mode == 'delivery') {
-                        if ($this->distance > 5) {
+                    // Cek jarak khusus mode delivery
+                    // Cek jarak dan hitung ongkir untuk mode Delivery DAN Pre-Order
+                    if ($this->mode == 'delivery' || $this->mode == 'po') {
+                        if ($this->distance > 10) {
                             $this->isOutOfBounds = true; // Lebih dari 5KM = Out of Bounds
+                            $this->shippingCost = 0; // Reset ongkir
                         } else {
                             $this->isOutOfBounds = false;
                             $this->eta = round($this->distance * 3 + 15); // Asumsi 3 menit/km + 15 menit prep
+
+                            // RUMUS ONGKIR
+                            if ($this->distance <= 1) {
+                                $this->shippingCost = 2000;
+                            } else {
+                                $jarakDibulatkan = ceil($this->distance);
+                                $this->shippingCost = $jarakDibulatkan * 2000;
+                            }
                         }
                     }
                 }

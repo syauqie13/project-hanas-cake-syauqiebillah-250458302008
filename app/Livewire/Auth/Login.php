@@ -51,7 +51,7 @@ class Login extends Component
             } elseif ($user->role == 'karyawan') {
                 return $this->redirect(route('karyawan.dashboard'));
             } elseif ($user->role == 'pelanggan') {
-                return $this->redirect(route('ecommerce'));
+                return $this->redirect(route('front'));
             } else {
                 // Fallback jika 'pelanggan' mencoba login di sini
                 Auth::logout();
