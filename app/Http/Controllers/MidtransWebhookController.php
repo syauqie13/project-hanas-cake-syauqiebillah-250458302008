@@ -1,23 +1,51 @@
 <?php
 
-namespace App\Http\Controllers; // Pastikan namespace ini sesuai dengan lokasi file Anda
+namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\OrderItem;
-use App\Models\ProductRecipe;
-use App\Models\Inventory;
-use App\Models\UserVoucher;
-use Midtrans\Config;
+use App\Services\MidtransService;
+use App\Services\OrderService;
+use App\Notifications\OrderStatusNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * MidtransWebhookController
+ *
+ * Menerima dan memproses notifikasi callback (webhook) dari Midtrans.
+ *
+ * ALUR KERJA:
+ * 1. Midtrans mengirim POST request ke /api/midtrans/webhook
+ * 2. Controller memvalidasi signature SHA-512 (anti-spoofing)
+ * 3. Berdasarkan transaction_status:
+ *    - settlement/capture → order berhasil dibayar
+ *    - cancel/deny/expire → order gagal
+ * 4. Stok inventaris dikurangi otomatis setelah pembayaran sukses
+ * 5. Notifikasi dikirim ke pelanggan
+ *
+ * KEAMANAN:
+ * - Route ini di-exclude dari CSRF verification (lihat bootstrap/app.php)
+ * - Signature diverifikasi via MidtransService
+ * - Proteksi double-request: jika order sudah 'paid', webhook diabaikan
+ */
 class MidtransWebhookController extends Controller
 {
+    protected MidtransService $midtransService;
+    protected OrderService $orderService;
+
+    public function __construct(MidtransService $midtransService, OrderService $orderService)
+    {
+        $this->midtransService = $midtransService;
+        $this->orderService    = $orderService;
+    }
+
     public function handle(Request $request)
     {
+        // Bypass ngrok browser warning
         header('ngrok-skip-browser-warning: 1');
 
+        // Parse payload — support baik dari JSON body maupun form-data
         $payload = $request->all();
         if (empty($payload)) {
             $payload = json_decode($request->getContent(), true);
@@ -27,103 +55,55 @@ class MidtransWebhookController extends Controller
             return response()->json(['message' => 'Empty Payload'], 400);
         }
 
-        Config::$serverKey = config('services.midtrans.server_key');
-
-        $orderId = $payload['order_id'] ?? null;
-        $statusCode = $payload['status_code'] ?? null;
-        $grossAmount = number_format($payload['gross_amount'], 2, '.', ''); 
-        $signatureKey = $payload['signature_key'] ?? null;
+        $orderId           = $payload['order_id'] ?? null;
+        $statusCode        = $payload['status_code'] ?? null;
+        $grossAmount       = number_format($payload['gross_amount'], 2, '.', '');
+        $signatureKey      = $payload['signature_key'] ?? null;
         $transactionStatus = $payload['transaction_status'] ?? null;
 
-        // Validasi Signature
-        $input = $orderId . $statusCode . $grossAmount . Config::$serverKey;
-        $signature = hash("sha512", $input);
-
-        if ($signature !== $signatureKey) {
-            Log::error("Signature Mismatch! Order: $orderId. Generated: $signature, From Midtrans: $signatureKey");
+        // KEAMANAN: Validasi signature dari Midtrans
+        if (!$this->midtransService->verifySignature($orderId, $statusCode, $grossAmount, $signatureKey)) {
+            Log::error("Webhook: Signature mismatch untuk order {$orderId}");
             return response()->json(['message' => 'Invalid Signature'], 403);
         }
 
+        // Cari order berdasarkan merchant_order_id
         $order = Order::where('merchant_order_id', $orderId)->first();
 
-        if ($order) {
-            // MENCEGAH BUG DOUBLE REQUEST: Jika order sudah lunas, langsung kembalikan 200 OK tanpa eksekusi ulang
-            if ($order->payment_status == 'paid' && ($transactionStatus == 'settlement' || $transactionStatus == 'capture')) {
-                Log::info("Webhook diabaikan: Order $orderId sudah berstatus Paid sebelumnya.");
-                return response()->json(['message' => 'Already Paid'], 200);
-            }
+        if (!$order) {
+            return response()->json(['message' => 'Order Not Found'], 404);
+        }
 
-            DB::beginTransaction();
-            try {
-                if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
-                    $this->handleSuccess($order, $payload['gross_amount']);
-                } 
-                // TAMBAHAN: Menangani jika user batal bayar atau waktu expired
-                elseif ($transactionStatus == 'cancel' || $transactionStatus == 'deny' || $transactionStatus == 'expire') {
-                    $this->handleFailed($order);
+        // PROTEKSI DOUBLE REQUEST: Jika sudah paid, langsung return 200
+        if ($order->payment_status === 'paid' && in_array($transactionStatus, ['settlement', 'capture'])) {
+            Log::info("Webhook diabaikan: Order {$orderId} sudah berstatus Paid.");
+            return response()->json(['message' => 'Already Paid'], 200);
+        }
+
+        DB::beginTransaction();
+        try {
+            if (in_array($transactionStatus, ['settlement', 'capture'])) {
+                $this->orderService->handlePaymentSuccess($order, $payload['gross_amount']);
+
+                // Kirim notifikasi ke pelanggan: "Pembayaran berhasil"
+                if ($order->user) {
+                    $order->user->notify(new OrderStatusNotification($order, 'diproses'));
                 }
+            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+                $this->orderService->handlePaymentFailed($order);
 
-                DB::commit();
-                return response()->json(['message' => 'OK'], 200);
-            } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error("Webhook Error: " . $e->getMessage());
-                return response()->json(['message' => 'Error processing webhook'], 500);
+                // Kirim notifikasi ke pelanggan: "Pesanan dibatalkan"
+                if ($order->user) {
+                    $order->user->notify(new OrderStatusNotification($order, 'dibatalkan'));
+                }
             }
-        }
 
-        return response()->json(['message' => 'Order Not Found'], 404);
-    }
-
-    private function handleSuccess($order, $grossAmount)
-    {
-        $order->payment_status = 'paid';
-        $order->paid_amount = $grossAmount;
-
-        if ($order->order_type == 'online') {
-            $order->status = 'diproses'; // Disesuaikan dengan bahasa Indonesia jika ada
-        } else {
-            $order->status = 'selesai';
-        }
-        $order->save();
-
-        // Update Voucher
-        if ($order->voucher_id) {
-            UserVoucher::where('user_id', $order->user_id)
-                ->where('voucher_id', $order->voucher_id)
-                ->update(['is_used' => true, 'used_at' => now()]);
-        }
-
-        $this->reduceInventoryStock($order);
-        Log::info("Order $order->merchant_order_id berhasil dilunasi via Webhook.");
-    }
-
-    // FUNGSI BARU: Untuk mengubah status gagal secara otomatis
-    private function handleFailed($order)
-    {
-        $order->payment_status = 'failed';
-        $order->status = 'dibatalkan';
-        $order->save();
-
-        // Kembalikan voucher agar bisa dipakai lagi oleh user
-        if ($order->voucher_id) {
-            UserVoucher::where('user_id', $order->user_id)
-                ->where('voucher_id', $order->voucher_id)
-                ->update(['is_used' => false, 'used_at' => null]);
-        }
-        
-        Log::info("Order $order->merchant_order_id dibatalkan/expired via Webhook.");
-    }
-
-    private function reduceInventoryStock($order)
-    {
-        $orderItems = OrderItem::where('order_id', $order->id)->get();
-        foreach ($orderItems as $item) {
-            $recipes = ProductRecipe::where('product_id', $item->product_id)->get();
-            foreach ($recipes as $recipe) {
-                Inventory::where('id', $recipe->inventory_id)
-                    ->decrement('stock', $recipe->quantity_used * $item->jumlah);
-            }
+            DB::commit();
+            return response()->json(['message' => 'OK'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Webhook Error: " . $e->getMessage());
+            return response()->json(['message' => 'Error processing webhook'], 500);
         }
     }
 }

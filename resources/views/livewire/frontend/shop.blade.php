@@ -5,64 +5,62 @@
         $title = 'Pre-Order';
         $subtitle = 'Rencanakan momen spesial';
         $imageSrc = asset('images/preorder.png');
-        $imageClass = 'h-32 md:h-40 -mt-10';
+        $imageClass = 'w-full h-full';
 
         if ($mode == 'pickup') {
-            $bgClass = 'bg-[#7c5b4e]';
+            $bgClass = 'bg-gradient-to-r from-[#7c5b4e] to-[#8b6f5e]';
             $title = 'Pick Up';
             $subtitle = 'Ambil di Store tanpa antri';
             $imageSrc = asset('images/pickup.png');
-            $imageClass = 'h-36 md:h-44 -mt-12 -ml-2';
+            $imageClass = 'w-full h-full';
         } elseif ($mode == 'delivery') {
             $bgClass = 'bg-[#f4dfd4]';
             $title = 'Delivery';
             $subtitle = 'Garansi tepat waktu, dijamin!';
             $imageSrc = asset('images/delivery.png');
-            $imageClass = 'h-36 md:h-44 -mt-12 -ml-4';
+            $imageClass = 'w-full h-full';
         }
     @endphp
 
     <div
-        class="{{ $bgClass }} relative px-4 md:px-12 lg:px-24 pt-12 pb-6 md:pt-20 md:pb-12 rounded-b-[2rem] md:rounded-none shadow-sm">
+        class="{{ $bgClass }} relative px-4 md:px-12 lg:px-24 pt-6 pb-5 md:pt-8 md:pb-6 rounded-b-[2rem] shadow-sm">
         <div class="max-w-7xl mx-auto relative">
-            <!-- Back Button & Search Icon -->
-            <div class="absolute top-0 left-0 right-0 flex justify-between items-center z-20 md:-top-8">
-                <a href="{{ route('front') }}" wire:navigate
-                    class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 transition">
-                    <i class="fas fa-chevron-left text-sm"></i>
-                </a>
+            <a href="{{ route('front') }}" wire:navigate
+                class="absolute top-4 left-4 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 transition">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </a>
 
-                <div class="relative w-48 md:w-64">
-                    <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari..."
-                        class="w-full py-1.5 pl-8 pr-3 text-xs bg-white/20 border-0 rounded-full text-white placeholder-white/70 focus:ring-2 focus:ring-white/50 backdrop-blur-sm">
-                    <i
-                        class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-white/70 text-xs"></i>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-4 relative z-10 mt-6">
-                <!-- Dynamic Image Character -->
-                <div
-                    class="w-24 h-24 md:w-32 md:h-32 bg-white/50 rounded-full flex items-center justify-center relative">
-                    <img src="{{ $imageSrc }}" class="absolute bottom-0 object-contain {{ $imageClass }} drop-shadow-xl"
-                        alt="{{ $title }}">
-                </div>
-
-                <div class="flex-1 py-2">
-                    <h1
-                        class="{{ $mode == 'delivery' ? 'text-[#5c4033]' : 'text-white' }} text-2xl md:text-3xl font-extrabold tracking-tight mb-1">
-                        {{ $title }}
-                    </h1>
-                    <p
-                        class="{{ $mode == 'delivery' ? 'text-[#8b6f5e]' : 'text-white/90' }} text-xs md:text-sm font-medium">
-                        {{ $subtitle }}
-                    </p>
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-20 h-20 md:w-24 md:h-24 bg-white/50 rounded-full flex items-center justify-center overflow-hidden">
+                        <img src="{{ $imageSrc }}" class="object-contain {{ $imageClass }} drop-shadow-xl"
+                            alt="{{ $title }}">
+                    </div>
+                    <div class="flex-1">
+                        <h1
+                            class="{{ $mode == 'delivery' ? 'text-[#5c4033]' : 'text-white' }} text-2xl md:text-3xl font-extrabold tracking-tight mb-1">
+                            {{ $title }}
+                        </h1>
+                        <p
+                            class="{{ $mode == 'delivery' ? 'text-[#8b6f5e]' : 'text-white/90' }} text-xs md:text-sm font-medium">
+                            {{ $subtitle }}
+                        </p>
+                    </div>
                 </div>
 
-                <button x-data @click="$dispatch('open-method-modal')"
-                    class="{{ $mode == 'delivery' ? 'border-[#5c4033] text-[#5c4033] hover:bg-[#5c4033]/10' : 'border-white text-white hover:bg-white/20' }} border-2 rounded-full px-5 md:px-8 py-1.5 md:py-2.5 text-xs md:text-sm font-bold transition-all hover:scale-105 active:scale-95 shadow-sm">
-                    Ubah Metode
-                </button>
+                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div class="relative w-full md:max-w-xl">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-white/70 text-xs"></i>
+                        <input wire:model.live.debounce.300ms="search" type="text" placeholder="Cari..."
+                            class="w-full py-2.5 pl-10 pr-4 text-sm bg-white/20 border-0 rounded-full text-white placeholder-white/70 focus:ring-2 focus:ring-white/50 backdrop-blur-sm">
+                    </div>
+
+                    <button x-data @click="$dispatch('open-method-modal')"
+                        class="{{ $mode == 'delivery' ? 'border-[#5c4033] text-[#5c4033] hover:bg-[#5c4033]/10' : 'border-white text-white hover:bg-white/20' }} border-2 rounded-full px-4 md:px-7 py-1.5 md:py-2 text-xs md:text-sm font-bold transition-all hover:scale-105 active:scale-95 shadow-sm">
+                        Ubah Metode
+                    </button>
+                </div>
             </div>
         </div>
     </div>

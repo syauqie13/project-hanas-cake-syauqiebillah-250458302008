@@ -3,160 +3,179 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Api\RegisterRequest;
+use App\Http\Requests\Api\LoginRequest;
+use App\Http\Requests\Api\UpdateProfileRequest;
+use App\Http\Requests\Api\ChangePasswordRequest;
 use App\Models\User;
+use App\Traits\ApiResponseTrait;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
+/**
+ * AuthController
+ *
+ * Mengelola autentikasi dan profil pelanggan via API (Flutter).
+ * Menggunakan Laravel Sanctum untuk token-based authentication.
+ *
+ * Fitur:
+ * - Register pelanggan baru
+ * - Login dengan validasi role (hanya pelanggan)
+ * - Lihat & update profil (termasuk upload avatar)
+ * - Ganti password
+ * - Logout (revoke token)
+ */
 class AuthController extends Controller
 {
+    use ApiResponseTrait;
+
     /**
-     * Mendaftarkan Pelanggan Baru
+     * POST /api/register
+     *
+     * Mendaftarkan pelanggan baru dan langsung mengembalikan token
+     * agar Flutter bisa langsung masuk tanpa login ulang.
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
-        // 1. Validasi input dari Flutter
-        $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|string|email|max:255|unique:users',
-            'password'  => 'required|string|min:8', // Boleh ditambahkan 'confirmed' jika Flutter kirim confirm_password
-            'phone'     => 'nullable|string|max:20', // Opsional di awal
-        ]);
+        $validated = $request->validated();
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors'  => $validator->errors()
-            ], 422);
-        }
-
-        // 2. Simpan ke database
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => 'pelanggan', // HARUS DISET OTOMATIS KE PELANGGAN
-            'phone'    => $request->phone, // Jika diisi saat daftar
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role'     => 'pelanggan', // Diset otomatis — tidak boleh diisi dari request
+            'phone'    => $validated['phone'] ?? null,
         ]);
 
-        // 3. Langsung buatkan token agar setelah register langsung login di aplikasi
         $token = $user->createToken('flutter-auth-token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Registrasi Berhasil',
-            'data'    => [
-                'user'  => $user,
-                'token' => $token
-            ]
-        ], 201); // 201 Created
+        return $this->successResponse([
+            'user'  => $user,
+            'token' => $token,
+        ], 'Registrasi Berhasil', 201);
     }
 
     /**
-     * Login Pelanggan
+     * POST /api/login
+     *
+     * Login pelanggan. Menolak akses untuk role admin/karyawan
+     * agar tidak bisa masuk ke aplikasi mobile pelanggan.
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request): JsonResponse
     {
-        // 1. Validasi input
-        $request->validate([
-            'email'    => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
-        // 2. Cari user berdasarkan email
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $validated['email'])->first();
 
-        // 3. Cek apakah user ada dan password cocok
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email atau Password salah'
-            ], 401); // 401 Unauthorized
+        // Cek apakah user ada dan password benar
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return $this->unauthorizedResponse('Email atau Password salah');
         }
 
-        // 4. CEK ROLE (SANGAT PENTING!)
-        // Cegah Admin / Karyawan login lewat aplikasi Flutter pelanggan
+        // PENTING: Cegah admin/karyawan login via aplikasi Flutter pelanggan
         if ($user->role !== 'pelanggan') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akses ditolak. Aplikasi ini khusus untuk Pelanggan.'
-            ], 403); // 403 Forbidden
+            return $this->forbiddenResponse('Akses ditolak. Aplikasi ini khusus untuk Pelanggan.');
         }
 
-        // 5. Generate Token Sanctum
         $token = $user->createToken('flutter-auth-token')->plainTextToken;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login Berhasil',
-            'data'    => [
-                'user'  => $user,
-                'token' => $token
-            ]
-        ]);
+        return $this->successResponse([
+            'user'  => $user,
+            'token' => $token,
+        ], 'Login Berhasil');
     }
 
     /**
-     * Ambil Data Profil Pelanggan
+     * GET /api/profile
+     *
+     * Mengambil data profil pelanggan berdasarkan Bearer Token.
      */
-    public function profile(Request $request)
-    {
-        return response()->json([
-            'success' => true,
-            'message' => 'Data Profil Berhasil Diambil',
-            'data'    => $request->user() // Mengambil data user berdasarkan Token
-        ]);
-    }
-
-    /**
-     * Update Profil Pelanggan
-     */
-    public function updateProfile(Request $request)
+    public function profile(Request $request): JsonResponse
     {
         $user = $request->user();
 
-        // Validasi input (Email unik kecuali email milik user ini sendiri)
-        $validator = Validator::make($request->all(), [
-            'name'        => 'required|string|max:255',
-            'email'       => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'phone'       => 'nullable|string|max:20',
-            'address'     => 'nullable|string',
-            'city'        => 'nullable|string|max:100',
-            'postal_code' => 'nullable|string|max:20',
-        ]);
+        // Sertakan URL avatar lengkap jika ada
+        $userData = $user->toArray();
+        $userData['avatar_url'] = $user->avatar
+            ? url('storage/' . $user->avatar)
+            : null;
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validasi gagal',
-                'errors'  => $validator->errors()
-            ], 422);
-        }
-
-        // Update data
-        $user->update($request->only([
-            'name', 'email', 'phone', 'address', 'city', 'postal_code'
-        ]));
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Profil berhasil diperbarui',
-            'data'    => $user
-        ]);
+        return $this->successResponse($userData, 'Data Profil Berhasil Diambil');
     }
 
     /**
-     * Logout Pelanggan
+     * POST /api/profile/update
+     *
+     * Update profil pelanggan termasuk upload foto avatar.
+     * Avatar disimpan di storage/app/public/avatars/.
      */
-    public function logout(Request $request)
+    public function updateProfile(UpdateProfileRequest $request): JsonResponse
     {
-        // Hapus token yang digunakan untuk mengakses endpoint ini
+        $user      = $request->user();
+        $validated = $request->validated();
+
+        // Handle upload avatar jika ada file yang dikirim
+        if ($request->hasFile('avatar')) {
+            // Hapus avatar lama jika ada untuk menghemat storage
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // Simpan avatar baru dengan nama unik
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');
+            $validated['avatar'] = $avatarPath;
+        }
+
+        // Update semua field yang divalidasi (kecuali file 'avatar' yang sudah dihandle)
+        $user->update(collect($validated)->except('avatar')->toArray());
+
+        // Update avatar secara terpisah jika ada
+        if (isset($validated['avatar'])) {
+            $user->update(['avatar' => $validated['avatar']]);
+        }
+
+        // Kembalikan data user terbaru dengan URL avatar
+        $userData = $user->fresh()->toArray();
+        $userData['avatar_url'] = $user->avatar
+            ? url('storage/' . $user->avatar)
+            : null;
+
+        return $this->successResponse($userData, 'Profil berhasil diperbarui');
+    }
+
+    /**
+     * POST /api/change-password
+     *
+     * Ganti password akun. Memerlukan password lama sebagai verifikasi.
+     */
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    {
+        $user      = $request->user();
+        $validated = $request->validated();
+
+        // Verifikasi password lama
+        if (!Hash::check($validated['current_password'], $user->password)) {
+            return $this->unauthorizedResponse('Password lama tidak sesuai');
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['new_password']),
+        ]);
+
+        return $this->successResponse(null, 'Password berhasil diubah');
+    }
+
+    /**
+     * POST /api/logout
+     *
+     * Logout dengan menghapus token Sanctum yang sedang digunakan.
+     */
+    public function logout(Request $request): JsonResponse
+    {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout Berhasil'
-        ]);
+        return $this->successResponse(null, 'Logout Berhasil');
     }
 }

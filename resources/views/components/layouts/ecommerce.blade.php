@@ -55,9 +55,9 @@
                 </div>
 
                 <div class="items-center hidden space-x-8 md:flex">
-                    <a href="{{ route('ecommerce') }}" wire:navigate
+                    <a href="{{ route('front') }}" wire:navigate
                         class="relative font-bold text-gray-700 transition-colors hover:text-[#5c4033] group">
-                        <span>Shop (PO)</span>
+                        <span>Shop</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#5c4033] group-hover:w-full transition-all duration-300"></span>
                     </a>
                     <a href="{{ route('pelanggan.vouchers') }}" wire:navigate
@@ -146,35 +146,28 @@
 
     {{ $slot }}
 
-    <footer class="py-12 mt-16 bg-[#5c4033] text-[#eedcd3]">
+    <footer class="py-8 mt-16 bg-white text-gray-600 border-t border-gray-200">
         <div class="container px-6 mx-auto">
-            <div class="flex flex-col items-center justify-between md:flex-row">
-                <div class="flex flex-col items-center mb-6 md:items-start md:mb-0">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="flex items-center justify-center w-12 h-12 bg-[#eedcd3] rounded-xl shadow-md">
-                            <i class="text-2xl text-[#5c4033] fas fa-birthday-cake"></i>
-                        </div>
-                        <span class="text-3xl font-extrabold text-white tracking-tight">Hana Cake</span>
-                    </div>
-                    <p class="text-sm font-medium text-[#eedcd3]/80">Manisnya setiap momen, berawal dari sini.</p>
+            <div class="flex flex-col items-center justify-between gap-4 md:flex-row">
+                <div class="text-center md:text-left">
+                    <span class="text-lg font-bold text-gray-900 tracking-tight">Hana Cake</span>
+                    <p class="text-sm text-gray-500 mt-1">Manisnya setiap momen, berawal dari sini.</p>
                 </div>
 
-                <div class="flex space-x-6">
-                    <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#eedcd3]/10 hover:bg-[#eedcd3] hover:text-[#5c4033] transition-all">
+                <div class="flex items-center gap-3">
+                    <a href="#" class="text-gray-400 hover:text-gray-700 transition-colors">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#eedcd3]/10 hover:bg-[#eedcd3] hover:text-[#5c4033] transition-all">
+                    <a href="#" class="text-gray-400 hover:text-gray-700 transition-colors">
                         <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a href="#" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#eedcd3]/10 hover:bg-[#eedcd3] hover:text-[#5c4033] transition-all">
+                    <a href="#" class="text-gray-400 hover:text-gray-700 transition-colors">
                         <i class="fab fa-facebook-f"></i>
                     </a>
                 </div>
             </div>
             
-            <div class="w-full h-px bg-[#eedcd3]/20 my-8"></div>
-            
-            <div class="text-center text-sm font-medium text-[#eedcd3]/60">
+            <div class="mt-8 text-center text-sm text-gray-400">
                 <p>© 2025 Hana Cake. Semua hak dilindungi.</p>
             </div>
         </div>

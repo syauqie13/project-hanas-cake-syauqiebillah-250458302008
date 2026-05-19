@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckIsAdmin;
 use App\Http\Middleware\CheckIsKaryawan;
 use App\Http\Middleware\CheckIsPelanggan;
+use App\Http\Middleware\ForceJsonResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -19,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         'is.admin' => CheckIsAdmin::class,
         'is.karyawan' => CheckIsKaryawan::class,
         'is.pelanggan' => CheckIsPelanggan::class,
+    ]);
+
+    // Paksa semua route API mengembalikan response JSON
+    $middleware->api(prepend: [
+        ForceJsonResponse::class,
     ]);
 
     // 1. Bypass CSRF (Pastikan tidak ada typo)
