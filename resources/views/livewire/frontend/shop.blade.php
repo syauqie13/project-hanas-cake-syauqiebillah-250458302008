@@ -21,7 +21,7 @@
             $imageClass = 'w-full h-full';
         }
     @endphp
-
+ 
     <div
         class="{{ $bgClass }} relative px-4 md:px-12 lg:px-24 pt-6 pb-5 md:pt-8 md:pb-6 rounded-b-[2rem] shadow-sm">
         <div class="max-w-7xl mx-auto relative">
