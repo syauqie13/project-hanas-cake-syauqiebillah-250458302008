@@ -26,6 +26,7 @@ jobs:
           security: loose
           timeout: 120000
           max-parallel: 1
+          server-dir: ./
           exclude: |
             **/.git*
             **/.git*/**
