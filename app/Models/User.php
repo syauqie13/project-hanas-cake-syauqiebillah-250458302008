@@ -36,6 +36,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'payment_pin',
         'birth_date',
         'gender',
+        'locale',
+        'notif_email',
+        'notif_wa',
     ];
 
     /**
@@ -86,12 +89,5 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // Send the mail
         Mail::to($this->email)->send(new VerificationCodeMail($this, $code));
-    }
-
-    public function claimedVouchers()
-    {
-        return $this->belongsToMany(Voucher::class, 'user_vouchers')
-            ->withPivot('is_used', 'used_at')
-            ->withTimestamps();
     }
 }

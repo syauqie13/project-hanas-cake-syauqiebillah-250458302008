@@ -60,11 +60,6 @@
                         <span>Shop</span>
                         <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#5c4033] group-hover:w-full transition-all duration-300"></span>
                     </a>
-                    <a href="{{ route('pelanggan.vouchers') }}" wire:navigate
-                        class="relative font-bold text-gray-700 transition-colors hover:text-[#5c4033] group">
-                        <span>Vouchers</span>
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#5c4033] group-hover:w-full transition-all duration-300"></span>
-                    </a>
 
                     <livewire:frontend.cart-counter />
 
@@ -178,15 +173,9 @@
     <!-- Bottom Navigation Bar (Mobile Only) -->
     @if(!request()->routeIs('pelanggan.checkout'))
     <div class="fixed bottom-0 left-0 right-0 z-[60] bg-[#eedcd3] shadow-[0_-4px_15px_rgba(0,0,0,0.05)] rounded-t-3xl md:hidden">
-        <div class="flex justify-around items-center h-16">
-            <a href="{{ route('front') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('front') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors' }}">
+        <div class="flex justify-around items-center h-16">             <a href="{{ route('front') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('front') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors' }}">
                 <i class="fas fa-home text-xl mb-0.5"></i>
-                <span class="text-[10px] font-semibold {{ request()->routeIs('front') ? 'block' : 'hidden' }}">Home</span>
-            </a>
-            
-            <a href="{{ route('pelanggan.vouchers') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('pelanggan.vouchers') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors' }}">
-                <i class="fas fa-ticket-alt text-xl mb-0.5"></i>
-                <span class="text-[10px] font-semibold {{ request()->routeIs('pelanggan.vouchers') ? 'block' : 'hidden' }}">Promo</span>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('front') ? 'block' : 'hidden' }}">{{ __('Home') }}</span>
             </a>
             
             <a href="{{ route('cart') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('cart') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors relative' }}">
@@ -198,12 +187,18 @@
                         </span>
                     @endif
                 </div>
-                <span class="text-[10px] font-semibold {{ request()->routeIs('cart') ? 'block' : 'hidden' }}">Keranjang</span>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('cart') ? 'block' : 'hidden' }}">{{ __('Keranjang') }}</span>
+            </a>
+            <a href="{{ route('pelanggan.my-orders') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('pelanggan.my-orders') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors relative' }}">
+                <div class="relative">
+                    <i class="far fa-calendar-check text-xl mb-0.5"></i>
+                </div>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('pelanggan.my-orders') ? 'block' : 'hidden' }}">{{ __('Pesanan') }}</span>
             </a>
             
             <a href="{{ route('pelanggan.profile') }}" wire:navigate class="flex flex-col items-center justify-center w-16 h-12 {{ request()->routeIs('pelanggan.profile') ? 'bg-[#5c4033] text-white rounded-xl shadow-md' : 'text-[#8b6f5e] hover:text-[#5c4033] transition-colors' }}">
                 <i class="far fa-user text-xl mb-0.5"></i>
-                <span class="text-[10px] font-semibold {{ request()->routeIs('pelanggan.profile') ? 'block' : 'hidden' }}">Profil</span>
+                <span class="text-[10px] font-semibold {{ request()->routeIs('pelanggan.profile') ? 'block' : 'hidden' }}">{{ __('Profil') }}</span>
             </a>
         </div>
     </div>

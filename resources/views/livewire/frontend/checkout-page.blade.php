@@ -134,45 +134,7 @@
             @endif
         </div>
 
-        <div class="bg-white p-5 shadow-sm sm:rounded-2xl border border-gray-100">
-            <h3 class="font-bold text-gray-800 text-sm md:text-base mb-3">Voucher Toko</h3>
-            
-            <div class="flex gap-2">
-                <div class="relative flex-1">
-                    <input type="text" wire:model="voucherCode" placeholder="Masukkan kode voucher" {{ $appliedVoucherId ? 'disabled' : '' }}
-                        class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs uppercase font-bold focus:outline-none focus:border-[#5c4033] focus:bg-white disabled:opacity-60 placeholder-gray-400">
-                </div>
-                @if($appliedVoucherId)
-                    <button type="button" wire:click="removeVoucher" class="bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-4 rounded-xl hover:bg-red-100 transition-colors">Batal</button>
-                @else
-                    <button type="button" wire:click="applyVoucher" class="bg-[#5c4033] text-white text-xs font-bold px-5 rounded-xl hover:bg-[#4a3328] transition-colors shadow-sm">Gunakan</button>
-                @endif
-            </div>
-            @error('voucherCode') <span class="text-red-500 text-xs mt-1.5 block font-medium">{{ $message }}</span> @enderror
 
-            @if(count($availableVouchers) > 0)
-                <div class="mt-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                    @foreach($availableVouchers as $voucher)
-                        <div class="shrink-0 border {{ $appliedVoucherId == $voucher->id ? 'border-[#5c4033] bg-[#f4dfd4]/20' : 'border-gray-200 bg-white' }} p-3 rounded-xl flex items-center gap-3 shadow-2xs max-w-[240px]">
-                            <div class="text-[#5c4033]"><i class="fas fa-ticket-alt text-lg"></i></div>
-                            <div class="flex-1">
-                                <h5 class="text-xs font-bold text-gray-800 uppercase leading-none">{{ $voucher->code }}</h5>
-                                <p class="text-[10px] text-gray-400 mt-1">Potongan {{ $voucher->type == 'percentage' ? $voucher->value.'%' : 'Rp '.number_format($voucher->value) }}</p>
-                            </div>
-                            @if(in_array($voucher->id, $claimedVoucherIds))
-                                @if($appliedVoucherId == $voucher->id)
-                                    <span class="text-[10px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded">Aktif</span>
-                                @else
-                                    <button type="button" wire:click="useClaimedVoucher({{ $voucher->id }})" class="bg-[#5c4033] text-white text-[10px] font-bold px-2.5 py-1 rounded hover:bg-[#4a3328]">Pakai</button>
-                                @endif
-                            @else
-                                <button type="button" wire:click="claimVoucher({{ $voucher->id }})" class="border border-[#5c4033] text-[#5c4033] text-[10px] font-bold px-2.5 py-1 rounded hover:bg-[#5c4033] hover:text-white">Klaim</button>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
 
         <div class="bg-white p-5 shadow-sm sm:rounded-2xl border border-gray-100 space-y-2.5 text-xs md:text-sm">
             <h3 class="font-bold text-gray-800 text-sm md:text-base mb-1">Rincian Pembayaran</h3>
@@ -180,12 +142,7 @@
                 <span>Subtotal Kue</span>
                 <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
             </div>
-            @if($discountAmount > 0)
-                <div class="flex justify-between text-red-600 font-medium">
-                    <span>Diskon Voucher</span>
-                    <span>- Rp {{ number_format($discountAmount, 0, ',', '.') }}</span>
-                </div>
-            @endif
+
             @if($delivery_type != 'pickup')
                 <div class="flex justify-between text-gray-500 font-medium">
                     <span>Biaya Pengiriman ({{ $distance ?? '0' }} km)</span>
@@ -248,13 +205,26 @@
 <script>
     $wire.on('snap-show', (event) => {
         // Livewire 3 bisa mengirim data dalam bentuk object langsung atau dibungkus array.
-        // Kita gunakan operator ini agar kompatibel dengan keduanya:
         let token = event[0]?.snapToken || event?.snapToken;
+        let orderId = event[0]?.orderId || event?.orderId;
+        let deliveryType = event[0]?.deliveryType || event?.deliveryType;
         
         if (typeof snap !== 'undefined') {
             snap.pay(token, {
-                onSuccess: function(result) { window.location.href = '/pelanggan/my-orders'; },
-                onPending: function(result) { window.location.href = '/pelanggan/my-orders'; },
+                onSuccess: function(result) {
+                    if (deliveryType === 'pickup') {
+                        window.location.href = '/pelanggan/orders/' + orderId + '/success';
+                    } else {
+                        window.location.href = '/pelanggan/my-orders';
+                    }
+                },
+                onPending: function(result) {
+                    if (deliveryType === 'pickup') {
+                        window.location.href = '/pelanggan/orders/' + orderId + '/success';
+                    } else {
+                        window.location.href = '/pelanggan/my-orders';
+                    }
+                },
                 onError: function(result) { alert("Pembayaran gagal diproses!"); },
                 onClose: function() { alert('Anda menutup layar pembayaran tanpa menyelesaikan transaksi.'); }
             });

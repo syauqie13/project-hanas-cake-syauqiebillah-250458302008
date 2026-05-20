@@ -22,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
         'is.pelanggan' => CheckIsPelanggan::class,
     ]);
 
+    $middleware->web(append: [
+        \App\Http\Middleware\Localization::class,
+    ]);
+
     // Paksa semua route API mengembalikan response JSON
     $middleware->api(prepend: [
         ForceJsonResponse::class,

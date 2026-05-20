@@ -73,6 +73,11 @@
                                    class="inline-flex items-center gap-1.5 px-5 py-2 text-xs md:text-sm font-bold text-white bg-[#1c6b38] rounded-full shadow-md hover:bg-[#15532b] active:scale-95 transition-all">
                                     <i class="fas fa-wallet"></i> Bayar
                                 </a>
+                            @elseif($order->delivery_type == 'pickup')
+                                <a href="{{ route('pelanggan.orders.success', $order->id) }}"
+                                   class="inline-flex items-center gap-1.5 px-5 py-2 text-xs md:text-sm font-bold text-white bg-[#5c4033] rounded-full shadow-md hover:bg-[#4a3328] active:scale-95 transition-all">
+                                    <i class="fas fa-ticket-alt"></i> Tiket Ambil
+                                </a>
                             @endif
                         </div>
                     </div>

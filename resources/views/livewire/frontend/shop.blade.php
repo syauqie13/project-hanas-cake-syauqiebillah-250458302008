@@ -305,7 +305,7 @@
 
     <!-- Modal Metode Pemesanan (AlpineJS) -->
     <div x-data="{ open: false }" x-show="open" @open-method-modal.window="open = true" style="display: none;"
-        class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
+        class="fixed inset-0 z-[80] flex items-end justify-center sm:items-center">
 
         <!-- Backdrop -->
         <div x-show="open" x-transition:enter="transition-opacity ease-linear duration-300"
@@ -375,7 +375,7 @@
     <!-- Product Detail Modal (AlpineJS) -->
     <div x-data="{ openDetail: false }" x-show="openDetail" @open-product-modal.window="openDetail = true"
         @close-product-modal.window="openDetail = false" style="display: none;"
-        class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center">
+        class="fixed inset-0 z-[80] flex items-end justify-center sm:items-center">
 
         <!-- Backdrop -->
         <div x-show="openDetail" x-transition:enter="transition-opacity ease-linear duration-300"
@@ -493,7 +493,7 @@
 
                 <!-- Footer (Sticky Add to Cart) -->
                 <div
-                    class="px-6 py-4 border-t border-gray-100 bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] shrink-0">
+                    class="px-6 pt-4 pb-8 sm:pb-4 border-t border-gray-100 bg-white shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)] shrink-0">
                     <button wire:click="addToCart({{ $selectedProductForDetail->id }}, true)"
                         class="w-full bg-[#5c4033] text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-[#5c4033]/30 transition hover:bg-[#4a3328] hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2">
                         <i class="fas fa-shopping-basket"></i> Tambah ke Keranjang

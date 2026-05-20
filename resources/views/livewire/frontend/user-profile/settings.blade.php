@@ -59,8 +59,8 @@
             </div>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-0">
-            <button wire:click="updatePin" class="w-full bg-[#1c6b38] text-white font-medium py-4 text-[15px] hover:bg-[#15532b] transition">
+        <div class="px-6 mt-10">
+            <button wire:click="updatePin" class="w-full bg-[#5c4033] text-white font-bold py-4 rounded-2xl text-sm shadow-md hover:bg-[#4a3328] active:scale-95 transition-all">
                 Simpan PIN
             </button>
         </div>
@@ -100,9 +100,9 @@
             </label>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-0">
-            <button wire:click="updateNotif" class="w-full bg-[#1c6b38] text-white font-medium py-4 text-[15px] hover:bg-[#15532b] transition">
-                Simpan
+        <div class="px-6 mt-10">
+            <button wire:click="updateNotif" class="w-full bg-[#5c4033] text-white font-bold py-4 rounded-2xl text-sm shadow-md hover:bg-[#4a3328] active:scale-95 transition-all">
+                Simpan Notifikasi
             </button>
         </div>
     @endif
@@ -113,7 +113,7 @@
             <button wire:click="setStep('main')" class="text-gray-500 hover:text-gray-800">
                 <i class="fas fa-chevron-left text-lg"></i>
             </button>
-            <h1 class="text-lg font-medium text-[#4a3328]">Ganti Bahasa</h1>
+            <h1 class="text-lg font-medium text-[#4a3328]">{{ __('Ganti Bahasa') }} ({{ strtoupper(app()->getLocale()) }})</h1>
             <div class="w-5"></div>
         </div>
 
@@ -143,11 +143,32 @@
             </label>
         </div>
 
-        <div class="absolute bottom-0 left-0 right-0 p-0">
-            <button wire:click="updateLanguage" class="w-full bg-[#1c6b38] text-white font-medium py-4 text-[15px] hover:bg-[#15532b] transition">
-                Simpan
+        <div class="px-6 mt-10">
+            <button wire:click="updateLanguage" class="w-full bg-[#5c4033] text-white font-bold py-4 rounded-2xl text-sm shadow-md hover:bg-[#4a3328] active:scale-95 transition-all">
+                Simpan Bahasa
             </button>
         </div>
+    @endif
+
+    @if(session()->has('notify_success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: "{{ session('notify_success') }}",
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true,
+                        background: '#ecfdf5',
+                        color: '#047857'
+                    });
+                }
+            });
+        </script>
     @endif
 
 </div>

@@ -13,6 +13,9 @@ class Localization
     {
         if (Session::has('locale')) {
             App::setLocale(Session::get('locale'));
+        } elseif (auth()->check() && auth()->user()->locale) {
+            App::setLocale(auth()->user()->locale);
+            Session::put('locale', auth()->user()->locale);
         }
         return $next($request);
     }

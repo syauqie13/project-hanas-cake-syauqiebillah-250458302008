@@ -54,22 +54,6 @@ class CustomerPaymentController extends Controller
             ];
         }
 
-        // Hitung selisih diskon voucher
-        $currentSubtotal = 0;
-        foreach ($item_details as $detail) {
-            $currentSubtotal += $detail['price'] * $detail['quantity'];
-        }
-
-        $discount = $currentSubtotal - (int) $order->total;
-        if ($discount > 0) {
-            $item_details[] = [
-                'id' => 'VOUCHER',
-                'price' => -(int) $discount,
-                'quantity' => 1,
-                'name' => 'Diskon Voucher'
-            ];
-        }
-
         // 6. Parameter Transaksi
         $params = [
             'transaction_details' => [

@@ -23,7 +23,7 @@ use App\Livewire\Shared\Category\CategoryList;
 use App\Livewire\Karyawan\Order\OrderManagement;
 use App\Livewire\Frontend\UserProfile\EditProfile;
 use App\Livewire\Karyawan\Shipping\ZoneManagement;
-use App\Livewire\Karyawan\Voucher\VoucherManagement;
+
 use App\Livewire\Shared\Inventories\InventoryList;
 use App\Http\Controllers\CustomerPaymentController;
 use App\Livewire\Karyawan\Pos\PosManagement;
@@ -87,7 +87,7 @@ Route::prefix('karyawan')->middleware(['auth', 'is.karyawan', 'verified'])->name
     Route::get('/production-list', ProductionList::class)->name('production-list');
     Route::get('/shipping-zones', ZoneManagement::class)->name('shipping-zones');
     Route::get('/stores', StoreManagement::class)->name('stores');
-    Route::get('/vouchers', VoucherManagement::class)->name('vouchers');
+
     Route::get('/profil', Profil::class)->name('profile');
     Route::get('/update-password', UpdatePassword::class)->name('update.password');
 
@@ -98,7 +98,7 @@ Route::get('/store-selection', \App\Livewire\Frontend\StoreSelection::class)->na
 Route::get('/cart', CartPage::class)->name('cart');
 
 Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->name('pelanggan.')->group(function () {
-    Route::get('/vouchers', \App\Livewire\Frontend\VoucherClaimPage::class)->name('vouchers');
+
     Route::get('/checkout', CheckoutPage::class)->name('checkout');
     Route::get('/alamat', \App\Livewire\Frontend\AddressSelection::class)->name('alamat');
     Route::get('/alamat/tambah', AddressCreate::class)->name('alamat.tambah');
@@ -107,6 +107,9 @@ Route::prefix('pelanggan')->middleware(['auth', 'is.pelanggan', 'verified'])->na
     Route::get('/profile', ProfileDashboard::class)->name('profile');
     Route::get('/profile/edit', EditProfile::class)->name('profile.edit');
     Route::get('/profile/pengaturan', App\Livewire\Frontend\UserProfile\Settings::class)->name('profile.settings');
+    Route::get('/syarat-ketentuan', \App\Livewire\Frontend\TermsPage::class)->name('terms');
+    Route::get('/kebijakan-privasi', \App\Livewire\Frontend\PrivacyPage::class)->name('privacy');
+    Route::get('/orders/{order}/success', \App\Livewire\Frontend\OrderSuccessPage::class)->name('orders.success');
     Route::get('/pay/{order}', [CustomerPaymentController::class, 'show'])->name('pay');
     Route::get('/setup-pin', SetupPin::class)->name('setup-pin');
     Route::post('/logout', function (Request $request) {

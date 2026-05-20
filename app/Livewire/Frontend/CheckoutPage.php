@@ -6,8 +6,7 @@ use Livewire\Component;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\Voucher;
-use App\Models\UserVoucher;
+
 use App\Models\Store;
 use App\Models\CustomerAddress;
 use App\Notifications\ResetPinNotification;
@@ -39,10 +38,6 @@ class CheckoutPage extends Component
     public $shipping_cost = 0;
     public $isOutOfBounds = false;
 
-    // --- PROPERTI VOUCHER ---
-    public $voucherCode = '';
-    public $discountAmount = 0;
-    public $appliedVoucherId = null;
 
     protected function rules()
     {
@@ -155,85 +150,7 @@ class CheckoutPage extends Component
         $this->calculateTotal();
     }
 
-    // --- LOGIKA VOUCHER ---
-    public function applyVoucher()
-    {
-        if (!$this->voucherCode) {
-            $this->addError('voucherCode', 'Masukkan kode voucher terlebih dahulu.');
-            return;
-        }
 
-        $voucher = Voucher::where('code', $this->voucherCode)->where('is_active', true)->first();
-
-        if (!$voucher) {
-            $this->addError('voucherCode', 'Kode voucher tidak valid.');
-            return;
-        }
-
-        $this->applyVoucherLogic($voucher);
-    }
-
-    private function applyVoucherLogic($voucher)
-    {
-        if ($this->subtotal < $voucher->min_purchase) {
-            $this->addError('voucherCode', 'Minimal belanja Rp ' . number_format($voucher->min_purchase) . ' belum tercapai.');
-            return;
-        }
-
-        $this->appliedVoucherId = $voucher->id;
-        $this->calculateTotal();
-
-        $this->dispatch('notify', ['type' => 'success', 'message' => 'Voucher ' . $voucher->code . ' berhasil dipasang!']);
-    }
-
-    public function claimVoucher($voucherId)
-    {
-        if (!Auth::check()) return;
-
-        UserVoucher::firstOrCreate([
-            'user_id' => Auth::id(),
-            'voucher_id' => $voucherId,
-        ], ['is_used' => false]);
-
-        $this->dispatch('notify', ['message' => 'Voucher berhasil diklaim!', 'icon' => 'success']);
-    }
-
-    public function useClaimedVoucher($voucherId)
-    {
-        $voucher = Voucher::find($voucherId);
-        if (!$voucher) return;
-
-        if ($voucher->min_purchase && $this->subtotal < $voucher->min_purchase) {
-            $this->dispatch('notify', ['message' => 'Minimal belanja belum terpenuhi.', 'icon' => 'error']);
-            return;
-        }
-
-        if ($voucher->type == 'percentage') {
-            $discount = ($this->subtotal * $voucher->value) / 100;
-            if ($voucher->max_discount && $discount > $voucher->max_discount) {
-                $discount = $voucher->max_discount;
-            }
-            $this->discountAmount = (int) $discount;
-        } else {
-            $this->discountAmount = (int) $voucher->value;
-        }
-
-        $this->voucherCode = $voucher->code;
-        $this->appliedVoucherId = $voucher->id;
-
-        $this->calculateTotal();
-        $this->resetErrorBag('voucherCode');
-        $this->dispatch('notify', ['message' => 'Voucher berhasil digunakan!', 'icon' => 'success']);
-    }
-
-    public function removeVoucher()
-    {
-        $this->voucherCode = '';
-        $this->discountAmount = 0;
-        $this->appliedVoucherId = null;
-        $this->calculateTotal();
-        $this->dispatch('notify', ['message' => 'Voucher dibatalkan.', 'icon' => 'info']);
-    }
 
     // --- PERHITUNGAN TOTAL ---
     public function calculateTotal()
@@ -247,15 +164,7 @@ class CheckoutPage extends Component
             }
         }
 
-        if ($this->appliedVoucherId) {
-            $voucher = Voucher::find($this->appliedVoucherId);
-            if ($voucher && $voucher->min_purchase && $this->subtotal < $voucher->min_purchase) {
-                $this->removeVoucher();
-                return;
-            }
-        }
-
-        $this->total = $this->subtotal - $this->discountAmount + $this->shipping_cost;
+        $this->total = $this->subtotal + $this->shipping_cost;
         if ($this->total < 0) $this->total = 0;
     }
 
@@ -273,7 +182,7 @@ class CheckoutPage extends Component
         try {
             $order = Order::create([
                 'user_id' => Auth::id(),
-                'voucher_id' => $this->appliedVoucherId,
+
                 'cashier_id' => 1,
                 'tanggal' => now(),
                 'total' => (int) $this->total,
@@ -333,15 +242,7 @@ class CheckoutPage extends Component
                 $midtransGrossAmount += $shippingPrice;
             }
 
-            if ($this->discountAmount > 0) {
-                $item_details_for_midtrans[] = [
-                    'id' => 'VOUCHER',
-                    'price' => -((int) $this->discountAmount),
-                    'quantity' => 1,
-                    'name' => 'Diskon Voucher'
-                ];
-                $midtransGrossAmount -= (int) $this->discountAmount;
-            }
+
 
             $order->total = $midtransGrossAmount;
             $order->save();
@@ -378,7 +279,9 @@ class CheckoutPage extends Component
             $this->dispatch(
                 'snap-show',
                 snapToken: $snapToken,
-                merchantOrderId: $merchantOrderId
+                merchantOrderId: $merchantOrderId,
+                orderId: $order->id,
+                deliveryType: $this->delivery_type
             );
 
         } catch (\Exception $e) {
@@ -420,20 +323,6 @@ class CheckoutPage extends Component
 
     public function render()
     {
-        $user = Auth::user();
-
-        $availableVouchers = Voucher::where('is_active', true)
-            ->where(function ($q) {
-                $q->whereNull('valid_until')->orWhere('valid_until', '>=', now());
-            })->get();
-
-        $userVoucherData = UserVoucher::where('user_id', $user->id)->get();
-        $claimedNotUsedIds = $userVoucherData->where('is_used', false)->pluck('voucher_id')->toArray();
-        $alreadyUsedIds = $userVoucherData->where('is_used', true)->pluck('voucher_id')->toArray();
-
-        return view('livewire.frontend.checkout-page', [
-            'availableVouchers' => $availableVouchers->whereNotIn('id', $alreadyUsedIds),
-            'claimedVoucherIds' => $claimedNotUsedIds
-        ]);
+        return view('livewire.frontend.checkout-page');
     }
 }

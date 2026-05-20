@@ -1,6 +1,6 @@
 # 📖 API Documentation — Hana's Cake E-Commerce
 
-**Base URL:** `http://127.0.0.1:8000/api`
+**Base URL:** `https://hanascake.syauqiebill.my.id/api`
 **Authentication:** Laravel Sanctum (Bearer Token)
 **Content-Type:** `application/json`
 
@@ -425,18 +425,28 @@ Token didapatkan dari response endpoint `/register` atau `/login`.
   "message": "Daftar Riwayat Pesanan",
   "data": [
     {
-      "id": 15, "total": "300000.00",
+      "id": 15,
+      "total": "300000.00",
       "status": "diproses",
       "payment_status": "paid",
-      "delivery_type": "delivery",
-      "tanggal": "2026-05-19T14:00:00",
+      "delivery_type": "pickup",
+      "tanggal": "2026-05-19T14:00:00.000000Z",
+      "queue_number": "015",
+      "distance": 19.48,
+      "store_details": {
+        "id": 1,
+        "name": "Hana's Cake Pusat",
+        "address": "Jl. Pettarani No. 10",
+        "latitude": -5.1477,
+        "longitude": 119.4327
+      },
       "items": [...]
     }
   ]
 }
 ```
 
-**`GET /api/orders/{id}`** 🔒 — Detail pesanan (termasuk items + produk)
+**`GET /api/orders/{id}`** 🔒 — Detail pesanan (termasuk items + produk, queue_number, distance, & store_details)
 
 ---
 

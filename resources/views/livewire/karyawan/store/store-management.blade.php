@@ -113,7 +113,7 @@
                                                 <tr>
                                                     <td colspan="7" class="py-5 text-center text-muted">
                                                         <i class="mb-3 fas fa-ticket-alt fa-2x"></i>
-                                                        <div class="mb-0 h6">Belum ada data voucher</div>
+                                                        <div class="mb-0 h6">Belum ada data store</div>
                                                     </td>
                                                 </tr>
                                             @endforelse

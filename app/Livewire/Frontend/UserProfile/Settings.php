@@ -101,7 +101,11 @@ class Settings extends Component
         app()->setLocale($this->locale);
 
         $this->step = 'main';
-        $this->dispatch('notify', ['message' => 'Bahasa berhasil diubah!', 'icon' => 'success']);
+        
+        // Simpan notifikasi ke session flash agar muncul setelah refresh
+        session()->flash('notify_success', 'Bahasa berhasil diubah!');
+        
+        $this->redirect(route('pelanggan.profile.settings'), navigate: false);
     }
 
     public function render()

@@ -27,7 +27,7 @@
                     </div>
                     
                     <div class="hidden md:block mt-6 w-full bg-white/10 group-hover:bg-white/20 text-white text-sm py-3 rounded-xl font-medium transition cursor-pointer">
-                        <i class="fas fa-pencil-alt mr-2 text-xs"></i> Edit Profil
+                        <i class="fas fa-pencil-alt mr-2 text-xs"></i> {{ __('Edit Profil') }}
                     </div>
                 </a>
 
@@ -45,29 +45,29 @@
             <div class="w-full md:w-2/3 flex flex-col gap-5">
                 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h3 class="hidden md:block text-[11px] font-bold text-gray-400 uppercase tracking-widest px-6 pt-6 pb-2">Pengaturan Akun</h3>
+                    <h3 class="hidden md:block text-[11px] font-bold text-gray-400 uppercase tracking-widest px-6 pt-6 pb-2">{{ __('Pengaturan Akun') }}</h3>
                     <a href="{{ route('pelanggan.alamat') }}" wire:navigate class="flex items-center justify-between p-4 md:px-6 md:py-5 border-b border-gray-100 hover:bg-gray-50 transition group">
-                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">Alamat Tersimpan</span>
+                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">{{ __('Alamat Tersimpan') }}</span>
                         <i class="fas fa-chevron-right text-gray-400 text-xs md:text-sm md:group-hover:translate-x-1 transition-transform"></i>
                     </a>
                     <a href="{{ route('pelanggan.my-orders') }}" class="flex items-center justify-between p-4 md:px-6 md:py-5 border-b border-gray-100 hover:bg-gray-50 transition group">
-                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">Pesanan Saya</span>
+                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">{{ __('Pesanan Saya') }}</span>
                         <i class="fas fa-chevron-right text-gray-400 text-xs md:text-sm md:group-hover:translate-x-1 transition-transform"></i>
                     </a>
                     <a href="{{ route('pelanggan.profile.settings') }}" class="flex items-center justify-between p-4 md:px-6 md:py-5 hover:bg-gray-50 transition group">
-                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">Pengaturan</span>
+                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">{{ __('Pengaturan') }}</span>
                         <i class="fas fa-chevron-right text-gray-400 text-xs md:text-sm md:group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <h3 class="hidden md:block text-[11px] font-bold text-gray-400 uppercase tracking-widest px-6 pt-6 pb-2">Informasi Hukum</h3>
-                    <a href="#" class="flex items-center justify-between p-4 md:px-6 md:py-5 border-b border-gray-100 hover:bg-gray-50 transition group">
-                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">Syarat dan Ketentuan</span>
+                    <h3 class="hidden md:block text-[11px] font-bold text-gray-400 uppercase tracking-widest px-6 pt-6 pb-2">{{ __('Informasi Hukum') }}</h3>
+                    <a href="{{ route('pelanggan.terms') }}" wire:navigate class="flex items-center justify-between p-4 md:px-6 md:py-5 border-b border-gray-100 hover:bg-gray-50 transition group">
+                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">{{ __('Syarat dan Ketentuan') }}</span>
                         <i class="fas fa-chevron-right text-gray-400 text-xs md:text-sm md:group-hover:translate-x-1 transition-transform"></i>
                     </a>
-                    <a href="#" class="flex items-center justify-between p-4 md:px-6 md:py-5 hover:bg-gray-50 transition group">
-                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">Kebijakan Privasi</span>
+                    <a href="{{ route('pelanggan.privacy') }}" wire:navigate class="flex items-center justify-between p-4 md:px-6 md:py-5 hover:bg-gray-50 transition group">
+                        <span class="font-medium text-gray-700 md:group-hover:text-[#5c4033] text-sm md:text-base">{{ __('Kebijakan Privasi') }}</span>
                         <i class="fas fa-chevron-right text-gray-400 text-xs md:text-sm md:group-hover:translate-x-1 transition-transform"></i>
                     </a>
                 </div>
@@ -88,7 +88,7 @@
 
                 <div class="pt-2 md:pt-4 md:mt-4 md:flex md:justify-end">
                     <button type="button" @click="showLogoutModal = true" class="w-full md:w-auto md:px-12 bg-[#ffebee] md:bg-white text-red-500 md:border md:border-red-200 font-bold text-sm py-4 md:py-3.5 rounded-xl shadow-sm hover:bg-red-500 md:hover:bg-red-50 hover:text-white md:hover:text-red-600 transition-colors active:scale-[0.98]">
-                        Logout
+                        {{ __('Logout') }}
                     </button>
                 </div>
 
@@ -121,15 +121,15 @@
                 <i class="fas fa-sign-out-alt text-red-500 text-2xl"></i>
             </div>
             
-            <h3 class="text-lg font-bold text-gray-800 mb-1">Yakin ingin keluar?</h3>
-            <p class="text-xs text-gray-500 mb-6 px-4">Kamu harus login kembali untuk melihat pesanan dan profilmu.</p>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">{{ __('Yakin ingin keluar?') }}</h3>
+            <p class="text-xs text-gray-500 mb-6 px-4">{{ __('Kamu harus login kembali untuk melihat pesanan dan profilmu.') }}</p>
             
             <div class="flex gap-3">
                 <button type="button" @click="showLogoutModal = false" class="flex-1 bg-gray-100 text-gray-600 font-bold text-sm py-3 rounded-xl hover:bg-gray-200 transition-colors">
-                    Batal
+                    {{ __('Batal') }}
                 </button>
                 <button type="button" wire:click="logout" class="flex-1 bg-red-500 text-white font-bold text-sm py-3 rounded-xl shadow-md hover:bg-red-600 transition-colors">
-                    Ya, Keluar
+                    {{ __('Ya, Keluar') }}
                 </button>
             </div>
         </div>
