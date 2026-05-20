@@ -21,12 +21,12 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
+          protocol: ftps  # <-- Ubah ke FTPS
           port: 21
           security: loose
           timeout: 120000
           max-parallel: 1
-          server-dir: ./
+          server-dir: /domains/hanascake.syauqiebill.my.id/public_html/ # <-- Kunci ke folder web lu
           exclude: |
             **/.git*
             **/.git*/**
@@ -42,7 +42,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
+          protocol: ftps
           port: 21
           security: loose
           timeout: 120000
