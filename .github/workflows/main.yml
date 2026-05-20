@@ -27,6 +27,8 @@ jobs:
           timeout: 120000
           max-parallel: 1
           exclude: |
+            **/.git*
+            **/.git*/**
             **/public/**
             **/vendor/**
             **/node_modules/**
