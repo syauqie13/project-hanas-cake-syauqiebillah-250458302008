@@ -15,39 +15,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📂 Step 1:Kirim Logic (Controller, Views, Routes)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp      # <--- Balikin ke ftp biasa
-          port: 21
-          security: loose
-          timeout: 120000
-          # baris max-parallel sudah dibuang
-          server-dir: /domains/hanascake.syauqiebill.my.id/public_html/
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/public/**
-            **/vendor/**
-            **/node_modules/**
-            .env
-            bootstrap/cache/**
+      - name: 📦 Step 1.A: Bungkus Logic ke ZIP (Anti-Block)
+        run: zip -q -r deploy.zip . -x "**/.git**" "**/vendor/**" "**/node_modules/**" "public/**" ".env" "bootstrap/cache/**"
 
-      - name: 📂 Step 2:Update Tampilan Otomatis (CSS, JS, Images)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          security: loose
-          timeout: 120000
-          local-dir: public/
-          server-dir: public_html/
-          # KUNCI UTAMANYA DISINI:
-          exclude: |
-            assets/modules/**
+      - name: 🚀 Step 1.B: Kirim ZIP via cURL
+        run: curl -T deploy.zip ftp://${{ secrets.FTP_SERVER }}/domains/hanascake.syauqiebill.my.id/public_html/deploy.zip --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+
+      - name: 📦 Step 2.A: Bungkus Tampilan (Frontend) ke ZIP
+        run: |
+          cd public
+          zip -q -r ../public.zip . -x "assets/modules/**"
+          cd ..
+
+      - name: 🚀 Step 2.B: Kirim ZIP Tampilan via cURL
+        run: curl -T public.zip ftp://${{ secrets.FTP_SERVER }}/domains/hanascake.syauqiebill.my.id/public_html/public.zip --user "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
